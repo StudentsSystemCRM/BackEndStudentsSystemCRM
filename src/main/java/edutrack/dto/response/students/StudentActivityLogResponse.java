@@ -1,4 +1,6 @@
-package edutrack.dto.request;
+package edutrack.dto.response.students;
+
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,8 +12,8 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentCreateRequest {
-
+public class StudentActivityLogResponse {
+	Integer id;
 	String name;
 	String surname;
 	String phone;
@@ -20,5 +22,5 @@ public class StudentCreateRequest {
 	String course;
 	String source;
 	String leadStatus;
-
+	List<StudentActivityLog> activityLog;
 }

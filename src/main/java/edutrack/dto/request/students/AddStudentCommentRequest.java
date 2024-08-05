@@ -1,4 +1,4 @@
-package edutrack.dto.request;
+package edutrack.dto.request.students;
 
 import java.time.LocalDate;
 
@@ -13,9 +13,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddStudentCommentRequest {
-	
 	Integer studentId;
 	LocalDate date;
 	String message;
-
 }

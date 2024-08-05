@@ -2,35 +2,30 @@ package edutrack.service;
 
 import java.util.List;
 
-import edutrack.dto.request.AddStudentCommentRequest;
-import edutrack.dto.request.AddStudentPaymentRequest;
-import edutrack.dto.request.StudentCreateRequest;
-import edutrack.dto.request.StudentUpdateDataRequest;
-import edutrack.dto.response.StudentActivityLogResponce;
-import edutrack.dto.response.StudentDataResponce;
-import edutrack.dto.response.StudentPaymentInfoResponce;
+import edutrack.dto.request.students.AddStudentCommentRequest;
+import edutrack.dto.request.students.AddStudentPaymentRequest;
+import edutrack.dto.request.students.StudentCreateRequest;
+import edutrack.dto.request.students.StudentUpdateDataRequest;
+import edutrack.dto.response.students.StudentActivityLogResponse;
+import edutrack.dto.response.students.StudentDataResponse;
+import edutrack.dto.response.students.StudentPaymentInfoResponse;
 
 public interface IStudent {
 	
-	StudentDataResponce createStudent(StudentCreateRequest student);
+	StudentDataResponse createStudent(StudentCreateRequest student);
 	
-	List<StudentDataResponce> getAllStudents();
-	List<StudentDataResponce> getStudentsByName(String name);
-	List<StudentDataResponce> getStudentsBySurname(String surname);
-	List<StudentDataResponce> getStudentsByNameAndSurname(String name, String surname);
-	StudentDataResponce getStudentById(Integer id);
-	StudentActivityLogResponce getStudentActivityLog(Integer id);
-	StudentPaymentInfoResponce getStudentPaymentInfo(Integer id);
+	List<StudentDataResponse> getAllStudents();
+	List<StudentDataResponse> getStudentsByName(String name);
+	List<StudentDataResponse> getStudentsBySurname(String surname);
+	List<StudentDataResponse> getStudentsByNameAndSurname(String name, String surname);
+	StudentDataResponse getStudentById(Integer id);
+	StudentActivityLogResponse getStudentActivityLog(Integer id);
+	StudentPaymentInfoResponse getStudentPaymentInfo(Integer id);
 	
-	StudentDataResponce updateStudent(StudentUpdateDataRequest student);
-	StudentActivityLogResponce  addStudentComment(AddStudentCommentRequest studentComment);
-	StudentPaymentInfoResponce  addStudentPayment(AddStudentPaymentRequest studentpayment);
+	StudentDataResponse updateStudent(StudentUpdateDataRequest student);
+	StudentActivityLogResponse  addStudentComment(AddStudentCommentRequest studentComment);
+	StudentPaymentInfoResponse  addStudentPayment(AddStudentPaymentRequest studentPayment);
 	
-	StudentDataResponce deleteStudent(Integer id);
-	
-	
-	
-	
-	
+	StudentDataResponse deleteStudent(Integer id);
 	
 }
