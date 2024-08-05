@@ -1,4 +1,4 @@
-package edutrack.dto.request;
+package edutrack.dto.response.students;
 
 import java.time.LocalDate;
 
@@ -12,12 +12,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddStudentPaymentRequest {
-	
-	Integer studentId;
+public class StudentActivityLog {
 	LocalDate date;
-	String type;
-	Integer amount;
-	String details;
-
+	String message;
 }
