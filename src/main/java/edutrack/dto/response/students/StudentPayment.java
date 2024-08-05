@@ -1,4 +1,6 @@
-package edutrack.dto.response;
+package edutrack.dto.response.students;
+
+import java.time.LocalDate;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,15 +12,9 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentDataResponce {
-	
-	Integer id;
-	String name;
-	String surname;
-	String phone;
-	String email;
-	String city;
-	String course;
-	String source;
-	String leadStatus;
+public class StudentPayment {
+	LocalDate date;
+	String type;
+	Integer amount;
+	String details;
 }
