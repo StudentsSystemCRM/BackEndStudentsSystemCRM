@@ -11,6 +11,7 @@ public class ActivityLog {
     private Long id;
 
     private LocalDate date;
+
     private String information;
 
     @ManyToOne
