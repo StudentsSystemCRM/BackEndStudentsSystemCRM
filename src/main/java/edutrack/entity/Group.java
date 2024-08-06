@@ -27,5 +27,4 @@ public class Group {
 
     @OneToMany(mappedBy = "group")
     private List<Student> students;
-
 }
