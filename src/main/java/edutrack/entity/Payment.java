@@ -16,5 +16,4 @@ public class Payment {
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
-
 }
