@@ -16,4 +16,5 @@ public class ActivityLog {
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
+
 }

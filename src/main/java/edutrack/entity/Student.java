@@ -33,4 +33,5 @@ public class Student {
 
     @OneToMany(mappedBy = "student")
     private List<Payment> payments;
+
 }
