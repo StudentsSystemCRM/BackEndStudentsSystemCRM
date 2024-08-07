@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "payments")
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,5 +17,4 @@ public class Payment {
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
-
 }
