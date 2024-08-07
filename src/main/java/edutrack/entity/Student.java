@@ -26,7 +26,7 @@ public class Student {
     private String leadStatus;
 
     @ManyToOne
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "group_name")
     private Group group;
 
     @OneToMany(mappedBy = "student")
