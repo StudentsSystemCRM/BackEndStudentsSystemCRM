@@ -1,18 +1,18 @@
-package edutrack.entity;
+package edutrack.entity.students;
 
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "activity_logs")
-public class ActivityLog {
+@Table(name = "payments")
+public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private LocalDate date;
-    private String information;
+    private String details;
 
     @ManyToOne
     @JoinColumn(name = "student_id")
