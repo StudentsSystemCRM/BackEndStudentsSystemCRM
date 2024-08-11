@@ -1,4 +1,4 @@
-package edutrack.entity;
+package edutrack.entity.students;
 
 import jakarta.persistence.*;
 import lombok.Data;
