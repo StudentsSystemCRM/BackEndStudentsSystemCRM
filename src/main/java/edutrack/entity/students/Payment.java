@@ -1,9 +1,15 @@
 package edutrack.entity.students;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "payments")
 public class Payment {
@@ -12,6 +18,8 @@ public class Payment {
     private Long id;
 
     private LocalDate date;
+	private String type;
+	private Integer amount;
     private String details;
 
     @ManyToOne
