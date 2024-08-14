@@ -9,17 +9,18 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import edutrack.dto.response.GeneralErrorResponse;
+import edutrack.exception.ResourceExistsException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 	
-	@ExceptionHandler(MethodArgumentNotValidException.class)
+	@ExceptionHandler(ResourceExistsException.class)
 	@ResponseStatus(code = HttpStatus.BAD_REQUEST)
 	GeneralErrorResponse handlerMethodResourceExistsException(MethodArgumentNotValidException ex){
 		return  new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
 	
-	@ExceptionHandler(MethodArgumentNotValidException.class)
+	@ExceptionHandler(Exception.class)
 	@ResponseStatus(code = HttpStatus.BAD_REQUEST)
 	GeneralErrorResponse handleException(Exception ex){
 		
