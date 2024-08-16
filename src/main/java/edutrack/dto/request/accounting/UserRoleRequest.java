@@ -1,6 +1,6 @@
 package edutrack.dto.request.accounting;
 
-import edutrack.dto.response.accounting.Role;
+import edutrack.validation.ValidRole;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class UserRoleRequest {
 	
-	Role role;
+	@ValidRole
+	String role;
 
 }

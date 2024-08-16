@@ -23,5 +23,16 @@ public enum Role {
 		}
 		return res;
 	}
+	
+	 public static Role fromValue(String role) {
+	        if (role != null && !role.isBlank()) {
+	            for (Role r : values()) {
+	                if (r.value.equalsIgnoreCase(role)) {
+	                    return r;
+	                }
+	            }
+	        }
+	        throw new IllegalArgumentException("No enum constant for value: " + role);
+	    }
 
 }
