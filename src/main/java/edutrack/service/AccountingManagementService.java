@@ -120,7 +120,7 @@ public class AccountingManagementService implements IAccountingManagement{
     	
     	checkAccessChangeRoleUser(user);
     	
-    	user.getRoles().add(data.getRole());
+    	user.getRoles().add(Role.fromValue(data.getRole()));
     	userRepository.save(user);
         return EntityDtoMapper.INSTANCE.userToUserDataResponse(user);
     }
@@ -134,7 +134,7 @@ public class AccountingManagementService implements IAccountingManagement{
     	
     	checkAccessChangeRoleUser(user);
     	
-    	user.getRoles().remove(data.getRole());
+    	user.getRoles().remove(Role.fromValue(data.getRole()));
     	userRepository.save(user);
         return EntityDtoMapper.INSTANCE.userToUserDataResponse(user);
     }

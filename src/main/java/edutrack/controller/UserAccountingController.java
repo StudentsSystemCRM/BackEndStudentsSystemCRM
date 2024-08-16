@@ -8,6 +8,10 @@ import edutrack.dto.response.accounting.LoginSuccessResponse;
 import edutrack.dto.response.accounting.UserDataResponse;
 import edutrack.service.IAccountingManagement;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +25,9 @@ public class UserAccountingController {
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user", description = "Registers a new user using an invite code and user details.")
-    public LoginSuccessResponse registerUser(@RequestParam String invite, @RequestBody UserRegisterRequest userRequest) {
+    public LoginSuccessResponse registerUser(
+    		@RequestParam String invite,
+    		@RequestBody @Valid UserRegisterRequest userRequest) {
         return accountingService.registration(invite, userRequest);
     }
 
@@ -33,31 +39,35 @@ public class UserAccountingController {
 
     @PutMapping("/update")
     @Operation(summary = "Update user information", description = "Updates the user's profile information. Note: Password should be updated separately.")
-    public UserDataResponse updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
+    public UserDataResponse updateUser(@RequestBody @Valid UserUpdateRequest userUpdateRequest) {
         return accountingService.updateUser(userUpdateRequest);
     }
 
     @PutMapping("/update-password")
     @Operation(summary = "Update user password", description = "Updates the user's password. This operation is only allowed for the user themselves.")
-    public void updatePassword(Principal principal, @RequestBody PasswordUpdateRequest passwordUpdateRequest) {
+    public void updatePassword(Principal principal, @RequestBody @Valid PasswordUpdateRequest passwordUpdateRequest) {
         accountingService.updatePassword(principal, passwordUpdateRequest);
     }
 
     @PutMapping("/assign-role/{login}")
     @Operation(summary = "Assign role to user", description = "Assigns a role to the specified user. Note: Only admins can assign roles.")
-    public UserDataResponse assignRole(@PathVariable String login, @RequestBody UserRoleRequest userRoleRequest) {
+    public UserDataResponse assignRole(
+    		@PathVariable @NotNull @Email String login,
+    		@RequestBody @Valid UserRoleRequest userRoleRequest) {
         return accountingService.addRole(login, userRoleRequest);
     }
 
     @DeleteMapping("/remove-role/{login}")
     @Operation(summary = "Remove role from user", description = "Removes a role from the specified user. Note: Only admins can remove roles.")
-    public UserDataResponse removeRole(@PathVariable String login, @RequestBody UserRoleRequest userRoleRequest) {
+    public UserDataResponse removeRole(
+    		@PathVariable @NotNull @Email String login, 
+    		@RequestBody @Valid UserRoleRequest userRoleRequest) {
         return accountingService.removeRole(login, userRoleRequest);
     }
 
     @DeleteMapping("/{login}")
     @Operation(summary = "Remove user", description = "Deletes the specified user from the system. Note: Only admins can remove users.")
-    public UserDataResponse removeUser(@PathVariable String login) {
+    public UserDataResponse removeUser(@PathVariable @NotNull @Email String login) {
         return accountingService.removeUser(login);
     }
 }
