@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddStudentCommentRequest {
-	Integer studentId;
+	Long studentId;
 	LocalDate date;
 	String message;
 }

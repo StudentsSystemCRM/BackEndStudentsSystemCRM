@@ -20,8 +20,11 @@ import java.security.Principal;
 @RestController
 @RequestMapping("/api/users")
 public class UserAccountingController {
+    private final IAccountingManagement accountingService;
     @Autowired
-    private IAccountingManagement accountingService;
+    public UserAccountingController(IAccountingManagement accountingService) {
+        this.accountingService = accountingService;
+    }
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user", description = "Registers a new user using an invite code and user details.")

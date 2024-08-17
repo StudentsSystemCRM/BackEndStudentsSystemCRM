@@ -11,7 +11,6 @@ import edutrack.entity.accounting.User;
 
 @Mapper
 public interface EntityDtoMapper {
-
 	EntityDtoMapper INSTANCE = Mappers.getMapper(EntityDtoMapper.class);
 
 	@Mapping(target = "id", expression = "java(java.util.UUID.randomUUID().toString())")
@@ -24,5 +23,4 @@ public interface EntityDtoMapper {
 	LoginSuccessResponse userToLoginSuccessResponse(User user);
 	
 	UserDataResponse userToUserDataResponse(User user);
-
 }

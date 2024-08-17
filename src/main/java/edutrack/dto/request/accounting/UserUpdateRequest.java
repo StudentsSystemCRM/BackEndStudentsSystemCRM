@@ -32,7 +32,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class UserUpdateRequest {
-	
 	@NotNull(message = NULL_EMAIL)
 	@NotBlank(message = BLANK_EMAIL)
 	@Email(message = INVALID_EMAIL)
@@ -53,5 +52,4 @@ public class UserUpdateRequest {
 	@JsonDeserialize(using = MultiFormatLocalDateDeserializer.class)
 	@ValidRangeDate(yearsfromTodaytoFuture = 0, yearsfromTodaytoPast = 120)
 	LocalDate birthdate;
-	
 }

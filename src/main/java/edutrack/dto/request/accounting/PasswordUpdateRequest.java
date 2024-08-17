@@ -19,9 +19,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class PasswordUpdateRequest {
-	
 	@NotNull(message = NULL_PASSWORD)
 	@Pattern(regexp = ValidAccountConstant.PASSWORD_PATTERN, message = INVALID_PASSWORD_CONTAIN)
 	String password;
-
 }
