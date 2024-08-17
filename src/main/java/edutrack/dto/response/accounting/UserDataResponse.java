@@ -25,5 +25,4 @@ public class UserDataResponse {
 	LocalDate birthdate;
 	LocalDate createdDate;
 	Set<Role> roles;
-
 }
