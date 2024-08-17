@@ -1,5 +1,7 @@
 package edutrack.dto.request.accounting;
 
+import static edutrack.constant.ValidAccountConstant.NAME_PATTERN;
+import static edutrack.constant.ValidAccountConstant.PHONE_NUMBER_PATTERN;
 import static edutrack.constant.ValidationAccountingMessage.BLANK_EMAIL;
 import static edutrack.constant.ValidationAccountingMessage.INVALID_EMAIL;
 import static edutrack.constant.ValidationAccountingMessage.INVALID_NAME;
@@ -12,7 +14,6 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import edutrack.constant.ValidAccountConstant;
 import edutrack.validation.MultiFormatLocalDateDeserializer;
 import edutrack.validation.ValidRangeDate;
 import jakarta.validation.constraints.Email;
@@ -38,15 +39,15 @@ public class UserUpdateRequest {
 	String email; 
 	
 	@NotNull(message = NULL_NAME)
-	@Pattern(regexp = ValidAccountConstant.NAME_PATTERN, message = INVALID_NAME)
+	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
 	String name;
 	
 	@NotNull(message = NULL_NAME)
-	@Pattern(regexp = ValidAccountConstant.NAME_PATTERN, message = INVALID_NAME)
+	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
 	String surname;
 	
 	@NotNull(message = NULL_PHONE)
-	@Pattern(regexp = ValidAccountConstant.PHONE_NUMBER_PATTERN, message = INVALID_PHONE)
+	@Pattern(regexp = PHONE_NUMBER_PATTERN, message = INVALID_PHONE)
 	String phone;
 	
 	@JsonDeserialize(using = MultiFormatLocalDateDeserializer.class)

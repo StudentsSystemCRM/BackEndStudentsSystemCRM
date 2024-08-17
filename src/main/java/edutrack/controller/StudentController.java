@@ -33,7 +33,6 @@ public class StudentController{
     @PostMapping("/create_student")
     @Operation(summary = "Create new student", description = "Provide necessary data to create a new student.")
     public StudentDataResponse createStudent(@RequestBody @Valid StudentCreateRequest student) {
-        System.out.println("Received data: " + student);
         return service.createStudent(student);
     }
 

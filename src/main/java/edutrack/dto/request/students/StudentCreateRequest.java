@@ -11,27 +11,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import static edutrack.constant.ValidAccountConstant.NAME_PATTERN;
+import static edutrack.constant.ValidAccountConstant.PHONE_NUMBER_PATTERN;
+import static edutrack.constant.ValidationAccountingMessage.*;
+
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentCreateRequest {
-	@NotBlank(message = "Name cannot be blank")
-	@Pattern(regexp = ValidAccountConstant.NAME_PATTERN, message = ValidationAccountingMessage.INVALID_NAME)
 	String name;
-
-	@NotBlank(message = "Surname cannot be blank")
-	@Pattern(regexp = ValidAccountConstant.NAME_PATTERN, message = ValidationAccountingMessage.INVALID_NAME)
 	String surname;
-
-	@NotBlank(message = "Phone cannot be blank")
-	@Pattern(regexp = ValidAccountConstant.PHONE_NUMBER_PATTERN, message = ValidationAccountingMessage.INVALID_PHONE)
 	String phone;
-
-	@NotBlank(message = "Email cannot be blank")
-	@Email(message = ValidationAccountingMessage.INVALID_EMAIL)
 	String email;
-
 	String city;
 	String course;
 	String source;
