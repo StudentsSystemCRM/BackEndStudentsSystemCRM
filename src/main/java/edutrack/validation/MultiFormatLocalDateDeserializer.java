@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MultiFormatLocalDateDeserializer extends JsonDeserializer<LocalDate> {
-
     private static final List<DateTimeFormatter> DATE_FORMATTERS = Arrays.asList(
             DateTimeFormatter.ofPattern("yyyy-MM-dd"),
             DateTimeFormatter.ofPattern("dd/MM/yyyy"),
@@ -29,8 +28,7 @@ public class MultiFormatLocalDateDeserializer extends JsonDeserializer<LocalDate
         for (DateTimeFormatter formatter : DATE_FORMATTERS) {
             try {
                 return LocalDate.parse(date, formatter);
-            } catch (DateTimeParseException ignored) {
-            }
+            } catch (DateTimeParseException ignored) {}
         }
 
         throw new InvalidDateFormatException

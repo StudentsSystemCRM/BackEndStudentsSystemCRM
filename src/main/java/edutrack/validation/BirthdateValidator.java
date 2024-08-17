@@ -13,8 +13,8 @@ public class BirthdateValidator implements ConstraintValidator<ValidRangeDate, L
     @Override
     public void initialize(ValidRangeDate constraintAnnotation) {
         // ConstraintValidator.super.initialize(constraintAnnotation);
-        min = constraintAnnotation.yearsfromTodaytoFuture();
-        max = constraintAnnotation.yearsfromTodaytoPast();
+        min = constraintAnnotation.yearsFromTodayToFuture();
+        max = constraintAnnotation.yearsFromTodayToPast();
     }
 
     @Override

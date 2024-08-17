@@ -48,6 +48,6 @@ public class UserRegisterRequest {
 	String phone;
 	
 	@JsonDeserialize(using = MultiFormatLocalDateDeserializer.class)
-	@ValidRangeDate(yearsfromTodaytoFuture = 0, yearsfromTodaytoPast = 120)
+	@ValidRangeDate(yearsFromTodayToFuture = 0)
 	LocalDate birthdate;
 }
