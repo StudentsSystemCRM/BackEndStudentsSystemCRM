@@ -18,7 +18,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class LoginSuccessResponse {
-	
 	String token;
 	String name;
 	String surname;
@@ -26,6 +25,4 @@ public class LoginSuccessResponse {
 	LocalDate birthdate;
 	LocalDate createdDate;
 	Set<Role> roles;
-	
-
 }
