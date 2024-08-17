@@ -1,8 +1,13 @@
 package edutrack.dto.request.students;
 
-import jakarta.validation.constraints.*;
-
-import lombok.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import static edutrack.constant.ValidAccountConstant.NAME_PATTERN;
@@ -14,10 +19,23 @@ import static edutrack.constant.ValidationAccountingMessage.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentUpdateDataRequest {
+	@NotNull(message = "ID cannot be null.")
 	Long id;
+
+	@NotBlank(message = "Name cannot be blank.")
+	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
 	String name;
+
+	@NotBlank(message = "Surname cannot be blank.")
+	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
 	String surname;
+
+	@NotBlank(message = "Phone cannot be blank.")
+	@Pattern(regexp = PHONE_NUMBER_PATTERN, message = INVALID_PHONE)
 	String phone;
+
+	@NotBlank(message = "Email cannot be blank.")
+	@Email(message = INVALID_EMAIL)
 	String email;
 	String city;
 	String course;

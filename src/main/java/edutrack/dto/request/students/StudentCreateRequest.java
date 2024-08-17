@@ -1,7 +1,5 @@
 package edutrack.dto.request.students;
 
-import edutrack.constant.ValidAccountConstant;
-import edutrack.constant.ValidationAccountingMessage;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -20,10 +18,22 @@ import static edutrack.constant.ValidationAccountingMessage.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentCreateRequest {
+	@NotBlank(message = "Name cannot be blank.")
+	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
 	String name;
+
+	@NotBlank(message = "Surname cannot be blank.")
+	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
 	String surname;
+
+	@NotBlank(message = "Phone cannot be blank.")
+	@Pattern(regexp = PHONE_NUMBER_PATTERN, message = INVALID_PHONE)
 	String phone;
+
+	@NotBlank(message = "Email cannot be blank.")
+	@Email(message = INVALID_EMAIL)
 	String email;
+
 	String city;
 	String course;
 	String source;
