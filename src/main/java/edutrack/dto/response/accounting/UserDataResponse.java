@@ -18,7 +18,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class UserDataResponse {
-	
 	String email; //login
 	String name;
 	String surname;
