@@ -1,7 +1,6 @@
 package edutrack.constant;
 
 public interface ValidAccountConstant {
-	
 	// Password must contain:
 	// - At least one digit
 	// - At least one lowercase letter
@@ -10,8 +9,7 @@ public interface ValidAccountConstant {
 	// - No whitespace
 	// - Minimum 8 characters
 	String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
-	
-	
+
 	// Name can contain:
 	// - English, Russian, or Hebrew letters
 	// - Hyphens, spaces, and apostrophes
@@ -23,5 +21,4 @@ public interface ValidAccountConstant {
 	// - Digits, hyphens, spaces, and parentheses
 	// - Minimum 7 characters and maximum 20 characters
 	String PHONE_NUMBER_PATTERN ="^\\+?[0-9\\-\\s()]{7,20}$";
-
 }
