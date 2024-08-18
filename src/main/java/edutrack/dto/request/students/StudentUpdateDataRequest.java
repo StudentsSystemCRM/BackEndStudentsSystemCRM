@@ -22,21 +22,23 @@ public class StudentUpdateDataRequest {
 	@NotNull(message = "ID cannot be null.")
 	Long id;
 
-	@NotBlank(message = "Name cannot be blank.")
+	@NotNull(message = "Name cannot be null.")
 	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
 	String name;
 
-	@NotBlank(message = "Surname cannot be blank.")
+	@NotNull(message = "Surname cannot be null.")
 	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
 	String surname;
 
-	@NotBlank(message = "Phone cannot be blank.")
+	@NotNull(message = "Phone number cannot be null.")
 	@Pattern(regexp = PHONE_NUMBER_PATTERN, message = INVALID_PHONE)
 	String phone;
-
+	
 	@NotBlank(message = "Email cannot be blank.")
+	@NotNull(message = "Email cannot be null.")
 	@Email(message = INVALID_EMAIL)
 	String email;
+
 	String city;
 	String course;
 	String source;
