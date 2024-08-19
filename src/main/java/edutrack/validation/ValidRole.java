@@ -12,9 +12,7 @@ import jakarta.validation.Payload;
 @Target(ElementType.FIELD)
 @Constraint(validatedBy = RoleValidator.class)
 public @interface ValidRole {
-	
 	String message() default "Valid role is CEO or ADMIN or USER";
 	Class<?>[] groups() default {};
 	Class<? extends Payload>[] payload() default {};
-
 }

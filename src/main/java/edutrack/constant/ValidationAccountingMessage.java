@@ -1,7 +1,6 @@
 package edutrack.constant;
 
 public interface ValidationAccountingMessage {
-	
 	String INVALID_PASSWORD_CONTAIN = "Password  must contain:  "
 			+ " - At least one digit, "
 			+ " - At least one lowercase letter, "
@@ -25,6 +24,4 @@ public interface ValidationAccountingMessage {
 			+ "Optional leading + symbol, "
 			+ "Digits, hyphens, spaces, and parentheses, "
 			+ "Minimum 7 characters and maximum 20 characters";
-	
-
 }
