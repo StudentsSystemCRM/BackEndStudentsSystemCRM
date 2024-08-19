@@ -17,7 +17,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GeneralErrorResponse {
-
 	String logId;
 	String message;
 }

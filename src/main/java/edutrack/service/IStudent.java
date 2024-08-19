@@ -27,5 +27,4 @@ public interface IStudent {
 	StudentPaymentInfoResponse  addStudentPayment(AddStudentPaymentRequest studentPayment);
 	
 	StudentDataResponse deleteStudent(Integer id);
-	
 }

@@ -12,8 +12,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRoleRequest {
-	
 	@ValidRole
 	String role;
-
 }
