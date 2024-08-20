@@ -1,5 +1,6 @@
 package edutrack.dto.response.students;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import lombok.AccessLevel;
@@ -15,6 +16,6 @@ import lombok.experimental.FieldDefaults;
 public class StudentPayment {
 	LocalDate date;
 	String type;
-	Integer amount;
+	BigDecimal amount;
 	String details;
 }
