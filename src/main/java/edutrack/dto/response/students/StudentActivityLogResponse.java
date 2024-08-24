@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentActivityLogResponse {
-	Integer id;
+	Long id;
 	String name;
 	String surname;
 	String phone;

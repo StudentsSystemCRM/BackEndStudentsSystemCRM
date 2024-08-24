@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentPaymentInfoResponse {
-	Integer id;
+	Long id;
 	String name;
 	String surname;
 	String phone;
@@ -23,4 +23,5 @@ public class StudentPaymentInfoResponse {
 	String source;
 	String leadStatus;
 	List<StudentPayment> paymentInfo;
+
 }

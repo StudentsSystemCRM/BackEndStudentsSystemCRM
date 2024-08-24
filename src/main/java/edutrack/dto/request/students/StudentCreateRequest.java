@@ -27,12 +27,11 @@ public class StudentCreateRequest {
 	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
 	String surname;
 
-	@NotNull(message = "Prone number cannot be null.")
+	@NotNull(message = "Phone number cannot be null.")
 	@Pattern(regexp = PHONE_NUMBER_PATTERN, message = INVALID_PHONE)
 	String phone;
 
 	@NotBlank(message = "Email cannot be blank.")
-	@NotNull(message = "ID cannot be null.")
 	@Email(message = INVALID_EMAIL)
 	String email;
 
