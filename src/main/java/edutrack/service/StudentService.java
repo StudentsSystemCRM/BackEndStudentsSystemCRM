@@ -4,11 +4,7 @@ import edutrack.dto.request.students.AddStudentCommentRequest;
 import edutrack.dto.request.students.AddStudentPaymentRequest;
 import edutrack.dto.request.students.StudentCreateRequest;
 import edutrack.dto.request.students.StudentUpdateDataRequest;
-import edutrack.dto.response.students.StudentActivityLog;
-import edutrack.dto.response.students.StudentActivityLogResponse;
-import edutrack.dto.response.students.StudentDataResponse;
-import edutrack.dto.response.students.StudentPayment;
-import edutrack.dto.response.students.StudentPaymentInfoResponse;
+import edutrack.dto.response.students.*;
 import edutrack.entity.students.ActivityLog;
 import edutrack.entity.students.Group;
 import edutrack.entity.students.Payment;
@@ -41,7 +37,7 @@ public class StudentService implements IStudent {
     private final ActivityLogRepository activityRepo;
     private final PaymentRepository paymentRepo;
 
-    private static final Long default_id = (long) 0;
+    private static final Long default_id = 0L;
 
     private Student toStudent(StudentCreateRequest studentRequest) {
         ActivityLog log = new ActivityLog();
@@ -54,7 +50,7 @@ public class StudentService implements IStudent {
     }
 
     private StudentDataResponse toStudentDataResponse(Student student) {
-        return new StudentDataResponse(student.getId().intValue(), student.getFirstName(), student.getLastName(),
+        return new StudentDataResponse(student.getId(), student.getFirstName(), student.getLastName(),
                 student.getPhoneNumber(), student.getEmail(), student.getCity(), student.getCourse(),
                 student.getSource(), student.getLeadStatus());
     }
@@ -71,7 +67,7 @@ public class StudentService implements IStudent {
     }
 
     private StudentActivityLogResponse toStudentActivityLogResponse(Student student, List<StudentActivityLog> studentActivityLog) {
-        return new StudentActivityLogResponse(student.getId().intValue(), student.getFirstName(), student.getLastName(),
+        return new StudentActivityLogResponse(student.getId(), student.getFirstName(), student.getLastName(),
                 student.getPhoneNumber(), student.getEmail(), student.getCity(), student.getCourse(),
                 student.getSource(), student.getLeadStatus(), studentActivityLog);
     }
@@ -81,18 +77,18 @@ public class StudentService implements IStudent {
     }
 
     private StudentPaymentInfoResponse toStudentPaymentInfoResponse(Student student, List<StudentPayment> studentPayment) {
-        return new StudentPaymentInfoResponse(student.getId().intValue(), student.getFirstName(), student.getLastName(),
+        return new StudentPaymentInfoResponse(student.getId(), student.getFirstName(), student.getLastName(),
                 student.getPhoneNumber(), student.getEmail(), student.getCity(), student.getCourse(),
                 student.getSource(), student.getLeadStatus(), studentPayment);
     }
 
-    private Student findStudentById(Integer id) {
-        return studentRepo.findById(Long.valueOf(id)).orElseThrow(
+    private Student findStudentById(Long id) {
+        return studentRepo.findById(id).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student with id " + id + " not found"));
     }
 
     @Override
-    public StudentDataResponse getStudentById(Integer id) {
+    public StudentDataResponse getStudentById(Long id) {
         return toStudentDataResponse(findStudentById(id));
     }
 
@@ -144,7 +140,7 @@ public class StudentService implements IStudent {
 
     @Override
     @Transactional
-    public StudentActivityLogResponse getStudentActivityLog(Integer id) {
+    public StudentActivityLogResponse getStudentActivityLog(Long id) {
         Student student = findStudentById(id);
         List<ActivityLog> activityLogs = student.getActivityLogs();
         List<StudentActivityLog> studentActivityLog = activityLogs.stream()
@@ -155,7 +151,7 @@ public class StudentService implements IStudent {
 
     @Override
     @Transactional
-    public StudentPaymentInfoResponse getStudentPaymentInfo(Integer id) {
+    public StudentPaymentInfoResponse getStudentPaymentInfo(Long id) {
         Student student = findStudentById(id);
         List<Payment> payments = student.getPayments();
         if (payments == null || payments.isEmpty())
@@ -192,24 +188,32 @@ public class StudentService implements IStudent {
     @Override
     @Transactional
     public StudentActivityLogResponse addStudentComment(AddStudentCommentRequest studentComment) {
-        Student student = findStudentById(studentComment.getStudentId().intValue());
+        Student student = findStudentById(studentComment.getStudentId());
         ActivityLog activityLog = new ActivityLog(default_id, studentComment.getDate(), studentComment.getMessage(), student);
         activityRepo.save(activityLog);
-        return getStudentActivityLog(studentComment.getStudentId().intValue());
+        return getStudentActivityLog(studentComment.getStudentId());
     }
 
     @Override
     @Transactional
-    public StudentPaymentInfoResponse addStudentPayment(AddStudentPaymentRequest studentPayment) {
-        Student student = findStudentById(studentPayment.getStudentId().intValue());
-        Payment payment = new Payment(default_id, studentPayment.getDate(), studentPayment.getType(), studentPayment.getAmount(), studentPayment.getDetails(), student);
-        paymentRepo.save(payment);
-        return getStudentPaymentInfo(studentPayment.getStudentId().intValue());
+    public PaymentConfirmationResponse addStudentPayment(AddStudentPaymentRequest studentPayment) {
+        Student student = findStudentById(studentPayment.getStudentId());
+        Payment savedPayment = new Payment(default_id, studentPayment.getDate(), studentPayment.getType(), studentPayment.getAmount(), studentPayment.getDetails(), student);
+        paymentRepo.save(savedPayment);
+        PaymentConfirmationResponse response = new PaymentConfirmationResponse(
+                savedPayment.getId(),             // ID платежа
+                savedPayment.getDate(),
+                savedPayment.getType(),
+                savedPayment.getAmount(),
+                savedPayment.getDetails()
+        );
+
+        return response;
     }
 
     @Override
     @Transactional
-    public StudentDataResponse deleteStudent(Integer id) {
+    public StudentDataResponse deleteStudent(Long id) {
         Student student = findStudentById(id);
         if (student == null) {
             throw new StudentNotFoundException("Student with id " + id + " not found.");
@@ -217,19 +221,19 @@ public class StudentService implements IStudent {
 
         List<ActivityLog> activityLogs = student.getActivityLogs();
         if (activityLogs != null && !activityLogs.isEmpty()) {
-            for (ActivityLog activityLog : activityLogs) {
-                activityRepo.deleteById(activityLog.getId());
+            for (ActivityLog log : activityLogs) {
+                activityRepo.delete(log);
             }
         }
 
         List<Payment> payments = student.getPayments();
         if (payments != null && !payments.isEmpty()) {
             for (Payment payment : payments) {
-                paymentRepo.deleteById(payment.getId());
+                paymentRepo.delete(payment);
             }
         }
 
-        studentRepo.deleteById(Long.valueOf(id));
+        studentRepo.delete(student);
         return toStudentDataResponse(student);
     }
 }
