@@ -191,10 +191,10 @@ public class StudentControllerTest {
 
     @Test
     public void testAddStudentComment() throws Exception {
-        mockMvc.perform(post("/api/students/comment")
-                        .contentType("application/json")
-                        .content("{\"studentId\":1,\"comment\":\"Good student\"}"))
-                .andExpect(status().isOk());
+    	mockMvc.perform(post("/api/students/comment")
+                .contentType("application/json")
+                .content("{\"studentId\":1,\"message\":\"Good student\"}"))
+        		.andExpect(status().isOk());
     }
 
     @Test

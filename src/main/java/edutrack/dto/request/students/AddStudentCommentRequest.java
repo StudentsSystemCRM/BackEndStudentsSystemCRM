@@ -2,6 +2,7 @@ package edutrack.dto.request.students;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,5 +19,8 @@ public class AddStudentCommentRequest {
 	Long studentId;
 
 	LocalDate date;
+	
+	@NotNull(message = "message cannot be null")
+	@NotBlank(message = "message cannot be blank")
 	String message;
 }
