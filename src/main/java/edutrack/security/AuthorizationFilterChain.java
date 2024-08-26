@@ -14,11 +14,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @RequiredArgsConstructor
 public class AuthorizationFilterChain {
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenValidator jwtTokenValidator;
+    private final  JwtTokenCreator jwtTokenCreator;
 
     @Bean
     SecurityFilterChain configure(HttpSecurity http) throws Exception {
-        return http.addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+        return http.cors(Customizer.withDefaults()) // CORS integration
                 .httpBasic(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -33,6 +34,7 @@ public class AuthorizationFilterChain {
                         .requestMatchers(HttpMethod.DELETE, "/api/students/*").hasAnyRole("ADMIN", "CEO")
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(new JwtRequestFilter(jwtTokenValidator), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 }
