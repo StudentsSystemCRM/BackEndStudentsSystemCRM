@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -29,9 +31,9 @@ public class Student {
     @JoinColumn(name = "group_name")
     private Group group;
 
-    @OneToMany(mappedBy = "student")
-    private List<ActivityLog> activityLogs;
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ActivityLog> activityLogs = new ArrayList<>();
 
-    @OneToMany(mappedBy = "student")
-    private List<Payment> payments;
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Payment> payments = new ArrayList<>();
 }

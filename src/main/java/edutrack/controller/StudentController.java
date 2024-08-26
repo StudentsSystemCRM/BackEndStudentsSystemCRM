@@ -4,6 +4,7 @@ import edutrack.dto.request.students.AddStudentCommentRequest;
 import edutrack.dto.request.students.AddStudentPaymentRequest;
 import edutrack.dto.request.students.StudentCreateRequest;
 import edutrack.dto.request.students.StudentUpdateDataRequest;
+import edutrack.dto.response.students.PaymentConfirmationResponse;
 import edutrack.dto.response.students.StudentActivityLogResponse;
 import edutrack.dto.response.students.StudentDataResponse;
 import edutrack.dto.response.students.StudentPaymentInfoResponse;
@@ -56,19 +57,19 @@ public class StudentController{
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a student by ID", description = "Provide an ID to lookup a specific student.")
-    public StudentDataResponse getStudentById(@PathVariable Integer id) {
+    public StudentDataResponse getStudentById(@PathVariable Long id) {
         return service.getStudentById(id);
     }
 
     @GetMapping("/{id}/activity")
     @Operation(summary = "Get a student's activities by ID", description = "Provide an ID to lookup a specific student's activities.")
-    public StudentActivityLogResponse getStudentActivityLog(@PathVariable Integer id) {
+    public StudentActivityLogResponse getStudentActivityLog(@PathVariable Long id) {
         return service.getStudentActivityLog(id);
     }
 
     @GetMapping("/{id}/payments")
     @Operation(summary = "Get a student's payments by ID", description = "Provide an ID to lookup a specific student's payments.")
-    public StudentPaymentInfoResponse getStudentPaymentInfo(@PathVariable Integer id) {
+    public StudentPaymentInfoResponse getStudentPaymentInfo(@PathVariable Long id) {
         return service.getStudentPaymentInfo(id);
     }
 
@@ -84,15 +85,23 @@ public class StudentController{
         return service.addStudentComment(studentComment);
     }
 
+//    @PostMapping("/payment")
+//    @Operation(summary = "Add information about the student's payment history.", description = "Provide the necessary data to create a new payment to a specific student.")
+//    public StudentPaymentInfoResponse addStudentPayment(@RequestBody @Valid  AddStudentPaymentRequest studentPayment) {
+//        return service.addStudentPayment(studentPayment);
+//    }
+
     @PostMapping("/payment")
-    @Operation(summary = "Add information about the student's payment history.", description = "Provide the necessary data to create a new payment to a specific student.")
-    public StudentPaymentInfoResponse addStudentPayment(@RequestBody @Valid  AddStudentPaymentRequest studentPayment) {
+
+    @Operation(summary = "Add information about the student's payment history.", description = "Provide the necessary data to create a new payment for a specific student.")
+    public PaymentConfirmationResponse addStudentPayment(@RequestBody @Valid AddStudentPaymentRequest studentPayment) {
+
         return service.addStudentPayment(studentPayment);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a student by ID", description = "Provide an ID to delete a specific student.")
-    public StudentDataResponse deleteStudent(@PathVariable Integer id) {
+    public StudentDataResponse deleteStudent(@PathVariable Long id) {
         return service.deleteStudent(id);
     }
 }
