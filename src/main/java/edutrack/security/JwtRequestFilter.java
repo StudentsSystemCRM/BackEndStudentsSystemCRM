@@ -1,6 +1,9 @@
 package edutrack.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,8 +30,21 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
-            Claims claims = jwtTokenValidator.parseClaims(jwt);
-            email = claims.getSubject();
+            try {
+                Claims claims = jwtTokenValidator.parseClaims(jwt);
+                email = claims.getSubject();
+            } catch (ExpiredJwtException e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT token has expired");
+                return;
+            } catch (UnsupportedJwtException e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT token is not supported");
+            } catch (MalformedJwtException e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT token is malformed");
+                return;
+            } catch (IllegalArgumentException e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT token is missing or invalid");
+                return;
+            }
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {

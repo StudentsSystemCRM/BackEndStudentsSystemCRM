@@ -3,6 +3,7 @@ package edutrack.exception.handler;
 import java.util.List;
 import java.util.UUID;
 
+import edutrack.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSourceResolvable;
@@ -16,11 +17,6 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 
 import edutrack.dto.response.GeneralErrorResponse;
 import edutrack.dto.response.GeneralErrorResponseValidation;
-import edutrack.exception.AccessException;
-import edutrack.exception.EmailAlreadyInUseException;
-import edutrack.exception.InvalidDateFormatException;
-import edutrack.exception.ResourceExistsException;
-import edutrack.exception.StudentNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -87,5 +83,26 @@ public class GlobalExceptionHandler {
 	public GeneralErrorResponse handleException(Exception ex) {
 		logger.error("An unexpected error occurred.", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), "An unexpected error: " + ex.getMessage());
+	}
+
+	@ExceptionHandler(JwtTokenMalformedException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public GeneralErrorResponse handleJwtTokenMalformedException(JwtTokenMalformedException ex) {
+		logger.error("JWT token is malformed.", ex);
+		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
+	}
+
+	@ExceptionHandler(JwtTokenExpiredException.class)
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	public GeneralErrorResponse handleJwtTokenExpiredException(JwtTokenExpiredException ex) {
+		logger.error("JWT token has expired.", ex);
+		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
+	}
+
+	@ExceptionHandler(JwtTokenMissingException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public GeneralErrorResponse handleJwtTokenMissingException(JwtTokenMissingException ex) {
+		logger.error("JWT token is missing.", ex);
+		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
 }
