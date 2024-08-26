@@ -3,6 +3,7 @@ package edutrack.service;
 import java.security.Principal;
 import java.util.*;
 
+import edutrack.security.JwtTokenProvider;
 import lombok.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -54,6 +55,7 @@ public class AccountingManagementService implements IAccountingManagement {
 
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
+    JwtTokenProvider jwtTokenProvider;
 
     @Override
     @Transactional
@@ -68,14 +70,22 @@ public class AccountingManagementService implements IAccountingManagement {
         user.setHashedPassword(passwordEncoder.encode(data.getPassword()));
         user.setRoles(new HashSet<>(List.of(Role.USER)));
         userRepository.save(user);
+        // token
+        String token = jwtTokenProvider.createToken(user.getEmail(), user.getRoles());
+        LoginSuccessResponse response = EntityDtoMapper.INSTANCE.userToLoginSuccessResponse(user);
+        response.setToken(token);
 
-        return EntityDtoMapper.INSTANCE.userToLoginSuccessResponse(user);
+        return response;
     }
 
     @Override
     public LoginSuccessResponse login(Principal user) {
         User userService = userRepository.findByEmail(user.getName());
-        return EntityDtoMapper.INSTANCE.userToLoginSuccessResponse(userService);
+        //token
+        String token = jwtTokenProvider.createToken(userService.getEmail(), userService.getRoles());
+        LoginSuccessResponse response = EntityDtoMapper.INSTANCE.userToLoginSuccessResponse(userService);
+        response.setToken(token);
+        return response;
     }
 
     @Override
