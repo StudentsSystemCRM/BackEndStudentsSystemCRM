@@ -61,7 +61,9 @@ public class AccountingManagementService implements IAccountingManagement {
 
         //TODO  invite check invite
 
+        
         User user = userRepository.findByEmail(data.getEmail());
+
         if (user != null)
             throw new ResourceExistsException("user with email " + data.getEmail() + "already exists");
         user = EntityDtoMapper.INSTANCE.userRegisterRequestToUser(data);
@@ -130,7 +132,7 @@ public class AccountingManagementService implements IAccountingManagement {
         if (user == null)
             throw new NoSuchElementException("Account with login '%s' not found".formatted(login));
 
-        checkAccessChangeRoleUser(user);
+        checkAccessChangeRoleUser(user, data.getRole());
 
         user.getRoles().add(Role.fromValue(data.getRole()));
         userRepository.save(user);
@@ -145,7 +147,7 @@ public class AccountingManagementService implements IAccountingManagement {
         if (user == null)
             throw new NoSuchElementException("Account with login '%s' not found".formatted(login));
 
-        checkAccessChangeRoleUser(user);
+        checkAccessChangeRoleUser(user, data.getRole());
 
         user.getRoles().remove(Role.fromValue(data.getRole()));
         userRepository.save(user);
@@ -174,7 +176,7 @@ public class AccountingManagementService implements IAccountingManagement {
         }
     }
 
-    private void checkAccessChangeRoleUser(User user) {
+    private void checkAccessChangeRoleUser(User user, String role) {
         UserAuthInfo authInfo = getCurrentUserAuthInfo();
         String username = authInfo.getUsername();
         boolean isAdmin = authInfo.isAdmin;
@@ -188,5 +190,7 @@ public class AccountingManagementService implements IAccountingManagement {
             throw new AccessException("You don't have rules to update this user's profile.");
         if (user.getRoles().contains(Role.ADMIN) && !isCeo)
             throw new AccessException("You don't have rules to update this user's profile.");
+        if (role.equalsIgnoreCase("ceo") && !isCeo)
+        	throw new AccessException("add or remove role 'CEO' can only user with CEO role");
     }
 }
