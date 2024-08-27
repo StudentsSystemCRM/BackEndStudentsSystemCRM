@@ -9,6 +9,8 @@ import edutrack.dto.response.students.StudentDataResponse;
 import edutrack.dto.response.students.StudentPayment;
 import edutrack.dto.response.students.StudentPaymentInfoResponse;
 import edutrack.repository.*;
+import edutrack.security.JwtTokenCreator;
+import edutrack.security.JwtTokenValidator;
 import edutrack.security.SecurityConfig;
 import edutrack.service.StudentService;
 import org.junit.jupiter.api.Test;
@@ -34,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(StudentController.class)
-@Import(SecurityConfig.class)
+@Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 
 public class StudentControllerTest {

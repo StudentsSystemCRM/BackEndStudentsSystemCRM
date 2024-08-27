@@ -6,6 +6,7 @@ import edutrack.entity.accounting.User;
 import edutrack.exception.AccessException;
 import edutrack.exception.ResourceExistsException;
 import edutrack.repository.UserRepository;
+import edutrack.security.JwtTokenCreator;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -46,6 +47,9 @@ public class AccountingManagementServiceTest {
 
 	@Mock
 	SecurityContext securityContext;
+
+	@Mock
+	JwtTokenCreator jwtTokenCreator;
 
 	String userEmail = "test@mail.com";
 	String adminEmail = "admin@mail.com";
