@@ -6,6 +6,7 @@ import edutrack.entity.accounting.User;
 import edutrack.exception.AccessException;
 import edutrack.exception.ResourceExistsException;
 import edutrack.repository.UserRepository;
+import edutrack.security.JwtTokenCreator;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -47,6 +48,9 @@ public class AccountingManagementServiceTest {
 	@Mock
 	SecurityContext securityContext;
 
+	@Mock
+	JwtTokenCreator jwtTokenCreator;
+
 	String userEmail = "test@mail.com";
 	String adminEmail = "admin@mail.com";
 	UserRegisterRequest userRegisterRequest = new UserRegisterRequest(userEmail, "Password123!", "John", "Doe",
@@ -72,10 +76,29 @@ public class AccountingManagementServiceTest {
 	}
 
 	@Test
+	public void testRegistration_failure() {
+		// Set up test mock to exception
+		when(jwtTokenCreator.createToken(anyString(), anySet())).thenThrow(new RuntimeException("Mocked Exception"));
+
+		// Check for sure exception
+		assertThrows(RuntimeException.class, () -> {
+			accountingManagementService.registration("invite", userRegisterRequest);
+		});
+
+		try {
+			accountingManagementService.registration("invite", userRegisterRequest);
+		} catch (RuntimeException e) {
+			assertEquals("Mocked Exception", e.getMessage());
+		}
+	}
+
+	@Test
 	public void testRegistration_success() {
 		Set<Role> role = new HashSet<>(List.of(Role.USER));
 		LoginSuccessResponse expect = new LoginSuccessResponse(null, "John", "Doe", "1234567890", null, LocalDate.now(),
 				role);
+
+		when(jwtTokenCreator.createToken(anyString(), anySet())).thenReturn("mockedToken");
 
 		LoginSuccessResponse result = accountingManagementService.registration("invite", userRegisterRequest);
 
