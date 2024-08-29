@@ -9,6 +9,7 @@ import edutrack.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -47,6 +48,8 @@ public class AccountingManagementServiceTest {
 	@Mock
 	SecurityContext securityContext;
 
+	
+
 	String userEmail = "test@mail.com";
 	String adminEmail = "admin@mail.com";
 	UserRegisterRequest userRegisterRequest = new UserRegisterRequest(userEmail, "Password123!", "John", "Doe",
@@ -54,6 +57,11 @@ public class AccountingManagementServiceTest {
 	UserUpdateRequest userUpdateRequest = new UserUpdateRequest(userEmail, "John", "Doe", "1234567890", null);
 	User user = new User(null, userEmail, "Password123", "John", "Doe", "1234567890", null, null, new HashSet<Role>());
     UserRoleRequest roleRequest = new UserRoleRequest("ADMIN");
+	
+	@BeforeEach
+	void setUp() {
+		user = new User(null, userEmail, "Password123", "John", "Doe", "1234567890", null, null, new HashSet<Role>());
+		}
 	
 	private void mockCurrentUserAuthInfo(String username, boolean isAdmin, boolean isCeo) {
 		when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -239,5 +247,35 @@ public class AccountingManagementServiceTest {
 	    mockCurrentUserAuthInfo(adminEmail, true, false);
 
 	    assertThrows(AccessException.class, () -> accountingManagementService.removeRole(userEmail, roleRequest));
+	}
+	
+	
+	@Test
+	public void testRemoveUser_throwsAccessException() {
+		when(userRepository.findByEmail(userEmail)).thenReturn(user);
+		mockCurrentUserAuthInfo("justUser@mail.com", false, false);
+		assertThrows(AccessException.class, () -> accountingManagementService.removeUser(userEmail));
+	}
+	
+	@Test
+	public void testRemoveAdmin_throwsAccessException() {
+		when(userRepository.findByEmail(userEmail)).thenReturn(user);
+		user.getRoles().add(Role.ADMIN);
+		mockCurrentUserAuthInfo("justUser@mail.com", true, false);
+		assertThrows(AccessException.class, () -> accountingManagementService.removeUser(userEmail));
+	}
+	@Test
+	public void testRemoveCeo_throwsAccessException() {
+		when(userRepository.findByEmail(userEmail)).thenReturn(user);
+		user.getRoles().add(Role.CEO);
+		mockCurrentUserAuthInfo("justUser@mail.com", true, false);
+		assertThrows(AccessException.class, () -> accountingManagementService.removeUser(userEmail));
+	}
+	
+	public void testRemoveUser_success() {
+		when(userRepository.findByEmail(userEmail)).thenReturn(user);
+		mockCurrentUserAuthInfo(adminEmail, true, false);
+		UserDataResponse userResponse = accountingManagementService.removeUser(userEmail);	
+		assertEquals(user.getName(), userResponse.getName());
 	}
 }
