@@ -1,5 +1,6 @@
 package edutrack.dto.response.students;
 
+import edutrack.constant.LeadStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,5 +20,5 @@ public class StudentDataResponse {
 	String city;
 	String course;
 	String source;
-	String leadStatus;
+	LeadStatus leadStatus;
 }

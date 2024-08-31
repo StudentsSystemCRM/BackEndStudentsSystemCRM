@@ -1,5 +1,7 @@
 package edutrack.service;
 
+import edutrack.dto.request.students.GroupCreateRequest;
+import edutrack.dto.request.students.GroupUpdateDataRequest;
 import edutrack.dto.request.students.AddStudentCommentRequest;
 import edutrack.dto.request.students.AddStudentPaymentRequest;
 import edutrack.dto.request.students.StudentCreateRequest;
@@ -10,16 +12,25 @@ import edutrack.entity.students.Payment;
 import edutrack.entity.students.Student;
 import edutrack.exception.EmailAlreadyInUseException;
 import edutrack.exception.StudentNotFoundException;
+import edutrack.dto.response.students.GroupDataResponse;
+import edutrack.dto.response.students.StudentActivityLog;
+import edutrack.dto.response.students.StudentActivityLogResponse;
+import edutrack.dto.response.students.StudentDataResponse;
+import edutrack.dto.response.students.StudentPayment;
+import edutrack.dto.response.students.StudentPaymentInfoResponse;
+import edutrack.entity.students.Group;
 import edutrack.repository.ActivityLogRepository;
+import edutrack.repository.GroupRepository;
 import edutrack.repository.PaymentRepository;
 import edutrack.repository.StudentRepository;
 import edutrack.util.EntityDtoMapper;
 import jakarta.transaction.Transactional;
-
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -33,12 +44,23 @@ public class StudentService implements IStudent {
     StudentRepository studentRepo;
     ActivityLogRepository activityRepo;
     PaymentRepository paymentRepo;
+    GroupRepository groupRepo;
+    
 
     private ActivityLog createActivityLogByStudent(Student studentEntity, String comment) {
         ActivityLog log = new ActivityLog(null, LocalDate.now(), comment, studentEntity);
         return activityRepo.save(log);
     }
-    
+	
+	private GroupDataResponse toGroupDataResponse(Group group) {
+        Boolean deactivateAfter30Days = false;
+        if (group.getDeactivateAfter30Days()!=LocalDate.MAX) deactivateAfter30Days = true;
+		return new GroupDataResponse(group.getName(), group.getWhatsApp(), group.getSkype(), group.getSlack(),group.getStatus(),
+        		group.getStartDate(), group.getExpFinishDate(), group.getLessonsDays(), group.getWebinarsDays(), deactivateAfter30Days, 
+        		group.getStudents(),group.getGroupReminders());
+	}
+	
+
     private StudentActivityLogResponse toStudentActivityLogResponse(Student student, List<StudentActivityLog> studentActivityLog) {
         return new StudentActivityLogResponse(student.getId(), student.getFirstName(), student.getLastName(),
                 student.getPhoneNumber(), student.getEmail(), student.getCity(), student.getCourse(),
@@ -119,9 +141,6 @@ public class StudentService implements IStudent {
         List<StudentActivityLog> studentActivityLog = activityLogs.stream()
         	    .map(log -> new StudentActivityLog(log.getDate(), log.getInformation()))
         	    .collect(Collectors.toList());
- //       /////////////
-        System.out.println(studentActivityLog);
-        
         return toStudentActivityLogResponse(student, studentActivityLog);
     }
 
@@ -160,7 +179,6 @@ public class StudentService implements IStudent {
         	studentEntity.setSource(student.getSource());
         if(student.getLeadStatus() != null)
         	studentEntity.setLeadStatus(student.getLeadStatus());
-
         studentEntity = studentRepo.save(studentEntity);
         return EntityDtoMapper.INSTANCE.studentToStudentDataResponse(studentEntity);
     }
@@ -179,16 +197,16 @@ public class StudentService implements IStudent {
     @Transactional
     public PaymentConfirmationResponse addStudentPayment(AddStudentPaymentRequest studentPayment) {
         Student student = findStudentById(studentPayment.getStudentId());
-        Payment savedPayment = new Payment(null, studentPayment.getDate(), studentPayment.getType(), studentPayment.getAmount(), studentPayment.getDetails(), student);
+        Payment savedPayment = new Payment(null, studentPayment.getDate(), studentPayment.getType(), studentPayment.getAmount(), studentPayment.getInstallments(), studentPayment.getDetails(), student);
         savedPayment = paymentRepo.save(savedPayment);
         PaymentConfirmationResponse response = new PaymentConfirmationResponse(
                 savedPayment.getId(),             // ID платежа
                 savedPayment.getDate(),
                 savedPayment.getType(),
                 savedPayment.getAmount(),
+                savedPayment.getInstallments(),
                 savedPayment.getDetails()
         );
-
         return response;
     }
 
@@ -201,4 +219,36 @@ public class StudentService implements IStudent {
         studentRepo.deleteById(id);
         return EntityDtoMapper.INSTANCE.studentToStudentDataResponse(student);
     }
+
+	@Override
+	@Transactional
+	public GroupDataResponse createGroup(GroupCreateRequest groupRequest) {
+        Group groupResponse = groupRepo.findByName(groupRequest.getName());
+        if (groupResponse != null)
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Group with name " + groupRequest.getName() + " is already exists");
+        Group groupEntity = EntityDtoMapper.INSTANCE.groupCreateRequestToGroup(groupRequest);
+        groupRepo.save(groupEntity);
+        return toGroupDataResponse(groupEntity);
+	}
+
+
+	@Override
+	@Transactional
+	public GroupDataResponse updateGroup(GroupUpdateDataRequest groupRequest) {
+        LocalDate deactivateAfter30Days = LocalDate.MAX;
+        Group groupResponse = groupRepo.findByName(groupRequest.getName());
+        if (groupResponse != null)
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Group with name " + groupRequest.getName() + " is already exists");
+		if (groupRequest.getDeactivateAfter30Days() && groupRequest.getExpFinishDate()==null)
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "EFD must not be null to deactivate group after 30 days");
+        Group groupEntity = EntityDtoMapper.INSTANCE.groupUpdateRequestToGroup(groupRequest);
+        if (groupRequest.getDeactivateAfter30Days()) {
+        	deactivateAfter30Days = groupRequest.getExpFinishDate().plusDays(30);
+        }
+        groupEntity.setDeactivateAfter30Days(deactivateAfter30Days);
+        groupRepo.save(groupEntity);
+        return toGroupDataResponse(groupEntity);
+	}
+
 }
+

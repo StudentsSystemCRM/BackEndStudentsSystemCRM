@@ -1,11 +1,12 @@
 package edutrack.util;
 
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import edutrack.dto.request.accounting.UserRegisterRequest;
+import edutrack.dto.request.students.GroupCreateRequest;
+import edutrack.dto.request.students.GroupUpdateDataRequest;
 import edutrack.dto.request.students.StudentCreateRequest;
 import edutrack.dto.response.accounting.LoginSuccessResponse;
 import edutrack.dto.response.accounting.UserDataResponse;
@@ -13,6 +14,7 @@ import edutrack.dto.response.students.StudentActivityLog;
 import edutrack.dto.response.students.StudentDataResponse;
 import edutrack.entity.accounting.User;
 import edutrack.entity.students.ActivityLog;
+import edutrack.entity.students.Group;
 import edutrack.entity.students.Student;
 
 @Mapper
@@ -40,7 +42,11 @@ public interface EntityDtoMapper {
     @Mapping(target = "activityLogs", ignore = true)
     @Mapping(target = "payments", ignore = true)
     @Mapping(target = "group", ignore = true)
-    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "studentReminders", ignore = true)
+    @Mapping(target = "totalSumToPay", ignore = true)
+    @Mapping(target = "originalGroup", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
 	Student studentCreateRequestToStudent(StudentCreateRequest studentCreate);
 
     @Mapping(source = "firstName", target = "name")
@@ -50,4 +56,18 @@ public interface EntityDtoMapper {
 
     @Mapping(source = "information", target = "message")
 	StudentActivityLog activityLogEntitytoStudentActivityLog(ActivityLog activityLog);
+    
+    @Mapping(target = "groupReminders", ignore = true)
+    @Mapping(target = "deactivateAfter30Days", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    Group groupCreateRequestToGroup(GroupCreateRequest groupCreate);
+    
+    @Mapping(target = "groupReminders", ignore = true)
+    @Mapping(target = "deactivateAfter30Days", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    Group groupUpdateRequestToGroup(GroupUpdateDataRequest groupUpdate);
 }
