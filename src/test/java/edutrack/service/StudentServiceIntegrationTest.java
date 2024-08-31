@@ -9,6 +9,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import edutrack.constant.GroupStatus;
+import edutrack.constant.LeadStatus;
+import edutrack.entity.students.Group;
+import edutrack.repository.GroupRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,11 +49,13 @@ public class StudentServiceIntegrationTest {
 
     @Autowired
     private PaymentRepository paymentRepo;
+    @Autowired
+    private GroupRepository groupRepo;
 
     @Test
     public void testCreateStudent() {
         StudentCreateRequest request = new StudentCreateRequest("John", "Doe", "1234567890", "kate@test.com",
-                "New York", "Math", "Online", "Lead", "Initial comment");
+                "New York", "Math", "Online", LeadStatus.STUDENT, "Initial comment");
 
         StudentDataResponse response = studentService.createStudent(request);
 
@@ -69,7 +75,7 @@ public class StudentServiceIntegrationTest {
     @Test
     public void testGetStudentById() {
         StudentCreateRequest request = new StudentCreateRequest("Jane", "Smith", "0987654321", "kate2@example.com",
-                "Los Angeles", "Science", "Referral", "Prospect", null);
+                "Los Angeles", "Science", "Referral", LeadStatus.ARCHIVE, null);
 
         StudentDataResponse createdStudent = studentService.createStudent(request);
 
@@ -81,13 +87,23 @@ public class StudentServiceIntegrationTest {
 
     @Test
     public void testUpdateStudent() {
+        Group groupStudent = new Group();
+        groupStudent.setName("Example Group");
+        groupStudent.setWhatsApp("example-whatsapp");
+        groupStudent.setSkype("example-skype");
+        groupStudent.setSlack("example-slack");
+        groupStudent.setStatus(GroupStatus.ACTIVE);
+        groupStudent.setStartDate(LocalDate.of(2024, 1, 1));
+        groupStudent.setExpFinishDate(LocalDate.of(2024, 12, 31));
+        groupRepo.save(groupStudent);
         StudentCreateRequest createRequest = new StudentCreateRequest("Tom", "Hardy", "5678901234", "tom.hardy@example.com",
-                "Chicago", "History", "Web", "Interested", null);
+                "Chicago", "History", "Web", LeadStatus.IN_WORK, null);
 
         StudentDataResponse createdStudent = studentService.createStudent(createRequest);
 
         StudentUpdateDataRequest updateRequest = new StudentUpdateDataRequest(createdStudent.getId(), "Thomas",
-                "Hardy", "5678901234", "tom.h@example.com", "San Francisco", "History", "Web", "Interested");
+                "Hardy", "5678901234", "tom.h@example.com", "San Francisco",
+                "History", "Web", LeadStatus.IN_WORK);
 
         StudentDataResponse updatedStudent = studentService.updateStudent(updateRequest);
 
@@ -98,7 +114,7 @@ public class StudentServiceIntegrationTest {
     @Test
     public void testAddStudentComment() {
         StudentCreateRequest createRequest = new StudentCreateRequest("Alice", "Johnson", "5551234567", "alice.johnson@example.com",
-                "Boston", "Art", "Social Media", "New", null);
+                "Boston", "Art", "Social Media", LeadStatus.LEAD, null);
 
         StudentDataResponse createdStudent = studentService.createStudent(createRequest);
 
@@ -117,13 +133,13 @@ public class StudentServiceIntegrationTest {
     @Test
     public void testAddStudentPayment() {
         StudentCreateRequest createRequest = new StudentCreateRequest("Bob", "Marley", "4449876543", "bob.marley@example.com",
-                "Miami", "Music", "Event", "Hot Lead", null);
+                "Miami", "Music", "Event", LeadStatus.STUDENT, null);
 
         StudentDataResponse createdStudent = studentService.createStudent(createRequest);
 
         AddStudentPaymentRequest paymentRequest = new AddStudentPaymentRequest(
         		createdStudent.getId(), LocalDate.now(),
-                "Credit Card", BigDecimal.valueOf(1500.00), "Course Fee");
+                "Credit Card", BigDecimal.valueOf(1500.00), 3,"Course Fee");
 
         PaymentConfirmationResponse paymentResponse = studentService.addStudentPayment(paymentRequest);
 
@@ -135,7 +151,7 @@ public class StudentServiceIntegrationTest {
     @Test
     public void testDeleteStudent() {
         StudentCreateRequest createRequest = new StudentCreateRequest("Mike", "Tyson", "3339871234", "mike.tyson@example.com",
-                "Las Vegas", "Sports", "Referral", "Active", null);
+                "Las Vegas", "Sports", "Referral", LeadStatus.CONSULTATION, null);
 
         StudentDataResponse createdStudent = studentService.createStudent(createRequest);
 
@@ -154,7 +170,7 @@ public class StudentServiceIntegrationTest {
     @Test
     public void testCascadeDeleteStudent() {
         StudentCreateRequest createRequest = new StudentCreateRequest("Bruce", "Lee", "2223456789", "bruce.lee@example.com",
-                "San Francisco", "Martial Arts", "Referral", "Active", null);
+                "San Francisco", "Martial Arts", "Referral", LeadStatus.IN_WORK, null);
 
         StudentDataResponse createdStudent = studentService.createStudent(createRequest);
 
@@ -162,7 +178,7 @@ public class StudentServiceIntegrationTest {
         studentService.addStudentComment(commentRequest);
 
         AddStudentPaymentRequest paymentRequest = new AddStudentPaymentRequest(createdStudent.getId(), LocalDate.now(),
-                "Cash", BigDecimal.valueOf(2000.00), "Training Fee");
+                "Cash", BigDecimal.valueOf(2000.00), 3,"Training Fee");
         studentService.addStudentPayment(paymentRequest);
 
         studentService.deleteStudent(createdStudent.getId());

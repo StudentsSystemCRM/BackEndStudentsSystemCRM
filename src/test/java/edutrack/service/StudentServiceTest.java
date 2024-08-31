@@ -8,8 +8,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
+import edutrack.constant.GroupStatus;
+import edutrack.constant.LeadStatus;
+import edutrack.entity.students.Group;
+import edutrack.repository.GroupRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,6 +43,9 @@ public class StudentServiceTest {
     StudentRepository studentRepo;
 
     @Mock
+    GroupRepository groupRepo;
+
+    @Mock
     ActivityLogRepository activityRepo;
 
     @Mock
@@ -41,11 +53,49 @@ public class StudentServiceTest {
 
     @InjectMocks
     StudentService studentService;
-    
-    Student student = new Student(1L, "John", "Doe", "123456789", "john.doe@example.com", "City", "Course", "Source", "LeadStatus", null, null, null);
-    StudentCreateRequest request = new StudentCreateRequest("John", "Doe", "123456789", "john.doe@example.com", "City", "Course", "Source", "LeadStatus", "Create comment");
-    StudentUpdateDataRequest updateDataRequest = new StudentUpdateDataRequest(1L, "John", "Doe", "123456789", "john.doe@example.com", "New City", "New Course", "New Source", "New LeadStatus");
-    
+
+    Group groupStudent;
+    Student student;
+    StudentCreateRequest request;
+    StudentUpdateDataRequest updateDataRequest;
+
+    @BeforeEach
+    public void setUp() {
+        groupStudent = new Group(
+                "Example Group",
+                "example-whatsapp",
+                "example-skype",
+                "example-slack",
+                GroupStatus.ACTIVE,
+                LocalDate.of(2024, 1, 1),
+                LocalDate.of(2024, 12, 31),
+                LocalDate.of(2024, 6, 30),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                "",
+                ""
+        );
+       // List<Group> groups = List.of(groupStudent);
+       when(groupRepo.findById("Example Group")).thenReturn(Optional.of(groupStudent));
+       when(groupRepo.save(any(Group.class))).thenReturn(groupStudent);
+
+        student = new Student(1L, "John", "Doe", "123456789",
+                "john.doe@example.com", "City", "Course", "Source",
+                LeadStatus.CONSULTATION, "testGroup",
+                16000, groupStudent,null,null,null,"","");
+        request = new StudentCreateRequest("John", "Doe",
+                "123456789", "john.doe@example.com", "City", "Course",
+                "Source", LeadStatus.IN_WORK, "Create comment");
+        updateDataRequest = new StudentUpdateDataRequest(1L, "John", "Doe",
+                "123456789", "john.doe@example.com", "New City", "New Course", "New Source",
+                LeadStatus.STUDENT);
+
+        // Настройка поведения репозитория студентов
+        when(studentRepo.findByEmail("john.doe@example.com")).thenReturn(null);
+        when(studentRepo.save(any(Student.class))).thenReturn(student);
+    }
 
     @Test
     public void testGetStudentById_Success() {
@@ -111,7 +161,10 @@ public class StudentServiceTest {
     
     @Test
     public void testUpdateStudent_Success() {
-        Student existingStudent = new Student(1L, "John", "Doe", "123456789", "john.doe@example.com", "City", "Course", "Source", "LeadStatus", null, null, null);
+        Student existingStudent = new Student(1L, "John", "Doe",
+                "123456789", "john.doe@example.com", "City",
+                "Course", "Source", LeadStatus.IN_WORK, "testGroup",
+                16000, null,null,null,null,"","");
 
         when(studentRepo.findById(1L)).thenReturn(Optional.of(existingStudent));
         when(studentRepo.save(any(Student.class))).thenReturn(existingStudent);

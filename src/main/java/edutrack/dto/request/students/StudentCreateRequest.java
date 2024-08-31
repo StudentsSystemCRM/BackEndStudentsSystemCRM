@@ -14,6 +14,8 @@ import static edutrack.constant.ValidAccountConstant.NAME_PATTERN;
 import static edutrack.constant.ValidAccountConstant.PHONE_NUMBER_PATTERN;
 import static edutrack.constant.ValidationAccountingMessage.*;
 
+import edutrack.constant.LeadStatus;
+
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 @NoArgsConstructor
@@ -38,6 +40,6 @@ public class StudentCreateRequest {
 	String city;
 	String course;
 	String source;
-	String leadStatus;
+	LeadStatus leadStatus;
 	String comment;
 }
