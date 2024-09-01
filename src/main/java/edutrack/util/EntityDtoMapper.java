@@ -64,10 +64,4 @@ public interface EntityDtoMapper {
     @Mapping(target = "lastModifiedBy", ignore = true)
     Group groupCreateRequestToGroup(GroupCreateRequest groupCreate);
     
-    @Mapping(target = "groupReminders", ignore = true)
-    @Mapping(target = "deactivateAfter30Days", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "lastModifiedBy", ignore = true)
-    Group groupUpdateRequestToGroup(GroupUpdateDataRequest groupUpdate);
 }

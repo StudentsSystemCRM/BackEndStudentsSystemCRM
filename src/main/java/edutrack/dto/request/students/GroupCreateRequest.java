@@ -30,7 +30,7 @@ public class GroupCreateRequest {
     String slack;
     LocalDate startDate;
     LocalDate expFinishDate;
-    List<WeekDay> lessons;
-    List<WeekDay> webinars;
+    List<WeekDay> lessonsDays;
+    List<WeekDay> webinarsDays;
     List<Student> students;
 }

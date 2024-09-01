@@ -1,7 +1,6 @@
 package edutrack.entity.students;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -21,14 +20,12 @@ import edutrack.constant.LeadStatus;
 @Table(name = "students")
 public class Student {
     @Id
-    @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     private String firstName;
     private String lastName;
     private String phoneNumber;
-    @Column(unique=true)
     private String email;
     private String city;
     private String course;
