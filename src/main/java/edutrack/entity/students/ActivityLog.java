@@ -21,6 +21,6 @@ public class ActivityLog {
     private String information;
 
     @ManyToOne
-    @JoinColumn(name = "student_id", nullable = false)
+    @JoinColumn(name = "student_id")
     private Student student;
 }

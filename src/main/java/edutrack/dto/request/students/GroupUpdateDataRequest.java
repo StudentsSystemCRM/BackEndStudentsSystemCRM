@@ -11,11 +11,11 @@ import lombok.experimental.FieldDefaults;
 import static edutrack.constant.ValidAccountConstant.NAME_PATTERN;
 import static edutrack.constant.ValidationAccountingMessage.*;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 
 import edutrack.constant.GroupStatus;
+import edutrack.constant.WeekDay;
 import edutrack.entity.students.Student;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -33,8 +33,8 @@ public class GroupUpdateDataRequest {
     GroupStatus status;
     LocalDate startDate;
     LocalDate expFinishDate;
-    List<DayOfWeek> lessons;
-    List<DayOfWeek> webinars;
+    List<WeekDay> lessonsDays;
+    List<WeekDay> webinarsDays;
     Boolean DeactivateAfter30Days;
     List<Student> students;
 }
