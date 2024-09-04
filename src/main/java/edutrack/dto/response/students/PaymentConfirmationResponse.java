@@ -16,5 +16,6 @@ public class PaymentConfirmationResponse {
 
     private String type;
     private BigDecimal amount;
+    private Integer installments;
     private String details;
 }

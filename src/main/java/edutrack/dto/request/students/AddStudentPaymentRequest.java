@@ -29,5 +29,6 @@ public class AddStudentPaymentRequest {
 	@NotNull(message = "Amount cannot be null.")
 	BigDecimal amount;
 
+	Integer installments;
 	String details;
 }

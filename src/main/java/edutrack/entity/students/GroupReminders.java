@@ -5,29 +5,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "payments")
-public class Payment {
+@Table(name = "group_reminders")
+public class GroupReminders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private LocalDate date;
-    private String type;
-
-    @Column(precision = 15, scale = 2)
-    private BigDecimal amount;
-
-	private Integer installments;
-    private String details;
+    private String information;
 
     @ManyToOne
-    @JoinColumn(name = "student_id")
-    private Student student;
+    @JoinColumn(name = "group_name")
+    private Group group;
 }
