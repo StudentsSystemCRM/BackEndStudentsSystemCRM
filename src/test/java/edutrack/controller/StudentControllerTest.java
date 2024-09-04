@@ -293,7 +293,7 @@ public class StudentControllerTest {
                 "$.course").value("Sample Course"))
                 .andExpect(jsonPath
                         ("$.source").value("Sample Source"))
-                .andExpect(jsonPath("$.leadStatus").value("Active"))
+                .andExpect(jsonPath("$.leadStatus").value("STUDENT"))
                 .andExpect(jsonPath
                         ("$.paymentInfo[0].date").value("2024-08-23"))
                 .andExpect(jsonPath

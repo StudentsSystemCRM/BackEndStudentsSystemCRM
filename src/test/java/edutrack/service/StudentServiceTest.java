@@ -78,8 +78,8 @@ public class StudentServiceTest {
                 ""
         );
        // List<Group> groups = List.of(groupStudent);
-       when(groupRepo.findById("Example Group")).thenReturn(Optional.of(groupStudent));
-       when(groupRepo.save(any(Group.class))).thenReturn(groupStudent);
+//       when(groupRepo.findById("Example Group")).thenReturn(Optional.of(groupStudent));
+//       when(groupRepo.save(any(Group.class))).thenReturn(groupStudent);
 
         student = new Student(1L, "John", "Doe", "123456789",
                 "john.doe@example.com", "City", "Course", "Source",
@@ -93,8 +93,8 @@ public class StudentServiceTest {
                 LeadStatus.STUDENT);
 
         // Настройка поведения репозитория студентов
-        when(studentRepo.findByEmail("john.doe@example.com")).thenReturn(null);
-        when(studentRepo.save(any(Student.class))).thenReturn(student);
+//        when(studentRepo.findByEmail("john.doe@example.com")).thenReturn(null);
+//        when(studentRepo.save(any(Student.class))).thenReturn(student);
     }
 
     @Test
