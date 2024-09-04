@@ -1,6 +1,7 @@
 package edutrack.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edutrack.constant.LeadStatus;
 import edutrack.dto.request.students.AddStudentPaymentRequest;
 import edutrack.dto.request.students.StudentCreateRequest;
 import edutrack.dto.response.students.PaymentConfirmationResponse;
@@ -86,7 +87,7 @@ public class StudentControllerTest {
                 "City",
                 "Course",
                 "Source",
-                "LeadStatus"
+                LeadStatus.IN_WORK
         );
         Mockito.when(studentService.getStudentById(studentId)).thenReturn(mockResponse);
 
@@ -102,8 +103,8 @@ public class StudentControllerTest {
     public void testCreateStudent() throws Exception {
         StudentCreateRequest request = new StudentCreateRequest(
                 "John", "Doe", "1234567890", "john.doe@example.com",
-                "City", "Course", "Source", "LeadStatus", "Comment"
-        );
+                "City", "Course", "Source", LeadStatus.STUDENT,
+                "Comment" );
         StudentDataResponse response = new StudentDataResponse();
         response.setId(1L);
 
@@ -120,8 +121,8 @@ public class StudentControllerTest {
     public void testGetStudentsByName() throws Exception {
         String name = "John";
         List<StudentDataResponse> mockResponse = new ArrayList<>();
-        mockResponse.add(new StudentDataResponse(1L, name, "Doe", "1234567890", "john.doe@example.com", "New York", "Engineering", "Website", "Lead"));
-        mockResponse.add(new StudentDataResponse(2L, name, "Smith", "0987654321", "john.smith@example.com", "Los Angeles", "Mathematics", "Referral", "Prospect"));
+        mockResponse.add(new StudentDataResponse(1L, name, "Doe", "1234567890", "john.doe@example.com", "New York", "Engineering", "Website", LeadStatus.STUDENT));
+        mockResponse.add(new StudentDataResponse(2L, name, "Smith", "0987654321", "john.smith@example.com", "Los Angeles", "Mathematics", "Referral", LeadStatus.IN_WORK));
 
         Mockito.when(studentService.getStudentsByName(eq(name))).thenReturn(mockResponse);
 
@@ -151,8 +152,12 @@ public class StudentControllerTest {
     public void testGetStudentsBySurname() throws Exception {
         String surname = "Doe";
         List<StudentDataResponse> mockResponse = new ArrayList<>();
-        mockResponse.add(new StudentDataResponse(1L, "John", surname, "1234567890", "john.doe@example.com", "New York", "Engineering", "Website", "Lead"));
-        mockResponse.add(new StudentDataResponse(2L, "Jane", surname, "0987654321", "jane.doe@example.com", "New York", "Engineering", "Website", "Lead"));
+        mockResponse.add(new StudentDataResponse(1L, "John", surname, "1234567890",
+                "john.doe@example.com", "New York", "Engineering",
+                "Website", LeadStatus.STUDENT));
+        mockResponse.add(new StudentDataResponse(2L, "Jane", surname, "0987654321",
+                "jane.doe@example.com", "New York", "Engineering",
+                "Website", LeadStatus.CONSULTATION));
 
         Mockito.when(studentService.getStudentsBySurname(eq(surname))).thenReturn(mockResponse);
 
@@ -168,8 +173,12 @@ public class StudentControllerTest {
         String name = "John";
         String surname = "Doe";
         List<StudentDataResponse> mockResponse = new ArrayList<>();
-        mockResponse.add(new StudentDataResponse(1L, name, surname, "1234567890", "john.doe@example.com", "New York", "Engineering", "Website", "Lead"));
-        mockResponse.add(new StudentDataResponse(2L, name, surname, "0987654321", "john.doe@example.com", "New York", "Engineering", "Website", "Lead"));
+        mockResponse.add(new StudentDataResponse(1L, name, surname, "1234567890",
+                "john.doe@example.com", "New York", "Engineering",
+                "Website", LeadStatus.CONSULTATION));
+        mockResponse.add(new StudentDataResponse(2L, name, surname, "0987654321",
+                "john.doe@example.com", "New York", "Engineering",
+                "Website", LeadStatus.SAVE_FOR_LATER));
 
         Mockito.when(studentService.getStudentsByNameAndSurname(eq(name), eq(surname))).thenReturn(mockResponse);
 
@@ -214,6 +223,7 @@ public class StudentControllerTest {
                 LocalDate.of(2024, 8, 23),
                 "tuition",
                 BigDecimal.valueOf(100.0),
+                3,
                 "Payment for August semester"
         );
 
@@ -241,6 +251,7 @@ public class StudentControllerTest {
     @Test
     public void testGetStudentPaymentInfo() throws Exception {
         Long studentId = 1L;
+        LeadStatus leadStatus = LeadStatus.STUDENT;
      StudentPaymentInfoResponse response = new StudentPaymentInfoResponse(
                 studentId,
                 "John",
@@ -250,7 +261,7 @@ public class StudentControllerTest {
                 "Sample City",
                 "Sample Course",
                 "Sample Source",
-                "Active",
+                leadStatus,
                 List.of(new StudentPayment(
                         LocalDate.of(2024, 8, 23),
                         "tuition",
@@ -284,7 +295,7 @@ public class StudentControllerTest {
                 "$.course").value("Sample Course"))
                 .andExpect(jsonPath
                         ("$.source").value("Sample Source"))
-                .andExpect(jsonPath("$.leadStatus").value("Active"))
+                .andExpect(jsonPath("$.leadStatus").value("STUDENT"))
                 .andExpect(jsonPath
                         ("$.paymentInfo[0].date").value("2024-08-23"))
                 .andExpect(jsonPath

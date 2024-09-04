@@ -12,9 +12,13 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.test.context.jdbc.Sql;
 
+import edutrack.constant.LeadStatus;
 import edutrack.dto.request.students.AddStudentCommentRequest;
 import edutrack.dto.request.students.AddStudentPaymentRequest;
 import edutrack.dto.request.students.StudentCreateRequest;
@@ -22,6 +26,7 @@ import edutrack.dto.request.students.StudentUpdateDataRequest;
 import edutrack.dto.response.students.PaymentConfirmationResponse;
 import edutrack.dto.response.students.StudentActivityLogResponse;
 import edutrack.dto.response.students.StudentDataResponse;
+import edutrack.dto.response.students.StudentPaymentInfoResponse;
 import edutrack.entity.students.ActivityLog;
 import edutrack.entity.students.Payment;
 import edutrack.entity.students.Student;
@@ -30,8 +35,8 @@ import edutrack.repository.PaymentRepository;
 import edutrack.repository.StudentRepository;
 
 @SpringBootTest
-@Transactional
-@Rollback
+@Sql(scripts = {"classpath:testdata.sql"})
+//student in db (2, 'Jane', 'Smith', '0987654321', 'kate2@example.com', 'Los Angeles', 'Science', 'Referral', 'Prospect')
 public class StudentServiceIntegrationTest {
 
     @Autowired
@@ -45,21 +50,23 @@ public class StudentServiceIntegrationTest {
 
     @Autowired
     private PaymentRepository paymentRepo;
+    
+    static final Long STUDENT_ID_DB_H2 = 2L;
 
     @Test
     public void testCreateStudent() {
-        StudentCreateRequest request = new StudentCreateRequest("John", "Doe", "1234567890", "kate@test.com",
-                "New York", "Math", "Online", "Lead", "Initial comment");
+        StudentCreateRequest request = new StudentCreateRequest("Kate", "Gan", "1234567890", "kate@test.com",
+                "New York", "Math", "Online", LeadStatus.LEAD, "Initial comment");
 
         StudentDataResponse response = studentService.createStudent(request);
 
         assertNotNull(response.getId());
-        assertEquals("John", response.getName());
-        assertEquals("Doe", response.getSurname());
+        assertEquals("Kate", response.getName());
+        assertEquals("Gan", response.getSurname());
 
         Student savedStudent = studentRepo.findById(response.getId()).orElse(null);
         assertNotNull(savedStudent);
-        assertEquals("John", savedStudent.getFirstName());
+        assertEquals("Kate", savedStudent.getFirstName());
 
         List<ActivityLog> logs = activityRepo.findByStudentId(savedStudent.getId());
         assertFalse(logs.isEmpty());
@@ -68,26 +75,15 @@ public class StudentServiceIntegrationTest {
 
     @Test
     public void testGetStudentById() {
-        StudentCreateRequest request = new StudentCreateRequest("Jane", "Smith", "0987654321", "kate2@example.com",
-                "Los Angeles", "Science", "Referral", "Prospect", null);
-
-        StudentDataResponse createdStudent = studentService.createStudent(request);
-
-        StudentDataResponse fetchedStudent = studentService.getStudentById(createdStudent.getId());
-
-        assertEquals(createdStudent.getId(), fetchedStudent.getId());
+        StudentDataResponse fetchedStudent = studentService.getStudentById(STUDENT_ID_DB_H2);
+        assertEquals(STUDENT_ID_DB_H2, fetchedStudent.getId());
         assertEquals("Jane", fetchedStudent.getName());
     }
 
     @Test
     public void testUpdateStudent() {
-        StudentCreateRequest createRequest = new StudentCreateRequest("Tom", "Hardy", "5678901234", "tom.hardy@example.com",
-                "Chicago", "History", "Web", "Interested", null);
-
-        StudentDataResponse createdStudent = studentService.createStudent(createRequest);
-
-        StudentUpdateDataRequest updateRequest = new StudentUpdateDataRequest(createdStudent.getId(), "Thomas",
-                "Hardy", "5678901234", "tom.h@example.com", "San Francisco", "History", "Web", "Interested");
+        StudentUpdateDataRequest updateRequest = new StudentUpdateDataRequest(STUDENT_ID_DB_H2, "Thomas",
+                "Hardy", "5678901234", "tom.h@example.com", "San Francisco", "History", "Web", LeadStatus.LEAD);
 
         StudentDataResponse updatedStudent = studentService.updateStudent(updateRequest);
 
@@ -97,52 +93,37 @@ public class StudentServiceIntegrationTest {
 
     @Test
     public void testAddStudentComment() {
-        StudentCreateRequest createRequest = new StudentCreateRequest("Alice", "Johnson", "5551234567", "alice.johnson@example.com",
-                "Boston", "Art", "Social Media", "New", null);
 
-        StudentDataResponse createdStudent = studentService.createStudent(createRequest);
-
-        AddStudentCommentRequest commentRequest = new AddStudentCommentRequest(createdStudent.getId(), LocalDate.now(), "Second comment");
-
+        AddStudentCommentRequest commentRequest = new AddStudentCommentRequest(STUDENT_ID_DB_H2, LocalDate.now(), "Second comment");
         StudentActivityLogResponse activityLogResponse = studentService.addStudentComment(commentRequest);
-
-        System.out.println(activityLogResponse);
         
         assertNotNull(activityLogResponse);
-        assertEquals(2, activityLogResponse.getActivityLog().size());
-        assertEquals("Create student data", activityLogResponse.getActivityLog().get(0).getMessage());
-        assertEquals("Second comment", activityLogResponse.getActivityLog().get(1).getMessage());
+        assertEquals(1, activityLogResponse.getActivityLog().size());
+        assertEquals("Second comment", activityLogResponse.getActivityLog().get(0).getMessage());
     }
 
     @Test
     public void testAddStudentPayment() {
-        StudentCreateRequest createRequest = new StudentCreateRequest("Bob", "Marley", "4449876543", "bob.marley@example.com",
-                "Miami", "Music", "Event", "Hot Lead", null);
-
-        StudentDataResponse createdStudent = studentService.createStudent(createRequest);
-
         AddStudentPaymentRequest paymentRequest = new AddStudentPaymentRequest(
-        		createdStudent.getId(), LocalDate.now(),
-                "Credit Card", BigDecimal.valueOf(1500.00), "Course Fee");
+        		STUDENT_ID_DB_H2, LocalDate.now(),
+                "Credit Card", BigDecimal.valueOf(1500.00), 3,"Course Fee");
 
-        PaymentConfirmationResponse paymentResponse = studentService.addStudentPayment(paymentRequest);
+        PaymentConfirmationResponse paymentResponse = studentService.addStudentPayment(paymentRequest);        
+        StudentPaymentInfoResponse resp = studentService.getStudentPaymentInfo(STUDENT_ID_DB_H2);
 
         assertNotNull(paymentResponse.getId());
         assertEquals(BigDecimal.valueOf(1500.00), paymentResponse.getAmount());
         assertEquals("Course Fee", paymentResponse.getDetails());
+        assertEquals(resp.getPaymentInfo().size(), 1);
+        assertTrue(resp.getPaymentInfo().get(0).getAmount().compareTo(BigDecimal.valueOf(1500.00))==0);
     }
 
     @Test
     public void testDeleteStudent() {
-        StudentCreateRequest createRequest = new StudentCreateRequest("Mike", "Tyson", "3339871234", "mike.tyson@example.com",
-                "Las Vegas", "Sports", "Referral", "Active", null);
+        StudentDataResponse deletedStudent = studentService.deleteStudent(STUDENT_ID_DB_H2);
 
-        StudentDataResponse createdStudent = studentService.createStudent(createRequest);
-
-        StudentDataResponse deletedStudent = studentService.deleteStudent(createdStudent.getId());
-
-        assertEquals(createdStudent.getId(), deletedStudent.getId());
-        assertFalse(studentRepo.findById(createdStudent.getId()).isPresent());
+        assertEquals(STUDENT_ID_DB_H2, deletedStudent.getId());
+        assertFalse(studentRepo.findById(STUDENT_ID_DB_H2).isPresent());
 
         List<ActivityLog> logs = activityRepo.findByStudentId(deletedStudent.getId());
         assertTrue(logs.isEmpty());
@@ -153,27 +134,26 @@ public class StudentServiceIntegrationTest {
 
     @Test
     public void testCascadeDeleteStudent() {
-        StudentCreateRequest createRequest = new StudentCreateRequest("Bruce", "Lee", "2223456789", "bruce.lee@example.com",
-                "San Francisco", "Martial Arts", "Referral", "Active", null);
-
-        StudentDataResponse createdStudent = studentService.createStudent(createRequest);
-
-        AddStudentCommentRequest commentRequest = new AddStudentCommentRequest(createdStudent.getId(), LocalDate.now(), "First training session");
+        AddStudentCommentRequest commentRequest = new AddStudentCommentRequest(STUDENT_ID_DB_H2, LocalDate.now(), "First training session");
         studentService.addStudentComment(commentRequest);
-
-        AddStudentPaymentRequest paymentRequest = new AddStudentPaymentRequest(createdStudent.getId(), LocalDate.now(),
-                "Cash", BigDecimal.valueOf(2000.00), "Training Fee");
+        
+        AddStudentPaymentRequest paymentRequest = new AddStudentPaymentRequest(STUDENT_ID_DB_H2, LocalDate.now(),
+                "Cash", BigDecimal.valueOf(2000.00), 2,"Training Fee");
         studentService.addStudentPayment(paymentRequest);
+        
+        List<Payment> payments =  paymentRepo.findByStudentId(STUDENT_ID_DB_H2);
+        assertFalse(payments.isEmpty());
+        List<ActivityLog> logs = activityRepo.findByStudentId(STUDENT_ID_DB_H2);
+        assertFalse(logs.isEmpty());
 
-        studentService.deleteStudent(createdStudent.getId());
-        //org.opentest4j.AssertionFailedError: expected: <true> but was: <false>
+        studentService.deleteStudent(STUDENT_ID_DB_H2);
 
-        assertFalse(studentRepo.findById(createdStudent.getId()).isPresent());
+        assertFalse(studentRepo.findById(STUDENT_ID_DB_H2).isPresent());
 
-        List<ActivityLog> logs = activityRepo.findByStudentId(createdStudent.getId());
+        logs = activityRepo.findByStudentId(STUDENT_ID_DB_H2);
         assertTrue(logs.isEmpty());
 
-        List<Payment> payments = paymentRepo.findByStudentId(createdStudent.getId());
+        payments = paymentRepo.findByStudentId(STUDENT_ID_DB_H2);
         assertTrue(payments.isEmpty());
     }
 }

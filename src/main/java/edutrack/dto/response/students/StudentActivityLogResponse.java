@@ -2,6 +2,7 @@ package edutrack.dto.response.students;
 
 import java.util.List;
 
+import edutrack.constant.LeadStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +22,6 @@ public class StudentActivityLogResponse {
 	String city;
 	String course;
 	String source;
-	String leadStatus;
+	LeadStatus leadStatus;
 	List<StudentActivityLog> activityLog;
 }
