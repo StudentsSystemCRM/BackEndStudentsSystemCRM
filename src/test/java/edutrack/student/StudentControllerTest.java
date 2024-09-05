@@ -1,23 +1,17 @@
-package edutrack.controller;
+package edutrack.student;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import edutrack.constant.LeadStatus;
-import edutrack.modul.activityLog.repository.ActivityLogRepository;
-import edutrack.modul.group.repository.GroupRepository;
-import edutrack.modul.payment.repository.PaymentRepository;
-import edutrack.modul.student.repository.StudentRepository;
-import edutrack.modul.student.service.StudentServiceImp;
-import edutrack.modul.user.repository.UserRepository;
-import edutrack.modul.payment.dto.request.AddPaymentRequest;
-import edutrack.modul.payment.dto.response.SinglePayment;
-import edutrack.modul.payment.dto.response.StudentPaymentInfoResponse;
-import edutrack.security.JwtTokenCreator;
-import edutrack.security.JwtTokenValidator;
-import edutrack.security.SecurityConfig;
-import edutrack.modul.student.controller.StudentController;
-import edutrack.modul.student.dto.request.StudentCreateRequest;
-import edutrack.modul.student.dto.response.StudentDataResponse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -28,31 +22,34 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.mockito.Mockito.when;
+import edutrack.constant.LeadStatus;
+import edutrack.modul.activityLog.repository.ActivityLogRepository;
+import edutrack.modul.group.repository.GroupRepository;
+import edutrack.modul.payment.repository.PaymentRepository;
+import edutrack.modul.student.controller.StudentController;
+import edutrack.modul.student.dto.request.StudentCreateRequest;
+import edutrack.modul.student.dto.response.StudentDataResponse;
+import edutrack.modul.student.repository.StudentRepository;
+import edutrack.modul.student.service.StudentService;
+import edutrack.modul.user.repository.AccountRepository;
+import edutrack.security.JwtTokenCreator;
+import edutrack.security.JwtTokenValidator;
+import edutrack.security.SecurityConfig;
 
 @WebMvcTest(StudentController.class)
 @Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
-
 public class StudentControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private StudentServiceImp studentService;
+    private StudentService studentService;
     @MockBean
-    private UserRepository userRepository;
+    private AccountRepository userRepository;
 
     @MockBean
     private GroupRepository groupRepository;
@@ -64,9 +61,6 @@ public class StudentControllerTest {
 
     @MockBean
     private ActivityLogRepository activityLogRepository;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setup() {
@@ -202,125 +196,6 @@ public class StudentControllerTest {
                         .contentType("application/json")
                         .content("{\"id\":1,\"name\":\"John\",\"surname\":\"Doe\"}"))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    public void testAddStudentComment() throws Exception {
-    	mockMvc.perform(post("/api/students/comment")
-                .contentType("application/json")
-                .content("{\"studentId\":1,\"message\":\"Good student\"}"))
-        		.andExpect(status().isOk());
-    }
-
-    @Test
-    public void testAddStudentPayment() throws Exception {
-
-        AddPaymentRequest request = new AddPaymentRequest();
-        request.setStudentId(123L);
-        request.setDate(LocalDate.of(2024, 8, 23));
-        request.setType("tuition");
-        request.setAmount(BigDecimal.valueOf(100.0));
-        request.setDetails("Payment for August semester");
-
-        StudentPaymentInfoResponse response = new StudentPaymentInfoResponse(
-                1L,
-                "John",
-                "Doe",
-                "123-456-7890",
-                "john.doe@example.com",
-                "Sample City",
-                "Sample Course",
-                "Sample Source",
-                LeadStatus.STUDENT,
-                List.of(new SinglePayment(
-                		1L,
-                        LocalDate.of(2024, 8, 23),
-                        "tuition",
-                        BigDecimal.valueOf(100.0),
-                        12,
-                        "Payment for August semester"
-                ))
-        );
-
-        when(studentService.addStudentPayment(any(AddPaymentRequest.class)))
-                .thenReturn(response);
-
-                mockMvc.perform(post("/api/students/payment")
-                                .contentType("application/json")
-                                .content(objectMapper.writeValueAsString(request)))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath
-                                        ("$.id").value(1))
-                                .andExpect(jsonPath
-                                		("$.paymentInfo[0].date").value("2024-08-23"))
-
-                                .andExpect(jsonPath
-                                        ("$.paymentInfo[0].type").value("tuition"))
-
-                                .andExpect(jsonPath(
-                                        "$.paymentInfo[0].amount").value(100.0))
-                                .andExpect(jsonPath(
-
-                                        "$.paymentInfo[0].details").value("Payment for August semester"));
-    }
-    @Test
-    public void testGetStudentPaymentInfo() throws Exception {
-        Long studentId = 1L;
-        LeadStatus leadStatus = LeadStatus.STUDENT;
-     StudentPaymentInfoResponse response = new StudentPaymentInfoResponse(
-                studentId,
-                "John",
-                "Doe",
-                "123-456-7890",
-                "john.doe@example.com",
-                "Sample City",
-                "Sample Course",
-                "Sample Source",
-                leadStatus,
-                List.of(new SinglePayment(
-                		1L,
-                        LocalDate.of(2024, 8, 23),
-                        "tuition",
-                        BigDecimal.valueOf(100.0),
-                        12,
-                        "Payment for August semester"
-                ))
-        );
-
-        when(studentService.getStudentPaymentInfo(anyLong())).thenReturn(response);
-
-                mockMvc.perform(get
-                                ("/api/students/{id}/payments", studentId)
-                                .contentType
-                                        ("application/json"))
-                        .andExpect(status().isOk())
-                .andExpect(jsonPath
-                        ("$.id").value(studentId))
-                .andExpect(jsonPath(
-
-                        "$.name").value("John"))
-                .andExpect(jsonPath
-                        ("$.surname").value("Doe"))
-                        .andExpect(jsonPath
-                                ("$.phone").value("123-456-7890"))
-                .andExpect(jsonPath
-                        ("$.email").value("john.doe@example.com"))
-                .andExpect(jsonPath
-                ("$.city").value("Sample City"))
-                .andExpect(jsonPath(
-
-                "$.course").value("Sample Course"))
-                .andExpect(jsonPath
-                        ("$.source").value("Sample Source"))
-                .andExpect(jsonPath("$.leadStatus").value("STUDENT"))
-                .andExpect(jsonPath
-                        ("$.paymentInfo[0].date").value("2024-08-23"))
-                .andExpect(jsonPath
-                        ("$.paymentInfo[0].type").value("tuition"))
-                .andExpect(jsonPath("$.paymentInfo[0].amount").value(100.0))
-                .andExpect(jsonPath
-                        ("$.paymentInfo[0].details")
-                        .value("Payment for August semester"));
     }
 
     private static String asJsonString(Object obj) {

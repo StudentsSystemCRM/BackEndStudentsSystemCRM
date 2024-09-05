@@ -20,7 +20,7 @@ import java.security.Principal;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-public class UserController {
+public class AccountController {
 	
     private final AccountService accountingService;
 

@@ -13,11 +13,12 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentActivityLogResponse {
+public class ActivityLogResponse {
+	
 	Long id;
-	String name;
-	String surname;
-	String phone;
+	String firstName;
+	String lastName;
+	String phoneNumber;
 	String email;
 	String city;
 	String course;

@@ -1,13 +1,20 @@
 package edutrack.util;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import edutrack.modul.activityLog.dto.response.ActivityLogResponse;
 import edutrack.modul.activityLog.dto.response.SingleActivityLog;
 import edutrack.modul.activityLog.entity.ActivityLog;
 import edutrack.modul.group.dto.request.GroupCreateRequest;
 import edutrack.modul.group.entity.Group;
+import edutrack.modul.payment.dto.request.AddPaymentRequest;
+import edutrack.modul.payment.dto.response.PaymentInfoResponse;
+import edutrack.modul.payment.dto.response.SinglePayment;
+import edutrack.modul.payment.entity.Payment;
 import edutrack.modul.student.dto.request.StudentCreateRequest;
 import edutrack.modul.student.dto.response.StudentDataResponse;
 import edutrack.modul.student.entity.Student;
@@ -20,7 +27,7 @@ import edutrack.modul.user.entity.Account;
 public interface EntityDtoMapper {
 	EntityDtoMapper INSTANCE = Mappers.getMapper(EntityDtoMapper.class);
 
-	@Mapping(target = "id", expression = "java(java.util.UUID.randomUUID().toString())")
+	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "hashedPassword", ignore = true)
 	@Mapping(target = "createdDate", expression = "java(java.time.LocalDate.now())")
 	@Mapping(target = "roles", ignore = true)
@@ -64,4 +71,17 @@ public interface EntityDtoMapper {
     @Mapping(target = "lastModifiedBy", ignore = true)
     Group groupCreateRequestToGroup(GroupCreateRequest groupCreate);
     
+    //payment
+    @Mapping(target = "paymentInfo", source = "paymentsResp")
+    PaymentInfoResponse studentToPaymentInfoResponse(Student student, List<SinglePayment> paymentsResp);
+    
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "student", source = "student")
+    Payment addPaymentRequestToPayment(AddPaymentRequest addPaymentRequest, Student student);
+    
+    SinglePayment paymentToSinglePayment(Payment payment);
+    
+    //activityLog
+    @Mapping(target = "activityLogs", source = "studentActivityLog")
+    ActivityLogResponse studentToActivityLogResponse(Student student, List<SingleActivityLog> studentActivityLog);
 }
