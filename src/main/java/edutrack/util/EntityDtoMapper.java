@@ -4,18 +4,17 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import edutrack.dto.request.accounting.UserRegisterRequest;
-import edutrack.dto.request.group.GroupCreateRequest;
-import edutrack.dto.request.group.GroupUpdateDataRequest;
-import edutrack.dto.request.student.StudentCreateRequest;
-import edutrack.dto.response.accounting.LoginSuccessResponse;
-import edutrack.dto.response.accounting.UserDataResponse;
-import edutrack.dto.response.activityLog.SingleActivityLog;
-import edutrack.dto.response.student.StudentDataResponse;
-import edutrack.entity.accounting.User;
-import edutrack.entity.students.ActivityLog;
-import edutrack.entity.students.Group;
-import edutrack.entity.students.Student;
+import edutrack.modul.activityLog.dto.response.SingleActivityLog;
+import edutrack.modul.activityLog.entity.ActivityLog;
+import edutrack.modul.group.dto.request.GroupCreateRequest;
+import edutrack.modul.group.entity.Group;
+import edutrack.modul.student.dto.request.StudentCreateRequest;
+import edutrack.modul.student.dto.response.StudentDataResponse;
+import edutrack.modul.student.entity.Student;
+import edutrack.modul.user.dto.request.UserRegisterRequest;
+import edutrack.modul.user.dto.response.LoginSuccessResponse;
+import edutrack.modul.user.dto.response.UserDataResponse;
+import edutrack.modul.user.entity.Account;
 
 @Mapper
 public interface EntityDtoMapper {
@@ -25,12 +24,12 @@ public interface EntityDtoMapper {
 	@Mapping(target = "hashedPassword", ignore = true)
 	@Mapping(target = "createdDate", expression = "java(java.time.LocalDate.now())")
 	@Mapping(target = "roles", ignore = true)
-	User userRegisterRequestToUser(UserRegisterRequest userRegisterRequest);
+	Account userRegisterRequestToUser(UserRegisterRequest userRegisterRequest);
 
 	@Mapping(target = "token", ignore = true)
-	LoginSuccessResponse userToLoginSuccessResponse(User user);
+	LoginSuccessResponse userToLoginSuccessResponse(Account user);
 	
-	UserDataResponse userToUserDataResponse(User user);
+	UserDataResponse userToUserDataResponse(Account user);
 	
 	
 	
@@ -39,6 +38,7 @@ public interface EntityDtoMapper {
     @Mapping(source = "name", target = "firstName")
     @Mapping(source = "surname", target = "lastName")
     @Mapping(source = "phone", target = "phoneNumber")
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "activityLogs", ignore = true)
     @Mapping(target = "payments", ignore = true)
     @Mapping(target = "group", ignore = true)

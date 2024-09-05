@@ -1,6 +1,6 @@
 package edutrack.validation;
 
-import edutrack.dto.response.accounting.Role;
+import edutrack.modul.user.dto.response.Role;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

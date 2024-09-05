@@ -14,21 +14,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
+import edutrack.modul.activityLog.dto.request.AddActivityLogRequest;
+import edutrack.modul.activityLog.dto.response.StudentActivityLogResponse;
+import edutrack.modul.activityLog.entity.ActivityLog;
 import edutrack.constant.LeadStatus;
-import edutrack.dto.request.activityLog.AddActivityLogRequest;
-import edutrack.dto.request.payment.AddPaymentRequest;
-import edutrack.dto.request.student.StudentCreateRequest;
-import edutrack.dto.request.student.StudentUpdateDataRequest;
-import edutrack.dto.response.activityLog.StudentActivityLogResponse;
-import edutrack.dto.response.payment.SinglePayment;
-import edutrack.dto.response.payment.StudentPaymentInfoResponse;
-import edutrack.dto.response.student.StudentDataResponse;
-import edutrack.entity.students.ActivityLog;
-import edutrack.entity.students.Payment;
-import edutrack.entity.students.Student;
-import edutrack.repository.ActivityLogRepository;
-import edutrack.repository.PaymentRepository;
-import edutrack.repository.StudentRepository;
+import edutrack.modul.activityLog.repository.ActivityLogRepository;
+import edutrack.modul.payment.repository.PaymentRepository;
+import edutrack.modul.student.repository.StudentRepository;
+import edutrack.modul.student.service.StudentServiceImp;
+import edutrack.modul.payment.dto.request.AddPaymentRequest;
+import edutrack.modul.payment.dto.response.SinglePayment;
+import edutrack.modul.payment.dto.response.StudentPaymentInfoResponse;
+import edutrack.modul.payment.entity.Payment;
+import edutrack.modul.student.dto.request.StudentCreateRequest;
+import edutrack.modul.student.dto.request.StudentUpdateDataRequest;
+import edutrack.modul.student.dto.response.StudentDataResponse;
+import edutrack.modul.student.entity.Student;
 
 @SpringBootTest
 @Sql(scripts = {"classpath:testdata.sql"})
@@ -36,7 +37,7 @@ import edutrack.repository.StudentRepository;
 public class StudentServiceIntegrationTest {
 
     @Autowired
-    private StudentService studentService;
+    private StudentServiceImp studentService;
 
     @Autowired
     private StudentRepository studentRepo;

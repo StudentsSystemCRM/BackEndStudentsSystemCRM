@@ -9,7 +9,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import edutrack.repository.UserRepository;
+import edutrack.modul.user.entity.Account;
+import edutrack.modul.user.repository.UserRepository;
 
 @Configuration
 public class SecurityConfig {
@@ -21,7 +22,7 @@ public class SecurityConfig {
     @Bean
     UserDetailsService userDetailsService(UserRepository repository) {
         return (userData) -> {
-            edutrack.entity.accounting.User account = repository.findByEmail(userData);
+            Account account = repository.findByEmail(userData);
             if (account == null)
                 throw new UsernameNotFoundException("Account with email '%s' not found".formatted(userData));
             String password = account.getHashedPassword();

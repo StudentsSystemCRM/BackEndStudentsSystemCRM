@@ -2,16 +2,22 @@ package edutrack.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edutrack.constant.LeadStatus;
-import edutrack.dto.request.payment.AddPaymentRequest;
-import edutrack.dto.request.student.StudentCreateRequest;
-import edutrack.dto.response.payment.SinglePayment;
-import edutrack.dto.response.payment.StudentPaymentInfoResponse;
-import edutrack.dto.response.student.StudentDataResponse;
-import edutrack.repository.*;
+import edutrack.modul.activityLog.repository.ActivityLogRepository;
+import edutrack.modul.group.repository.GroupRepository;
+import edutrack.modul.payment.repository.PaymentRepository;
+import edutrack.modul.student.repository.StudentRepository;
+import edutrack.modul.student.service.StudentServiceImp;
+import edutrack.modul.user.repository.UserRepository;
+import edutrack.modul.payment.dto.request.AddPaymentRequest;
+import edutrack.modul.payment.dto.response.SinglePayment;
+import edutrack.modul.payment.dto.response.StudentPaymentInfoResponse;
 import edutrack.security.JwtTokenCreator;
 import edutrack.security.JwtTokenValidator;
 import edutrack.security.SecurityConfig;
-import edutrack.service.StudentService;
+import edutrack.modul.student.controller.StudentController;
+import edutrack.modul.student.dto.request.StudentCreateRequest;
+import edutrack.modul.student.dto.response.StudentDataResponse;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -44,7 +50,7 @@ public class StudentControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private StudentService studentService;
+    private StudentServiceImp studentService;
     @MockBean
     private UserRepository userRepository;
 
