@@ -1,9 +1,9 @@
 package edutrack.service;
 
 
-import edutrack.dto.request.students.GroupCreateRequest;
-import edutrack.dto.request.students.GroupUpdateDataRequest;
-import edutrack.dto.response.students.GroupDataResponse;
+import edutrack.dto.request.group.GroupCreateRequest;
+import edutrack.dto.request.group.GroupUpdateDataRequest;
+import edutrack.dto.response.group.GroupDataResponse;
 
 public interface IGroup {
 	

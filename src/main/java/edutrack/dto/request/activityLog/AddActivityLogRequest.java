@@ -1,4 +1,4 @@
-package edutrack.dto.request.students;
+package edutrack.dto.request.activityLog;
 
 import java.time.LocalDate;
 
@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddStudentCommentRequest {
+public class AddActivityLogRequest {
 	@NotNull(message = "ID cannot be null.")
 	Long studentId;
 

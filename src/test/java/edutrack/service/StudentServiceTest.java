@@ -25,9 +25,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import edutrack.dto.request.students.StudentCreateRequest;
-import edutrack.dto.request.students.StudentUpdateDataRequest;
-import edutrack.dto.response.students.StudentDataResponse;
+import edutrack.dto.request.student.StudentCreateRequest;
+import edutrack.dto.request.student.StudentUpdateDataRequest;
+import edutrack.dto.response.student.StudentDataResponse;
 import edutrack.entity.students.ActivityLog;
 import edutrack.entity.students.Student;
 import edutrack.exception.EmailAlreadyInUseException;

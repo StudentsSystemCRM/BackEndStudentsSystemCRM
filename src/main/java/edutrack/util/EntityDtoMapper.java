@@ -5,13 +5,13 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import edutrack.dto.request.accounting.UserRegisterRequest;
-import edutrack.dto.request.students.GroupCreateRequest;
-import edutrack.dto.request.students.GroupUpdateDataRequest;
-import edutrack.dto.request.students.StudentCreateRequest;
+import edutrack.dto.request.group.GroupCreateRequest;
+import edutrack.dto.request.group.GroupUpdateDataRequest;
+import edutrack.dto.request.student.StudentCreateRequest;
 import edutrack.dto.response.accounting.LoginSuccessResponse;
 import edutrack.dto.response.accounting.UserDataResponse;
-import edutrack.dto.response.students.StudentActivityLog;
-import edutrack.dto.response.students.StudentDataResponse;
+import edutrack.dto.response.activityLog.SingleActivityLog;
+import edutrack.dto.response.student.StudentDataResponse;
 import edutrack.entity.accounting.User;
 import edutrack.entity.students.ActivityLog;
 import edutrack.entity.students.Group;
@@ -55,7 +55,7 @@ public interface EntityDtoMapper {
 	StudentDataResponse studentToStudentDataResponse(Student studentEntity);
 
     @Mapping(source = "information", target = "message")
-	StudentActivityLog activityLogEntitytoStudentActivityLog(ActivityLog activityLog);
+	SingleActivityLog activityLogEntitytoStudentActivityLog(ActivityLog activityLog);
     
     @Mapping(target = "groupReminders", ignore = true)
     @Mapping(target = "deactivateAfter30Days", ignore = true)

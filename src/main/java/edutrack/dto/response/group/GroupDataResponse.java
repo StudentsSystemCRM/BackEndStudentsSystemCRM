@@ -1,8 +1,7 @@
-package edutrack.dto.response.students;
+package edutrack.dto.response.group;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 import edutrack.constant.GroupStatus;
 import edutrack.constant.WeekDay;

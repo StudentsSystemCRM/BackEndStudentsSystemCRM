@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
-import edutrack.dto.response.GeneralErrorResponse;
-import edutrack.dto.response.GeneralErrorResponseValidation;
+import edutrack.dto.response.error.GeneralErrorResponse;
+import edutrack.dto.response.error.GeneralErrorResponseValidation;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

@@ -1,4 +1,4 @@
-package edutrack.dto.request.students;
+package edutrack.dto.request.student;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;

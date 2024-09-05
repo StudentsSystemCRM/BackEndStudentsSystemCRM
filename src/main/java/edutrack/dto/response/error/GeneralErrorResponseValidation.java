@@ -1,4 +1,6 @@
-package edutrack.dto.response;
+package edutrack.dto.response.error;
+
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,7 +18,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class GeneralErrorResponse {
+public class GeneralErrorResponseValidation {
 	String logId;
-	String message;
+	List<String> message;
 }

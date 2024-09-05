@@ -12,21 +12,17 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.test.context.jdbc.Sql;
 
 import edutrack.constant.LeadStatus;
-import edutrack.dto.request.students.AddStudentCommentRequest;
-import edutrack.dto.request.students.AddStudentPaymentRequest;
-import edutrack.dto.request.students.StudentCreateRequest;
-import edutrack.dto.request.students.StudentUpdateDataRequest;
-import edutrack.dto.response.students.PaymentConfirmationResponse;
-import edutrack.dto.response.students.StudentActivityLogResponse;
-import edutrack.dto.response.students.StudentDataResponse;
-import edutrack.dto.response.students.StudentPaymentInfoResponse;
+import edutrack.dto.request.activityLog.AddActivityLogRequest;
+import edutrack.dto.request.payment.AddPaymentRequest;
+import edutrack.dto.request.student.StudentCreateRequest;
+import edutrack.dto.request.student.StudentUpdateDataRequest;
+import edutrack.dto.response.activityLog.StudentActivityLogResponse;
+import edutrack.dto.response.payment.SinglePayment;
+import edutrack.dto.response.payment.StudentPaymentInfoResponse;
+import edutrack.dto.response.student.StudentDataResponse;
 import edutrack.entity.students.ActivityLog;
 import edutrack.entity.students.Payment;
 import edutrack.entity.students.Student;
@@ -94,21 +90,22 @@ public class StudentServiceIntegrationTest {
     @Test
     public void testAddStudentComment() {
 
-        AddStudentCommentRequest commentRequest = new AddStudentCommentRequest(STUDENT_ID_DB_H2, LocalDate.now(), "Second comment");
+        AddActivityLogRequest commentRequest = new AddActivityLogRequest(STUDENT_ID_DB_H2, LocalDate.now(), "Second comment");
         StudentActivityLogResponse activityLogResponse = studentService.addStudentComment(commentRequest);
         
         assertNotNull(activityLogResponse);
-        assertEquals(1, activityLogResponse.getActivityLog().size());
-        assertEquals("Second comment", activityLogResponse.getActivityLog().get(0).getMessage());
+        assertEquals(1, activityLogResponse.getActivityLogs().size());
+        assertEquals("Second comment", activityLogResponse.getActivityLogs().get(0).getMessage());
     }
 
     @Test
     public void testAddStudentPayment() {
-        AddStudentPaymentRequest paymentRequest = new AddStudentPaymentRequest(
+        AddPaymentRequest paymentRequest = new AddPaymentRequest(
         		STUDENT_ID_DB_H2, LocalDate.now(),
                 "Credit Card", BigDecimal.valueOf(1500.00), 3,"Course Fee");
 
-        PaymentConfirmationResponse paymentResponse = studentService.addStudentPayment(paymentRequest);        
+        StudentPaymentInfoResponse payments = studentService.addStudentPayment(paymentRequest);        
+        SinglePayment paymentResponse = payments.getPaymentInfo().get(0);
         StudentPaymentInfoResponse resp = studentService.getStudentPaymentInfo(STUDENT_ID_DB_H2);
 
         assertNotNull(paymentResponse.getId());
@@ -134,10 +131,10 @@ public class StudentServiceIntegrationTest {
 
     @Test
     public void testCascadeDeleteStudent() {
-        AddStudentCommentRequest commentRequest = new AddStudentCommentRequest(STUDENT_ID_DB_H2, LocalDate.now(), "First training session");
+        AddActivityLogRequest commentRequest = new AddActivityLogRequest(STUDENT_ID_DB_H2, LocalDate.now(), "First training session");
         studentService.addStudentComment(commentRequest);
         
-        AddStudentPaymentRequest paymentRequest = new AddStudentPaymentRequest(STUDENT_ID_DB_H2, LocalDate.now(),
+        AddPaymentRequest paymentRequest = new AddPaymentRequest(STUDENT_ID_DB_H2, LocalDate.now(),
                 "Cash", BigDecimal.valueOf(2000.00), 2,"Training Fee");
         studentService.addStudentPayment(paymentRequest);
         
