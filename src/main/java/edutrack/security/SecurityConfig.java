@@ -10,7 +10,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import edutrack.modul.user.entity.Account;
-import edutrack.modul.user.repository.UserRepository;
+import edutrack.modul.user.repository.AccountRepository;
 
 @Configuration
 public class SecurityConfig {
@@ -20,7 +20,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    UserDetailsService userDetailsService(UserRepository repository) {
+    UserDetailsService userDetailsService(AccountRepository repository) {
         return (userData) -> {
             Account account = repository.findByEmail(userData);
             if (account == null)

@@ -10,7 +10,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import edutrack.modul.user.repository.UserRepository;
+import edutrack.modul.user.repository.AccountRepository;
 import edutrack.modul.user.dto.response.Role;
 import edutrack.modul.user.entity.Account;
 import lombok.AccessLevel;
@@ -22,7 +22,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DefaultCEOAccountCreationBoot implements ApplicationRunner{
 	PasswordEncoder passwordEncoder;
-	UserRepository repository;
+	AccountRepository repository;
 	
 	@Override
 	public void run(ApplicationArguments args) {

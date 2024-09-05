@@ -13,10 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import edutrack.modul.activityLog.dto.request.AddActivityLogRequest;
-import edutrack.modul.activityLog.dto.response.StudentActivityLogResponse;
+import edutrack.modul.activityLog.dto.response.ActivityLogResponse;
 import edutrack.modul.student.service.StudentService;
-import edutrack.modul.payment.dto.request.AddPaymentRequest;
-import edutrack.modul.payment.dto.response.StudentPaymentInfoResponse;
 import edutrack.modul.student.dto.request.StudentCreateRequest;
 import edutrack.modul.student.dto.request.StudentUpdateDataRequest;
 import edutrack.modul.student.dto.response.StudentDataResponse;
@@ -67,42 +65,10 @@ public class StudentController{
         return service.getStudentById(id);
     }
 
-    @GetMapping("/{id}/activity")
-    @Operation(summary = "Get a student's activities by ID", description = "Provide an ID to lookup a specific student's activities.")
-    public StudentActivityLogResponse getStudentActivityLog(@PathVariable Long id) {
-        return service.getStudentActivityLog(id);
-    }
-
-    @GetMapping("/{id}/payments")
-    @Operation(summary = "Get a student's payments by ID", description = "Provide an ID to lookup a specific student's payments.")
-    public StudentPaymentInfoResponse getStudentPaymentInfo(@PathVariable Long id) {
-        return service.getStudentPaymentInfo(id);
-    }
-
     @PutMapping("/update_student_information")
     @Operation(summary = "Update student information.", description = "Provide all data specific student and updated a needed fields.")
     public StudentDataResponse updateStudent(@RequestBody @Valid StudentUpdateDataRequest student) {
         return service.updateStudent(student);
-    }
-
-    @PostMapping("/comment")
-    @Operation(summary = "Add a comment to a student.", description = "Provide the necessary data to create a new comment to a specific student.")
-    public StudentActivityLogResponse addStudentComment(@RequestBody @Valid AddActivityLogRequest studentComment) {
-        return service.addStudentComment(studentComment);
-    }
-
-//    @PostMapping("/payment")
-//    @Operation(summary = "Add information about the student's payment history.", description = "Provide the necessary data to create a new payment to a specific student.")
-//    public StudentPaymentInfoResponse addStudentPayment(@RequestBody @Valid  AddStudentPaymentRequest studentPayment) {
-//        return service.addStudentPayment(studentPayment);
-//    }
-
-    @PostMapping("/payment")
-
-    @Operation(summary = "Add information about the student's payment history.", description = "Provide the necessary data to create a new payment for a specific student.")
-    public StudentPaymentInfoResponse addStudentPayment(@RequestBody @Valid AddPaymentRequest studentPayment) {
-
-        return service.addStudentPayment(studentPayment);
     }
 
     @DeleteMapping("/{id}")

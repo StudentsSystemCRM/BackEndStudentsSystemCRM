@@ -1,22 +1,25 @@
-package edutrack.service;
+package edutrack.account;
 
 
-import edutrack.exception.AccessException;
-import edutrack.exception.ResourceExistsException;
-import edutrack.modul.user.repository.UserRepository;
-import edutrack.modul.user.service.AccountService;
-import edutrack.modul.user.service.AccountServicemp;
-import edutrack.security.JwtTokenCreator;
-import edutrack.modul.user.dto.request.PasswordUpdateRequest;
-import edutrack.modul.user.dto.request.UserRegisterRequest;
-import edutrack.modul.user.dto.request.UserRoleRequest;
-import edutrack.modul.user.dto.request.UserUpdateRequest;
-import edutrack.modul.user.dto.response.LoginSuccessResponse;
-import edutrack.modul.user.dto.response.Role;
-import edutrack.modul.user.dto.response.UserDataResponse;
-import edutrack.modul.user.entity.Account;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.security.Principal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,22 +33,31 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.security.Principal;
-import java.time.LocalDate;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import edutrack.exception.AccessException;
+import edutrack.exception.ResourceExistsException;
+import edutrack.modul.user.dto.request.PasswordUpdateRequest;
+import edutrack.modul.user.dto.request.UserRegisterRequest;
+import edutrack.modul.user.dto.request.UserRoleRequest;
+import edutrack.modul.user.dto.request.UserUpdateRequest;
+import edutrack.modul.user.dto.response.LoginSuccessResponse;
+import edutrack.modul.user.dto.response.Role;
+import edutrack.modul.user.dto.response.UserDataResponse;
+import edutrack.modul.user.entity.Account;
+import edutrack.modul.user.repository.AccountRepository;
+import edutrack.modul.user.service.AccountServiceImp;
+import edutrack.security.JwtTokenCreator;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 
 @ExtendWith(MockitoExtension.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AccountServicempTest {
 
 	@InjectMocks
-	AccountServicemp accountingManagementService;
+	AccountServiceImp accountingManagementService;
 
 	@Mock
-	UserRepository userRepository;
+	AccountRepository userRepository;
 
 	@Mock
 	PasswordEncoder passwordEncoder;

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 import edutrack.exception.AccessException;
 import edutrack.exception.ResourceExistsException;
-import edutrack.modul.user.repository.UserRepository;
+import edutrack.modul.user.repository.AccountRepository;
 import edutrack.util.EntityDtoMapper;
 import jakarta.transaction.Transactional;
 import lombok.experimental.FieldDefaults;
@@ -29,31 +29,9 @@ import lombok.experimental.FieldDefaults;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-public class AccountServicemp implements AccountService {
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @ToString
-    private static class UserAuthInfo {
-        private String username;
-        private boolean isAdmin;
-        private boolean isCeo;
-    }
+public class AccountServiceImp implements AccountService {
 
-    private UserAuthInfo getCurrentUserAuthInfo() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        boolean isAdmin = authorities.stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
-        boolean isCeo = authorities.stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_CEO"));
-
-        return new UserAuthInfo(username, isAdmin, isCeo);
-    }
-
-    UserRepository userRepository;
+    AccountRepository userRepository;
     PasswordEncoder passwordEncoder;
     JwtTokenCreator jwtTokenCreator;
 
@@ -202,5 +180,30 @@ public class AccountServicemp implements AccountService {
             throw new AccessException("You don't have rules to update this user's profile.");
         if (role.equalsIgnoreCase("ceo") && !isCeo)
         	throw new AccessException("add or remove role 'CEO' can only user with CEO role");
+    }
+    
+
+    private UserAuthInfo getCurrentUserAuthInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+        boolean isCeo = authorities.stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_CEO"));
+
+        return new UserAuthInfo(username, isAdmin, isCeo);
+    }
+
+    
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @ToString
+    private static class UserAuthInfo {
+        private String username;
+        private boolean isAdmin;
+        private boolean isCeo;
     }
 }

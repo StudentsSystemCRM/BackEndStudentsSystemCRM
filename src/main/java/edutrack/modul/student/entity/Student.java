@@ -39,9 +39,6 @@ public class Student {
     private String originalGroup;
     private Integer totalSumToPay;
 
-   // @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-   // @JoinTable(name = "student_groups", joinColumns = @JoinColumn(name = "student_id"), inverseJoinColumns = @JoinColumn(name = "name"))
-   // private List<Group> groups = new ArrayList<>();
     @ManyToOne
     @JoinColumn(name = "group_name")
     private Group group;
