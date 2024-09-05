@@ -1,26 +1,32 @@
 package edutrack.controller;
 
-import edutrack.dto.request.students.AddStudentCommentRequest;
-import edutrack.dto.request.students.AddStudentPaymentRequest;
-import edutrack.dto.request.students.StudentCreateRequest;
-import edutrack.dto.request.students.StudentUpdateDataRequest;
-import edutrack.dto.response.students.PaymentConfirmationResponse;
-import edutrack.dto.response.students.StudentActivityLogResponse;
-import edutrack.dto.response.students.StudentDataResponse;
-import edutrack.dto.response.students.StudentPaymentInfoResponse;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import edutrack.dto.request.activityLog.AddActivityLogRequest;
+import edutrack.dto.request.payment.AddPaymentRequest;
+import edutrack.dto.request.student.StudentCreateRequest;
+import edutrack.dto.request.student.StudentUpdateDataRequest;
+import edutrack.dto.response.activityLog.StudentActivityLogResponse;
+import edutrack.dto.response.payment.StudentPaymentInfoResponse;
+import edutrack.dto.response.student.StudentDataResponse;
 import edutrack.service.IStudent;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/students")
 public class StudentController{
     private final IStudent service;
-    @Autowired
     public StudentController(IStudent service) {
         this.service = service;
     }
@@ -81,7 +87,7 @@ public class StudentController{
 
     @PostMapping("/comment")
     @Operation(summary = "Add a comment to a student.", description = "Provide the necessary data to create a new comment to a specific student.")
-    public StudentActivityLogResponse addStudentComment(@RequestBody @Valid AddStudentCommentRequest studentComment) {
+    public StudentActivityLogResponse addStudentComment(@RequestBody @Valid AddActivityLogRequest studentComment) {
         return service.addStudentComment(studentComment);
     }
 
@@ -94,7 +100,7 @@ public class StudentController{
     @PostMapping("/payment")
 
     @Operation(summary = "Add information about the student's payment history.", description = "Provide the necessary data to create a new payment for a specific student.")
-    public PaymentConfirmationResponse addStudentPayment(@RequestBody @Valid AddStudentPaymentRequest studentPayment) {
+    public StudentPaymentInfoResponse addStudentPayment(@RequestBody @Valid AddPaymentRequest studentPayment) {
 
         return service.addStudentPayment(studentPayment);
     }

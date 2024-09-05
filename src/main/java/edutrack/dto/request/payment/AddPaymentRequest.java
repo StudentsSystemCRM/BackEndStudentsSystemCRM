@@ -1,4 +1,4 @@
-package edutrack.dto.request.students;
+package edutrack.dto.request.payment;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddStudentPaymentRequest {
+public class AddPaymentRequest {
 
 	@NotNull(message = "ID cannot be null.")
 	Long studentId;

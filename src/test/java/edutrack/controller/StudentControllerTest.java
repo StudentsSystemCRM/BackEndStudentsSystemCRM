@@ -2,13 +2,11 @@ package edutrack.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edutrack.constant.LeadStatus;
-import edutrack.dto.request.students.AddStudentPaymentRequest;
-import edutrack.dto.request.students.StudentCreateRequest;
-import edutrack.dto.response.students.PaymentConfirmationResponse;
-import edutrack.dto.response.students.StudentDataResponse;
-
-import edutrack.dto.response.students.StudentPayment;
-import edutrack.dto.response.students.StudentPaymentInfoResponse;
+import edutrack.dto.request.payment.AddPaymentRequest;
+import edutrack.dto.request.student.StudentCreateRequest;
+import edutrack.dto.response.payment.SinglePayment;
+import edutrack.dto.response.payment.StudentPaymentInfoResponse;
+import edutrack.dto.response.student.StudentDataResponse;
 import edutrack.repository.*;
 import edutrack.security.JwtTokenCreator;
 import edutrack.security.JwtTokenValidator;
@@ -211,23 +209,34 @@ public class StudentControllerTest {
     @Test
     public void testAddStudentPayment() throws Exception {
 
-        AddStudentPaymentRequest request = new AddStudentPaymentRequest();
+        AddPaymentRequest request = new AddPaymentRequest();
         request.setStudentId(123L);
         request.setDate(LocalDate.of(2024, 8, 23));
         request.setType("tuition");
         request.setAmount(BigDecimal.valueOf(100.0));
         request.setDetails("Payment for August semester");
 
-        PaymentConfirmationResponse response = new PaymentConfirmationResponse(
-                1L,  // ID платежа
-                LocalDate.of(2024, 8, 23),
-                "tuition",
-                BigDecimal.valueOf(100.0),
-                3,
-                "Payment for August semester"
+        StudentPaymentInfoResponse response = new StudentPaymentInfoResponse(
+                1L,
+                "John",
+                "Doe",
+                "123-456-7890",
+                "john.doe@example.com",
+                "Sample City",
+                "Sample Course",
+                "Sample Source",
+                LeadStatus.STUDENT,
+                List.of(new SinglePayment(
+                		1L,
+                        LocalDate.of(2024, 8, 23),
+                        "tuition",
+                        BigDecimal.valueOf(100.0),
+                        12,
+                        "Payment for August semester"
+                ))
         );
 
-        when(studentService.addStudentPayment(any(AddStudentPaymentRequest.class)))
+        when(studentService.addStudentPayment(any(AddPaymentRequest.class)))
                 .thenReturn(response);
 
                 mockMvc.perform(post("/api/students/payment")
@@ -237,16 +246,16 @@ public class StudentControllerTest {
                         .andExpect(jsonPath
                                         ("$.id").value(1))
                                 .andExpect(jsonPath
-                                        ( "$.date").value("2024-08-23"))
+                                		("$.paymentInfo[0].date").value("2024-08-23"))
 
                                 .andExpect(jsonPath
-                                        ("$.type").value("tuition"))
+                                        ("$.paymentInfo[0].type").value("tuition"))
 
                                 .andExpect(jsonPath(
-                                        "$.amount").value(100.0))
+                                        "$.paymentInfo[0].amount").value(100.0))
                                 .andExpect(jsonPath(
 
-                                        "$.details").value("Payment for August semester"));
+                                        "$.paymentInfo[0].details").value("Payment for August semester"));
     }
     @Test
     public void testGetStudentPaymentInfo() throws Exception {
@@ -262,10 +271,12 @@ public class StudentControllerTest {
                 "Sample Course",
                 "Sample Source",
                 leadStatus,
-                List.of(new StudentPayment(
+                List.of(new SinglePayment(
+                		1L,
                         LocalDate.of(2024, 8, 23),
                         "tuition",
                         BigDecimal.valueOf(100.0),
+                        12,
                         "Payment for August semester"
                 ))
         );

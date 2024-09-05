@@ -1,4 +1,4 @@
-package edutrack.dto.response.students;
+package edutrack.dto.response.payment;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentActivityLogResponse {
+public class StudentPaymentInfoResponse {
 	Long id;
 	String name;
 	String surname;
@@ -22,6 +22,7 @@ public class StudentActivityLogResponse {
 	String city;
 	String course;
 	String source;
-	LeadStatus leadStatus;
-	List<StudentActivityLog> activityLog;
+    LeadStatus leadStatus;
+	List<SinglePayment> paymentInfo;
+
 }

@@ -1,20 +1,19 @@
 package edutrack.service;
 
-import edutrack.dto.request.students.AddStudentCommentRequest;
-import edutrack.dto.request.students.AddStudentPaymentRequest;
-import edutrack.dto.request.students.StudentCreateRequest;
-import edutrack.dto.request.students.StudentUpdateDataRequest;
-import edutrack.dto.response.students.*;
+import edutrack.dto.request.activityLog.AddActivityLogRequest;
+import edutrack.dto.request.payment.AddPaymentRequest;
+import edutrack.dto.request.student.StudentCreateRequest;
+import edutrack.dto.request.student.StudentUpdateDataRequest;
+import edutrack.dto.response.activityLog.SingleActivityLog;
+import edutrack.dto.response.activityLog.StudentActivityLogResponse;
+import edutrack.dto.response.payment.SinglePayment;
+import edutrack.dto.response.payment.StudentPaymentInfoResponse;
+import edutrack.dto.response.student.*;
 import edutrack.entity.students.ActivityLog;
 import edutrack.entity.students.Payment;
 import edutrack.entity.students.Student;
 import edutrack.exception.EmailAlreadyInUseException;
 import edutrack.exception.StudentNotFoundException;
-import edutrack.dto.response.students.StudentActivityLog;
-import edutrack.dto.response.students.StudentActivityLogResponse;
-import edutrack.dto.response.students.StudentDataResponse;
-import edutrack.dto.response.students.StudentPayment;
-import edutrack.dto.response.students.StudentPaymentInfoResponse;
 import edutrack.repository.ActivityLogRepository;
 import edutrack.repository.PaymentRepository;
 import edutrack.repository.StudentRepository;
@@ -45,17 +44,17 @@ public class StudentService implements IStudent {
     }	
 	
 
-    private StudentActivityLogResponse toStudentActivityLogResponse(Student student, List<StudentActivityLog> studentActivityLog) {
+    private StudentActivityLogResponse toStudentActivityLogResponse(Student student, List<SingleActivityLog> studentActivityLog) {
         return new StudentActivityLogResponse(student.getId(), student.getFirstName(), student.getLastName(),
                 student.getPhoneNumber(), student.getEmail(), student.getCity(), student.getCourse(),
                 student.getSource(), student.getLeadStatus(), studentActivityLog);
     }
 
-    private StudentPayment toStudentPayment(Payment payment) {
-        return new StudentPayment(payment.getDate(), payment.getType(), payment.getAmount(), payment.getDetails());
+    private SinglePayment toStudentPayment(Payment payment) {
+        return new SinglePayment(payment.getId(), payment.getDate(), payment.getType(), payment.getAmount(),payment.getInstallments(), payment.getDetails());
     }
 
-    private StudentPaymentInfoResponse toStudentPaymentInfoResponse(Student student, List<StudentPayment> studentPayment) {
+    private StudentPaymentInfoResponse toStudentPaymentInfoResponse(Student student, List<SinglePayment> studentPayment) {
         return new StudentPaymentInfoResponse(student.getId(), student.getFirstName(), student.getLastName(),
                 student.getPhoneNumber(), student.getEmail(), student.getCity(), student.getCourse(),
                 student.getSource(), student.getLeadStatus(), studentPayment);
@@ -122,8 +121,8 @@ public class StudentService implements IStudent {
     public StudentActivityLogResponse getStudentActivityLog(Long id) {
         Student student = findStudentById(id);
         List<ActivityLog> activityLogs = activityRepo.findByStudentId(id);
-        List<StudentActivityLog> studentActivityLog = activityLogs.stream()
-        	    .map(log -> new StudentActivityLog(log.getDate(), log.getInformation()))
+        List<SingleActivityLog> studentActivityLog = activityLogs.stream()
+        	    .map(log -> new SingleActivityLog(log.getId(), log.getDate(), log.getInformation()))
         	    .collect(Collectors.toList());
         return toStudentActivityLogResponse(student, studentActivityLog);
     }
@@ -135,7 +134,7 @@ public class StudentService implements IStudent {
         List<Payment> payments = paymentRepo.findByStudentId(id);
         if (payments == null || payments.isEmpty())
             return new StudentPaymentInfoResponse();
-        List<StudentPayment> studentPayment = payments.stream().map(this::toStudentPayment).collect(Collectors.toList());
+        List<SinglePayment> studentPayment = payments.stream().map(this::toStudentPayment).collect(Collectors.toList());
         return toStudentPaymentInfoResponse(student, studentPayment);
     }
 
@@ -169,7 +168,7 @@ public class StudentService implements IStudent {
 
     @Override
     @Transactional
-    public StudentActivityLogResponse addStudentComment(AddStudentCommentRequest studentComment) {
+    public StudentActivityLogResponse addStudentComment(AddActivityLogRequest studentComment) {
         Student student = findStudentById(studentComment.getStudentId());
         LocalDate date = studentComment.getDate()==null?LocalDate.now():studentComment.getDate();
         ActivityLog activityLog = new ActivityLog(null, date, studentComment.getMessage(), student);
@@ -179,19 +178,13 @@ public class StudentService implements IStudent {
 
     @Override
     @Transactional
-    public PaymentConfirmationResponse addStudentPayment(AddStudentPaymentRequest studentPayment) {
+    public StudentPaymentInfoResponse addStudentPayment(AddPaymentRequest studentPayment) {
         Student student = findStudentById(studentPayment.getStudentId());
         Payment savedPayment = new Payment(null, studentPayment.getDate(), studentPayment.getType(), studentPayment.getAmount(), studentPayment.getInstallments(), studentPayment.getDetails(), student);
         savedPayment = paymentRepo.save(savedPayment);
-        PaymentConfirmationResponse response = new PaymentConfirmationResponse(
-                savedPayment.getId(),             // ID платежа
-                savedPayment.getDate(),
-                savedPayment.getType(),
-                savedPayment.getAmount(),
-                savedPayment.getInstallments(),
-                savedPayment.getDetails()
-        );
-        return response;
+        List<Payment> payments = paymentRepo.findByStudentId(studentPayment.getStudentId());
+        List<SinglePayment> paymentsResp = payments.stream().map(this::toStudentPayment).collect(Collectors.toList());
+        return toStudentPaymentInfoResponse(student, paymentsResp);
     }
 
     @Override

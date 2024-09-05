@@ -2,14 +2,13 @@ package edutrack.service;
 
 import java.util.List;
 
-import edutrack.dto.request.students.AddStudentCommentRequest;
-import edutrack.dto.request.students.AddStudentPaymentRequest;
-import edutrack.dto.request.students.StudentCreateRequest;
-import edutrack.dto.request.students.StudentUpdateDataRequest;
-import edutrack.dto.response.students.PaymentConfirmationResponse;
-import edutrack.dto.response.students.StudentActivityLogResponse;
-import edutrack.dto.response.students.StudentDataResponse;
-import edutrack.dto.response.students.StudentPaymentInfoResponse;
+import edutrack.dto.request.activityLog.AddActivityLogRequest;
+import edutrack.dto.request.payment.AddPaymentRequest;
+import edutrack.dto.request.student.StudentCreateRequest;
+import edutrack.dto.request.student.StudentUpdateDataRequest;
+import edutrack.dto.response.activityLog.StudentActivityLogResponse;
+import edutrack.dto.response.payment.StudentPaymentInfoResponse;
+import edutrack.dto.response.student.StudentDataResponse;
 
 public interface IStudent {
 	
@@ -24,8 +23,8 @@ public interface IStudent {
 	StudentPaymentInfoResponse getStudentPaymentInfo(Long id);
 	
 	StudentDataResponse updateStudent(StudentUpdateDataRequest student);
-	StudentActivityLogResponse  addStudentComment(AddStudentCommentRequest studentComment);
-	PaymentConfirmationResponse addStudentPayment(AddStudentPaymentRequest studentPayment);
+	StudentActivityLogResponse  addStudentComment(AddActivityLogRequest studentComment);
+	StudentPaymentInfoResponse addStudentPayment(AddPaymentRequest studentPayment);
 	
 	StudentDataResponse deleteStudent(Long id);
 }

@@ -1,4 +1,4 @@
-package edutrack.dto.response.students;
+package edutrack.dto.response.student;
 
 import edutrack.constant.LeadStatus;
 import lombok.AccessLevel;

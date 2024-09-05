@@ -1,5 +1,6 @@
-package edutrack.dto.response.students;
+package edutrack.dto.response.payment;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import lombok.AccessLevel;
@@ -12,7 +13,11 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentActivityLog {
+public class SinglePayment {
+	Long id;
 	LocalDate date;
-	String message;
+	String type;
+	BigDecimal amount;
+	Integer installments;
+	String details;
 }
