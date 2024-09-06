@@ -18,6 +18,6 @@ public @interface ValidRangeDate {
 	Class<?>[] groups() default {};
 	Class<? extends Payload>[] payload() default {};
 	
-	int yearsfromTodaytoFuture() default 120;
+	int yearsfromTodaytoFuture() default 0;
 	int yearsfromTodaytoPast() default 120;
 }
