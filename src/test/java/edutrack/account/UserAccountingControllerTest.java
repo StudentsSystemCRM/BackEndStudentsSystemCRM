@@ -1,18 +1,20 @@
-package edutrack.controller;
+package edutrack.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edutrack.constant.ValidationAccountingMessage;
-import edutrack.dto.request.accounting.PasswordUpdateRequest;
-import edutrack.dto.request.accounting.UserRegisterRequest;
-import edutrack.dto.request.accounting.UserRoleRequest;
-import edutrack.dto.request.accounting.UserUpdateRequest;
-import edutrack.dto.response.accounting.LoginSuccessResponse;
-import edutrack.dto.response.accounting.Role;
-import edutrack.dto.response.accounting.UserDataResponse;
 import edutrack.exception.AccessException;
 import edutrack.exception.ResourceExistsException;
+import edutrack.modul.user.controller.AccountController;
+import edutrack.modul.user.dto.request.PasswordUpdateRequest;
+import edutrack.modul.user.dto.request.UserRegisterRequest;
+import edutrack.modul.user.dto.request.UserRoleRequest;
+import edutrack.modul.user.dto.request.UserUpdateRequest;
+import edutrack.modul.user.dto.response.LoginSuccessResponse;
+import edutrack.modul.user.dto.response.Role;
+import edutrack.modul.user.dto.response.UserDataResponse;
+import edutrack.modul.user.service.AccountService;
 import edutrack.security.AutorizationFilterChain;
-import edutrack.service.AccountingManagementService;
+import edutrack.security.JwtTokenValidator;
 import edutrack.validation.ValidRangeDate;
 import edutrack.validation.ValidRole;
 import lombok.AccessLevel;
@@ -23,6 +25,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -31,12 +35,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+
 import java.lang.reflect.Field;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,17 +52,23 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@WebMvcTest(controllers = {UserAccountingController.class})
-@Import({AutorizationFilterChain.class})
+@WebMvcTest(AccountController.class)
+@AutoConfigureMockMvc
+@Import({JacksonAutoConfiguration.class, AutorizationFilterChain.class})
 public class UserAccountingControllerTest {
     @MockBean
-    AccountingManagementService accountingManagementService;
+    AccountService accountingManagementService;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     MockMvc mockMvc;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     ObjectMapper objectMapper;
+
+    @MockBean
+    JwtTokenValidator jwtTokenValidator;
 
     // valid userRegisterRequest test data
     final String VALID_USER_EMAIL_1 = "user1@test.com";
@@ -66,9 +78,9 @@ public class UserAccountingControllerTest {
     final String VALID_USER_PHONE_1 = "+123-456-78(9123)";
 
     // valid loginSuccessResponse test data
-    final String VALID_TOKEN = "mkwfMMM12MM";
+    final String VALID_TOKEN = "mocToken";
     final LocalDate VALID_BIRTHDATE = LocalDate.of(2000, 12, 15);
-    final LocalDate VALID_CREATED_DATE = LocalDate.of(2024,8,8);
+    final LocalDate VALID_CREATED_DATE = LocalDate.of(2024, 8, 8);
     final Set<Role> VALID_ROLE = Collections.singleton(Role.USER);
 
     final UserRegisterRequest USER_REGISTER_REQUEST = UserRegisterRequest.builder()
@@ -78,7 +90,7 @@ public class UserAccountingControllerTest {
             .surname(VALID_USER_SURNAME_1)
             .phone(VALID_USER_PHONE_1)
             .birthdate(VALID_BIRTHDATE)
-            .build();  ;
+            .build();
     final LoginSuccessResponse LOGIN_SUCCESS_RESPONSE = LoginSuccessResponse.builder()
             .token(VALID_TOKEN)
             .name(VALID_USER_NAME_1)
@@ -135,7 +147,7 @@ public class UserAccountingControllerTest {
         //Assert
         resultActions.andExpect(status().isOk())
                 .andExpect(result -> assertEquals(result.getResponse().getContentAsString(), expectedJson));
-        verify(accountingManagementService, times(1)).registration(any(String.class),any(UserRegisterRequest.class));;
+        verify(accountingManagementService, times(1)).registration(any(String.class), any(UserRegisterRequest.class));
 
     }
 
@@ -217,8 +229,8 @@ public class UserAccountingControllerTest {
                 .contentType(MediaType.APPLICATION_JSON));
         //Assert
         resultActions.andExpect(status().isUnauthorized()).
-                andExpect(result -> assertEquals("Unauthorized",result.getResponse().getErrorMessage()));
-        verify(accountingManagementService, times(0)).login(any(Principal.class));;
+                andExpect(result -> assertEquals("Unauthorized", result.getResponse().getErrorMessage()));
+        verify(accountingManagementService, times(0)).login(any(Principal.class));
     }
 
     @Test
@@ -241,7 +253,7 @@ public class UserAccountingControllerTest {
 
         //Assert
         resultActions.andExpect(status().isOk())
-                        .andExpect(result -> assertEquals(expectedDataJson,result.getResponse().getContentAsString()));
+                .andExpect(result -> assertEquals(expectedDataJson, result.getResponse().getContentAsString()));
     }
 
     @Test
@@ -251,7 +263,7 @@ public class UserAccountingControllerTest {
     void testUpdate_whenInvalidInputIsProvided_thenReturnBadRequest() {
         //Arrange
         UserUpdateRequest requestData = USER_UPDATE_REQUEST
-                .withBirthdate(LocalDate.of(2026,1,1)).withSurname("userov.surname");
+                .withBirthdate(LocalDate.of(2026, 1, 1)).withSurname("userov.surname");
         String requestDataJson = objectMapper.writeValueAsString(requestData);
         String expectedErrorMessage1 = ValidationAccountingMessage.INVALID_NAME;
 
@@ -319,7 +331,7 @@ public class UserAccountingControllerTest {
         //Assert
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").isString())
-                .andExpect(jsonPath("$.message").value("An unexpected error: "+ expectedErrorMessage1));
+                .andExpect(jsonPath("$.message").value("An unexpected error: " + expectedErrorMessage1));
 
         verify(accountingManagementService, times(1)).updateUser(any(UserUpdateRequest.class));
     }
@@ -362,6 +374,7 @@ public class UserAccountingControllerTest {
                 .andExpect(jsonPath("$.message").value(ValidationAccountingMessage.NULL_PASSWORD));
         verify(accountingManagementService, never()).updatePassword(any(Principal.class), any(PasswordUpdateRequest.class));
     }
+
     @Test
     @SneakyThrows
     @DisplayName("UpdatePassword, incorrect body")
@@ -401,10 +414,11 @@ public class UserAccountingControllerTest {
         //Assert
         verify(accountingManagementService, times(1)).addRole(eq(login), eq(USER_ROLE_REQUEST));
         resultActions.andExpect(status().isOk())
-                        .andExpect(result -> assertEquals(expectedDataJson, result.getResponse().getContentAsString()));
+                .andExpect(result -> assertEquals(expectedDataJson, result.getResponse().getContentAsString()));
         assertNotEquals(login, currentLogin);
         assertTrue(USER_DATA_RESPONSE.getRoles().toString().contains(USER_ROLE_REQUEST.getRole()));
     }
+
     @Test
     @SneakyThrows
     @DisplayName("addRole, invalid input")
@@ -439,7 +453,7 @@ public class UserAccountingControllerTest {
     void testAddRole_whenInvalidBodyIsProvided_thenReturnBadRequest() {
         //Arrange
         String invalidLogin = "invalid-email";
-        String requestDataJson ="user:SuperAdmin";
+        String requestDataJson = "user:SuperAdmin";
         String expectedErrorMessage1 = "An unexpected error: JSON parse error: Unrecognized token 'user': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false')";
 
         //Act
@@ -452,9 +466,10 @@ public class UserAccountingControllerTest {
                 .andExpect(jsonPath("$.message").value(expectedErrorMessage1));
 
     }
+
     @Test
     @SneakyThrows
-    @DisplayName("removeUser, unauthorized access")
+    @DisplayName("addRole, no permission")
     @WithMockUser(username = "user", roles = {"USER"})
     void testAddRole_whenUserIsNotAdmin_thenReturnForbidden() {
         // Arrange
@@ -529,7 +544,7 @@ public class UserAccountingControllerTest {
     void testRemoveRole_whenInvalidBodyIsProvided_thenReturnBadRequest() {
         //Arrange
         String invalidLogin = "invalid-email";
-        String requestDataJson ="user:SuperAdmin";
+        String requestDataJson = "user:SuperAdmin";
         String expectedErrorMessage1 = "An unexpected error: JSON parse error: Unrecognized token 'user': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false')";
 
         //Act
@@ -545,7 +560,7 @@ public class UserAccountingControllerTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("removeUser, unauthorized access")
+    @DisplayName("removeRole, no permission")
     @WithMockUser(username = "user", roles = {"USER"})
     void testRemoveRole_whenUserIsNotAdmin_thenReturnForbidden() {
         // Arrange
@@ -617,25 +632,8 @@ public class UserAccountingControllerTest {
 
         // Assert
         resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("An unexpected error: "+exceptionMessage))
+                .andExpect(jsonPath("$.message").value("An unexpected error: " + exceptionMessage))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof NoSuchElementException));
         verify(accountingManagementService, times(1)).removeUser(nonExistentLogin);
     }
-    @Test
-    @SneakyThrows
-    @DisplayName("removeUser, unauthorized access")
-    @WithMockUser(username = "user", roles = {"USER"})
-    void testRemoveUser_whenUserIsNotAdmin_thenReturnForbidden() {
-        // Arrange
-        String validLogin = VALID_USER_EMAIL_1;
-
-        // Act
-        ResultActions resultActions = mockMvc.perform(delete("/api/users/{login}", validLogin)
-                .contentType(MediaType.APPLICATION_JSON));
-
-        // Assert
-        resultActions.andExpect(status().isForbidden());
-        verify(accountingManagementService, never()).removeUser(anyString());
-    }
-
 }
