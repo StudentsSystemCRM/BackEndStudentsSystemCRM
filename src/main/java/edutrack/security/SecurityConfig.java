@@ -13,12 +13,12 @@ import edutrack.repository.UserRepository;
 
 @Configuration
 public class SecurityConfig {
-	
+
 	@Bean
 	PasswordEncoder getPasswordEncoder() {
 		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 	}
-	
+
 	@Bean
 	UserDetailsService userDetailsService(UserRepository repository) {
 		return (userData) -> {
