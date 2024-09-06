@@ -8,16 +8,19 @@ import java.lang.annotation.Target;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 @Constraint(validatedBy = BirthdateValidator.class)
 public @interface ValidRangeDate {
-
 	String message() default "birthdate format fullyear-month-day, or day/month/fullyear, or month-day-fullyear or day.month.fullyear";
 	Class<?>[] groups() default {};
 	Class<? extends Payload>[] payload() default {};
 	
+<<<<<<< HEAD
 	int yearsfromTodaytoFuture() default 0;
 	int yearsfromTodaytoPast() default 120;
+=======
+	int yearsFromTodayToFuture() default 120;
+	int yearsFromTodayToPast() default 120;
+>>>>>>> master
 }
