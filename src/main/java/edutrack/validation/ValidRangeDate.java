@@ -15,7 +15,8 @@ public @interface ValidRangeDate {
 	String message() default "birthdate format fullyear-month-day, or day/month/fullyear, or month-day-fullyear or day.month.fullyear";
 	Class<?>[] groups() default {};
 	Class<? extends Payload>[] payload() default {};
-	
+
 	int yearsFromTodayToFuture() default 120;
 	int yearsFromTodayToPast() default 120;
+
 }
