@@ -21,12 +21,10 @@ import edutrack.modul.student.entity.Student;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@SecondaryTable(name = "groupLessons", pkJoinColumns = @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "name"))
-@SecondaryTable(name = "groupWebinars", pkJoinColumns = @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "name"))
-@Table(name = "student_groups")
+@Table(name = "groups")
 public class Group {
-    @Id   
-    @Column(name = "name", unique=true)
+    @Id
+    @Column(name = "name",unique=true)
     private String name;
 
     private String whatsApp;
@@ -38,19 +36,17 @@ public class Group {
     private LocalDate expFinishDate;
     private LocalDate DeactivateAfter30Days;
     
-    //@ManyToMany(mappedBy = "group")
-    //private Set<Student> students = new HashSet<>();
-    @OneToMany(mappedBy = "group")
-    private List<Student> students;
+    @ElementCollection
+    private List<Student> students  = new ArrayList<>();
     
     @OneToMany(mappedBy = "group")
     private List<GroupReminders> groupReminders = new ArrayList<>();
     
-    @Column(table="groupLessons")
+    @ElementCollection
     @Enumerated(EnumType.STRING)
     private List<WeekDay> lessonsDays = new ArrayList<>();
     
-    @Column(table="groupWebinars")
+    @ElementCollection
     @Enumerated(EnumType.STRING)
     private List<WeekDay> webinarsDays = new ArrayList<>();
     

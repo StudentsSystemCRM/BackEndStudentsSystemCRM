@@ -48,7 +48,7 @@ public interface EntityDtoMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "activityLogs", ignore = true)
     @Mapping(target = "payments", ignore = true)
-    @Mapping(target = "group", ignore = true)
+    @Mapping(target = "groups", ignore = true)
     @Mapping(target = "studentReminders", ignore = true)
     @Mapping(target = "totalSumToPay", ignore = true)
     @Mapping(target = "originalGroup", ignore = true)

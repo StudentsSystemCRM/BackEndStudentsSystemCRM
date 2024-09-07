@@ -11,6 +11,8 @@ import edutrack.exception.EmailAlreadyInUseException;
 import edutrack.exception.StudentNotFoundException;
 import edutrack.modul.activityLog.entity.ActivityLog;
 import edutrack.modul.activityLog.repository.ActivityLogRepository;
+import edutrack.modul.group.entity.Group;
+import edutrack.modul.group.repository.GroupRepository;
 import edutrack.modul.payment.repository.PaymentRepository;
 import edutrack.modul.student.dto.request.StudentCreateRequest;
 import edutrack.modul.student.dto.request.StudentUpdateDataRequest;
@@ -30,6 +32,7 @@ public class StudentServiceImp implements StudentService {
     StudentRepository studentRepo;
     ActivityLogRepository activityRepo;
     PaymentRepository paymentRepo;
+    GroupRepository groupRepo;
 
     @Override
     public StudentDataResponse getStudentById(Long id) {
@@ -130,6 +133,14 @@ public class StudentServiceImp implements StudentService {
                 () -> new StudentNotFoundException("Student with id " + id + " not found"));
     }
 
-
+	@Override
+	@Transactional
+	public List<StudentDataResponse> getStudentsByGroup(String name) {
+		Group group = groupRepo.findByName(name);
+		List<Student> students = group.getStudents();
+		if (students == null || students.isEmpty())
+            return new ArrayList<>();
+        return students.stream().map(EntityDtoMapper.INSTANCE::studentToStudentDataResponse).collect(Collectors.toList());
+	}
 }
 

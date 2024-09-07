@@ -10,7 +10,10 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import edutrack.modul.activityLog.entity.ActivityLog;
 import edutrack.constant.GroupStatus;
@@ -77,10 +80,12 @@ public class StudentServiceTest {
                 "",
                 ""
         );
+        List<Group> groups = new ArrayList<>();
+        groups.add(groupStudent);
         student = new Student(1L, "John", "Doe", "123456789",
                 "john.doe@example.com", "City", "Course", "Source",
                 LeadStatus.CONSULTATION, "testGroup",
-                16000, groupStudent,null,null,null,"","");
+                16000, groups,null,null,null,"","");
         request = new StudentCreateRequest("John", "Doe",
                 "123456789", "john.doe@example.com", "City", "Course",
                 "Source", LeadStatus.IN_WORK, "Create comment");

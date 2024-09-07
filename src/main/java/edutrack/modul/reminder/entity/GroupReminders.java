@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import edutrack.modul.group.entity.Group;
 
@@ -19,7 +19,7 @@ public class GroupReminders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate date;
+    private LocalDateTime date;
     private String information;
 
     @ManyToOne
