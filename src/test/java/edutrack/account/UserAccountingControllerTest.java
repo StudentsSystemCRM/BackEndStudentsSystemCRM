@@ -13,7 +13,7 @@ import edutrack.modul.user.dto.response.LoginSuccessResponse;
 import edutrack.modul.user.dto.response.Role;
 import edutrack.modul.user.dto.response.UserDataResponse;
 import edutrack.modul.user.service.AccountService;
-import edutrack.security.AutorizationFilterChain;
+import edutrack.security.AuthorizationFilterChain;
 import edutrack.security.JwtTokenValidator;
 import edutrack.validation.ValidRangeDate;
 import edutrack.validation.ValidRole;
@@ -54,7 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @WebMvcTest(AccountController.class)
 @AutoConfigureMockMvc
-@Import({JacksonAutoConfiguration.class, AutorizationFilterChain.class})
+@Import({JacksonAutoConfiguration.class, AuthorizationFilterChain.class})
 public class UserAccountingControllerTest {
     @MockBean
     AccountService accountingManagementService;
