@@ -11,8 +11,8 @@ import java.util.List;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 
-import edutrack.modul.activityLog.entity.ActivityLog;
 import edutrack.constant.LeadStatus;
+import edutrack.modul.activityLog.entity.ActivityLog;
 import edutrack.modul.group.entity.Group;
 import edutrack.modul.payment.entity.Payment;
 import edutrack.modul.reminder.entity.StudentReminders;
@@ -39,9 +39,9 @@ public class Student {
     private String originalGroup;
     private Integer totalSumToPay;
 
-    @ManyToOne
-    @JoinColumn(name = "group_name")
-    private Group group;
+    @ManyToMany
+    @JoinTable(name = "groups_students", joinColumns = @JoinColumn(name = "students_id"), inverseJoinColumns = @JoinColumn(name = "group_name"))
+    private List<Group> groups;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<ActivityLog> activityLogs = new ArrayList<>();
