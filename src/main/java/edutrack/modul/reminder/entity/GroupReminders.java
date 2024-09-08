@@ -19,8 +19,8 @@ public class GroupReminders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime date;
-    private String information;
+    private LocalDateTime dateTime;
+    private String comment;
 
     @ManyToOne
     @JoinColumn(name = "group_name")
