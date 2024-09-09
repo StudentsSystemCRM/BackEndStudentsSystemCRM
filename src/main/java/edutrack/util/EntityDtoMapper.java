@@ -39,11 +39,8 @@ public interface EntityDtoMapper {
 	LoginSuccessResponse userToLoginSuccessResponse(Account user);
 	
 	UserDataResponse userToUserDataResponse(Account user);
-	
-	
-	
+
 	//student
-	
     @Mapping(source = "name", target = "firstName")
     @Mapping(source = "surname", target = "lastName")
     @Mapping(source = "phone", target = "phoneNumber")
