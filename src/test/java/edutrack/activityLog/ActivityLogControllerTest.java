@@ -3,6 +3,7 @@ package edutrack.activityLog;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import edutrack.security.token.JwtConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,10 +21,9 @@ import edutrack.security.token.JwtTokenValidator;
 import edutrack.security.SecurityConfig;
 
 @WebMvcTest(ActivityLogController.class)
-@Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})
+@Import({JwtTokenValidator.class, JwtTokenCreator.class, JwtConfig.class, SecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class ActivityLogControllerTest {
-	
     @Autowired
     private MockMvc mockMvc;
 
@@ -32,6 +32,7 @@ public class ActivityLogControllerTest {
     
     @MockBean
     private ActivityLogService activityLogService;
+
     @MockBean
     private AccountRepository userRepository;
     

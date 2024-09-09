@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import edutrack.security.token.JwtConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -36,7 +37,7 @@ import edutrack.security.token.JwtTokenValidator;
 import edutrack.security.SecurityConfig;
 
 @WebMvcTest(PaymentController.class)
-@Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})
+@Import({JwtTokenValidator.class, JwtTokenCreator.class, JwtConfig.class, SecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class PaymentControllerTest {
 	
