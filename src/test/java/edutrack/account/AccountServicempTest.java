@@ -45,7 +45,7 @@ import edutrack.modul.user.dto.response.UserDataResponse;
 import edutrack.modul.user.entity.Account;
 import edutrack.modul.user.repository.AccountRepository;
 import edutrack.modul.user.service.AccountServiceImp;
-import edutrack.security.JwtTokenCreator;
+import edutrack.security.token.JwtTokenCreator;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 

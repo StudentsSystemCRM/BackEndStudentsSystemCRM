@@ -3,7 +3,7 @@ package edutrack.modul.user.service;
 import java.security.Principal;
 import java.util.*;
 
-import edutrack.security.JwtTokenCreator;
+import edutrack.security.token.JwtTokenCreator;
 import edutrack.modul.user.dto.request.PasswordUpdateRequest;
 import edutrack.modul.user.dto.request.UserRegisterRequest;
 import edutrack.modul.user.dto.request.UserRoleRequest;

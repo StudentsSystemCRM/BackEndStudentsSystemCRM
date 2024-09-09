@@ -31,8 +31,8 @@ import edutrack.modul.payment.dto.response.PaymentInfoResponse;
 import edutrack.modul.payment.dto.response.SinglePayment;
 import edutrack.modul.payment.service.PaymentService;
 import edutrack.modul.user.repository.AccountRepository;
-import edutrack.security.JwtTokenCreator;
-import edutrack.security.JwtTokenValidator;
+import edutrack.security.token.JwtTokenCreator;
+import edutrack.security.token.JwtTokenValidator;
 import edutrack.security.SecurityConfig;
 
 @WebMvcTest(PaymentController.class)

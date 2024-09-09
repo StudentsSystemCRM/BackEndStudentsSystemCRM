@@ -14,7 +14,7 @@ import edutrack.modul.user.dto.response.Role;
 import edutrack.modul.user.dto.response.UserDataResponse;
 import edutrack.modul.user.service.AccountService;
 import edutrack.security.AuthorizationFilterChain;
-import edutrack.security.JwtTokenValidator;
+import edutrack.security.token.JwtTokenValidator;
 import edutrack.validation.ValidRangeDate;
 import edutrack.validation.ValidRole;
 import lombok.AccessLevel;
