@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -25,5 +26,23 @@ public class JwtTokenValidator {
 
         logger.info("JWT token validated successfully: {}", token);
         return claims;
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            Date expirationDate = claims.getExpiration();
+
+            if (expirationDate.before(new Date())) {
+                logger.warn("JWT token is expired: {}", token);
+                return false;
+            }
+
+            logger.info("JWT token is valid: {}", token);
+            return true;
+        } catch (Exception e) {
+            logger.warn("Invalid JWT token: {}", token);
+        }
+        return false;
     }
 }

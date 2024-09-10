@@ -10,6 +10,7 @@ public class PulsarConfig {
     public PulsarClient pulsarClient() throws PulsarClientException {
         return PulsarClient.builder()
                 .serviceUrl("pulsar://localhost:6650")
+                .ioThreads(4)
                 .build();
     }
 

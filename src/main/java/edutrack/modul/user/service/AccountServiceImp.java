@@ -3,6 +3,7 @@ package edutrack.modul.user.service;
 import java.security.Principal;
 import java.util.*;
 
+import edutrack.pulsar.PulsarProducerService;
 import edutrack.security.token.JwtTokenCreator;
 import edutrack.modul.user.dto.request.PasswordUpdateRequest;
 import edutrack.modul.user.dto.request.UserRegisterRequest;
@@ -13,6 +14,7 @@ import edutrack.modul.user.dto.response.Role;
 import edutrack.modul.user.dto.response.UserDataResponse;
 import edutrack.modul.user.entity.Account;
 import lombok.*;
+import org.apache.pulsar.client.api.PulsarClientException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +36,7 @@ public class AccountServiceImp implements AccountService {
     AccountRepository userRepository;
     PasswordEncoder passwordEncoder;
     JwtTokenCreator jwtTokenCreator;
+    PulsarProducerService pulsarProducerService;
 
     @Override
     @Transactional
@@ -45,13 +48,22 @@ public class AccountServiceImp implements AccountService {
         Account user = userRepository.findByEmail(data.getEmail());
 
         if (user != null)
-            throw new ResourceExistsException("user with email " + data.getEmail() + "already exists");
+            throw new ResourceExistsException("User with email " + data.getEmail() + "already exists");
         user = EntityDtoMapper.INSTANCE.userRegisterRequestToUser(data);
         user.setHashedPassword(passwordEncoder.encode(data.getPassword()));
         user.setRoles(new HashSet<>(List.of(Role.USER)));
         userRepository.save(user);
-        // token
+
+        // generate token
         String token = jwtTokenCreator.createToken(user.getEmail(), user.getRoles());
+
+        // send message through pulsar
+        try {
+            pulsarProducerService.sendMessage("New user " + user.getEmail() + " registered.");
+        } catch (PulsarClientException e) {
+            e.printStackTrace();
+        }
+
         LoginSuccessResponse response = EntityDtoMapper.INSTANCE.userToLoginSuccessResponse(user);
         response.setToken(token);
 
@@ -61,10 +73,21 @@ public class AccountServiceImp implements AccountService {
     @Override
     public LoginSuccessResponse login(Principal user) {
         Account userService = userRepository.findByEmail(user.getName());
-        //token
-        String token = jwtTokenCreator.createToken(userService.getEmail(), userService.getRoles());
+
+        // generate token
+        Set<Role> roles = userService.getRoles();
+        String token = jwtTokenCreator.createToken(userService.getEmail(), roles);
+
+        // send message through pulsar with token
+        try {
+            pulsarProducerService.sendMessage("User " + userService.getEmail() + " logged in.");
+        } catch (PulsarClientException e) {
+            e.printStackTrace();
+        }
         LoginSuccessResponse response = EntityDtoMapper.INSTANCE.userToLoginSuccessResponse(userService);
         response.setToken(token);
+
+
         return response;
     }
 
