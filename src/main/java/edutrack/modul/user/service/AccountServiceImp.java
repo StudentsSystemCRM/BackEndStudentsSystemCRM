@@ -3,8 +3,6 @@ package edutrack.modul.user.service;
 import java.security.Principal;
 import java.util.*;
 
-import edutrack.pulsar.PulsarProducerService;
-import edutrack.security.token.JwtTokenCreator;
 import edutrack.modul.user.dto.request.PasswordUpdateRequest;
 import edutrack.modul.user.dto.request.UserRegisterRequest;
 import edutrack.modul.user.dto.request.UserRoleRequest;
@@ -13,8 +11,13 @@ import edutrack.modul.user.dto.response.LoginSuccessResponse;
 import edutrack.modul.user.dto.response.Role;
 import edutrack.modul.user.dto.response.UserDataResponse;
 import edutrack.modul.user.entity.Account;
+import edutrack.pulsar.PulsarProducerService;
+import edutrack.security.token.JwtRequestFilter;
+import edutrack.security.token.JwtTokenCreator;
 import lombok.*;
 import org.apache.pulsar.client.api.PulsarClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,11 +35,12 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class AccountServiceImp implements AccountService {
-
     AccountRepository userRepository;
     PasswordEncoder passwordEncoder;
     JwtTokenCreator jwtTokenCreator;
     PulsarProducerService pulsarProducerService;
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
 
     @Override
     @Transactional
@@ -44,9 +48,7 @@ public class AccountServiceImp implements AccountService {
 
         //TODO  invite check invite
 
-        
         Account user = userRepository.findByEmail(data.getEmail());
-
         if (user != null)
             throw new ResourceExistsException("User with email " + data.getEmail() + "already exists");
         user = EntityDtoMapper.INSTANCE.userRegisterRequestToUser(data);
@@ -54,19 +56,19 @@ public class AccountServiceImp implements AccountService {
         user.setRoles(new HashSet<>(List.of(Role.USER)));
         userRepository.save(user);
 
-        // generate token
+        // Create token
         String token = jwtTokenCreator.createToken(user.getEmail(), user.getRoles());
 
-        // send message through pulsar
+        // Send message to Pulsar
         try {
-            pulsarProducerService.sendMessage("New user " + user.getEmail() + " registered.");
+            pulsarProducerService.sendMessage("New user registered: " + user.getEmail(), token);
         } catch (PulsarClientException e) {
-            e.printStackTrace();
+            logger.error("Failed to send message to Pulsar: ", e);
         }
 
+        // Form response
         LoginSuccessResponse response = EntityDtoMapper.INSTANCE.userToLoginSuccessResponse(user);
         response.setToken(token);
-
         return response;
     }
 
@@ -74,20 +76,19 @@ public class AccountServiceImp implements AccountService {
     public LoginSuccessResponse login(Principal user) {
         Account userService = userRepository.findByEmail(user.getName());
 
-        // generate token
-        Set<Role> roles = userService.getRoles();
-        String token = jwtTokenCreator.createToken(userService.getEmail(), roles);
+        // Create token
+        String token = jwtTokenCreator.createToken(userService.getEmail(), userService.getRoles());
 
-        // send message through pulsar with token
+        // Send message to Pulsar
         try {
-            pulsarProducerService.sendMessage("User " + userService.getEmail() + " logged in.");
+            pulsarProducerService.sendMessage("User logged in: " + userService.getEmail(), token);
         } catch (PulsarClientException e) {
-            e.printStackTrace();
+            logger.error("Failed to send message to Pulsar: ", e);
         }
+
+        // Form response
         LoginSuccessResponse response = EntityDtoMapper.INSTANCE.userToLoginSuccessResponse(userService);
         response.setToken(token);
-
-
         return response;
     }
 

@@ -9,9 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -21,6 +19,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import edutrack.pulsar.PulsarProducerService;
+import org.apache.pulsar.client.api.PulsarClientException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -71,6 +71,9 @@ public class AccountServicempTest {
 	@Mock
 	JwtTokenCreator jwtTokenCreator;
 
+	@Mock
+	private PulsarProducerService pulsarProducerService;
+
 	String userEmail = "test@mail.com";
 	String adminEmail = "admin@mail.com";
 	UserRegisterRequest userRegisterRequest = new UserRegisterRequest(userEmail, "Password123!", "John", "Doe",
@@ -113,12 +116,15 @@ public class AccountServicempTest {
 	}
 
 	@Test
-	public void testRegistration_success() {
+	public void testRegistration_success() throws PulsarClientException {
 		Set<Role> role = new HashSet<>(List.of(Role.USER));
 		LoginSuccessResponse expect = new LoginSuccessResponse(null, "John", "Doe", "1234567890", null, LocalDate.now(),
 				role);
 
+		// mock token generate
 		when(jwtTokenCreator.createToken(anyString(), anySet())).thenReturn("mockedToken");
+		// mock send message without NullPointerException
+		doNothing().when(pulsarProducerService).sendMessage(anyString(), anyString());
 
 		LoginSuccessResponse result = accountingManagementService.registration("invite", userRegisterRequest);
 

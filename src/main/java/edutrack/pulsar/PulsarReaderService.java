@@ -1,24 +1,32 @@
 package edutrack.pulsar;
 
+import edutrack.security.token.JwtRequestFilter;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Reader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class PulsarReaderService {
-    private final Reader<byte[]> reader;
+    Reader<byte[]> reader;
 
-    public PulsarReaderService(Reader<byte[]> reader) {
-        this.reader = reader;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
 
     public void readMessages() throws PulsarClientException {
         while (true) {
+            logger.info("READER LOGGER");
+
             Message<byte[]> message = reader.readNext();
-            System.out.println("Message read: " + new String(message.getData()));
+            logger.info("READER LOGGER. READ MESSAGE {}", message);
         }
     }
 

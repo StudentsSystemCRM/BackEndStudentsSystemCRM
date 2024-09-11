@@ -1,45 +1,63 @@
 package edutrack.pulsar;
 
+import edutrack.security.token.JwtRequestFilter;
 import edutrack.security.token.JwtTokenValidator;
 import jakarta.annotation.PostConstruct;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.PulsarClientException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class PulsarConsumerService {
-    private final Consumer<byte[]> consumer;
-    private final JwtTokenValidator jwtTokenValidator;
+    Consumer<byte[]> consumer;
+    JwtTokenValidator jwtTokenValidator;
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
 
     @PostConstruct
-    public void startConsumer() {
+    private void startConsumer() {
         new Thread(() -> {
             try {
                 receiveMessages();
             } catch (PulsarClientException e) {
-                e.printStackTrace();
+                logger.error("Failed Consumer: ", e);
             }
         }).start();
     }
 
     public void receiveMessages() throws PulsarClientException {
         while (true) {
-            Message<byte[]> message = consumer.receive();
+            Message<byte[]> msg = consumer.receive();
 
-            String token = message.getProperty("Authorization").replace("Bearer ", "");
+            String payload = new String(msg.getData());
+            logger.info("CONSUMER LOGGER {}", payload);
 
-            if (jwtTokenValidator.validateToken(token)) {
-                System.out.println("Valid message received: " + new String(message.getData()));
-                consumer.acknowledge(message);
-            } else {
-                System.out.println("Invalid token, message discarded.");
-                consumer.negativeAcknowledge(message);
+            // json parse to get message and token
+            JSONObject json = new JSONObject(payload);
+            String message = json.optString("message");
+            String token = json.getString("jwtToken");
+
+            try {
+                // Validate token
+                if (jwtTokenValidator.validateToken(token)) {
+                    logger.info("CONSUMER LOGGER. RECEIVE MESSAGE {}", message);
+
+                    consumer.acknowledge(msg);
+                } else {
+                    logger.info("CONSUMER LOGGER. Invalid token received.");
+                    consumer.negativeAcknowledge(msg);
+                }
+            } catch (Exception e) {
+                consumer.negativeAcknowledge(msg);
             }
         }
     }

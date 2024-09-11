@@ -10,7 +10,7 @@ public class PulsarConfig {
     public PulsarClient pulsarClient() throws PulsarClientException {
         return PulsarClient.builder()
                 .serviceUrl("pulsar://localhost:6650")
-                .ioThreads(4)
+                .authentication(AuthenticationFactory.token("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0LXVzZXIifQ.unTlQwtZ7CgiQ_3wLPJVxbyFRaGYsArvGo702m-wLrw"))
                 .build();
     }
 
@@ -26,6 +26,9 @@ public class PulsarConfig {
         return client.newConsumer()
                 .topic("my-topic")
                 .subscriptionName("my-subscription")
+                .deadLetterPolicy(DeadLetterPolicy.builder()
+                        .maxRedeliverCount(3)
+                        .build())
                 .subscribe();
     }
 

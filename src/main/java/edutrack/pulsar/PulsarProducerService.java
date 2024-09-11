@@ -1,41 +1,31 @@
 package edutrack.pulsar;
 
-import edutrack.modul.user.dto.response.Role;
-import edutrack.security.token.JwtTokenCreator;
+import edutrack.security.token.JwtRequestFilter;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClientException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class PulsarProducerService {
-    private final Producer<byte[]> producer;
-    private final JwtTokenCreator jwtTokenCreator;
+    Producer<byte[]> producer;
 
-    public void sendMessage(String message) throws PulsarClientException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
 
-        if (authentication != null) {
-            String email = authentication.getName();
-            Set<Role> roles = authentication.getAuthorities().stream()
-                    .map(authority -> Role.valueOf(((SimpleGrantedAuthority) authority).getAuthority().replace("ROLE_", "")))
-                    .collect(Collectors.toSet());
-            String token = jwtTokenCreator.createToken(email, roles);
+    public void sendMessage(String message, String jwtToken) throws PulsarClientException {
+        // create json obj with message and token
+        String payload = String.format("{\"message\":\"%s\",\"jwtToken\":\"%s\"}", message, jwtToken);
+        logger.info("PRODUCER LOGGER {}", payload);
 
-            producer.newMessage()
-                    .value(message.getBytes())
-                    .property("Authorization", "Bearer " + token)
-                    .send();
-        } else {
-            throw new IllegalStateException("Authentication is not available.");
-        }
+        producer.newMessage()
+                .value(payload.getBytes())
+                .send();
     }
 
     public void closeProducer() throws PulsarClientException {
