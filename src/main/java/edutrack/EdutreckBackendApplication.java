@@ -9,3 +9,5 @@ public class EdutreckBackendApplication {
         SpringApplication.run(EdutreckBackendApplication.class, args);    
     }
 }
+
+// fuck ide
