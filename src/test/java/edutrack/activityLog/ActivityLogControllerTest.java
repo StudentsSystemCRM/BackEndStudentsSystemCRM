@@ -11,10 +11,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
-import edutrack.modul.activityLog.controller.ActivityLogController;
-import edutrack.modul.activityLog.service.ActivityLogService;
-import edutrack.modul.student.service.StudentService;
-import edutrack.modul.user.repository.AccountRepository;
+import edutrack.activityLog.controller.ActivityLogController;
+import edutrack.activityLog.service.ActivityLogService;
+import edutrack.student.service.StudentService;
+import edutrack.user.repository.AccountRepository;
 import edutrack.security.JwtTokenCreator;
 import edutrack.security.JwtTokenValidator;
 import edutrack.security.SecurityConfig;
