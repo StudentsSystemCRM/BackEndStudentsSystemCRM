@@ -14,7 +14,7 @@ import java.util.List;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 
-import edutrack.reminder.entity.GroupScheduleEntity;
+import edutrack.schedule.entity.GroupScheduleEntity;
 import edutrack.student.entity.StudentEntity;
 
 @Data

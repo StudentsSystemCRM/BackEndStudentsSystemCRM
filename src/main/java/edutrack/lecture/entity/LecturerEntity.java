@@ -1,4 +1,4 @@
-package edutrack.schedule.entity;
+package edutrack.lecture.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

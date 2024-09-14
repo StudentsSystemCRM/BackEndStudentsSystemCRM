@@ -1,18 +1,18 @@
-package edutrack.reminder.service;
+package edutrack.schedule.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import edutrack.reminder.dto.request.AddStudentScheduleRequest;
-import edutrack.reminder.dto.response.ScheduleResponse;
-import edutrack.reminder.dto.response.SingleScheduleResponse;
-import edutrack.reminder.entity.StudentScheduleEntity;
+import edutrack.schedule.dto.request.AddStudentScheduleRequest;
+import edutrack.schedule.dto.response.ScheduleResponse;
+import edutrack.schedule.dto.response.SingleScheduleResponse;
+import edutrack.schedule.entity.StudentScheduleEntity;
+import edutrack.schedule.repository.StudentScheduleRepository;
+import edutrack.schedule.util.EntityDtoScheduleMapper;
 import org.springframework.stereotype.Service;
 
 import edutrack.exception.StudentNotFoundException;
-import edutrack.reminder.repository.StudentScheduleRepository;
-import edutrack.reminder.util.EntityDtoScheduleMapper;
 import edutrack.student.entity.StudentEntity;
 import edutrack.student.repository.StudentRepository;
 import jakarta.transaction.Transactional;

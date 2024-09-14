@@ -15,7 +15,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import edutrack.activityLog.entity.ActivityLogEntity;
 import edutrack.group.entity.GroupEntity;
 import edutrack.payment.entity.PaymentEntity;
-import edutrack.reminder.entity.StudentScheduleEntity;
+import edutrack.schedule.entity.StudentScheduleEntity;
 
 @Data
 @NoArgsConstructor
