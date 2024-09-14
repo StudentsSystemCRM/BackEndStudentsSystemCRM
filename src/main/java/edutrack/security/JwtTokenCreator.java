@@ -5,7 +5,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
-import edutrack.modul.user.dto.response.Role;
+import edutrack.user.dto.response.Role;
 
 import java.security.Key;
 import java.util.Date;

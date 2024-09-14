@@ -24,16 +24,16 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edutrack.constant.LeadStatus;
-import edutrack.modul.activityLog.repository.ActivityLogRepository;
-import edutrack.modul.group.repository.GroupRepository;
-import edutrack.modul.payment.repository.PaymentRepository;
-import edutrack.modul.student.controller.StudentController;
-import edutrack.modul.student.dto.request.StudentCreateRequest;
-import edutrack.modul.student.dto.response.StudentDataResponse;
-import edutrack.modul.student.repository.StudentRepository;
-import edutrack.modul.student.service.StudentService;
-import edutrack.modul.user.repository.AccountRepository;
+import edutrack.activityLog.repository.ActivityLogRepository;
+import edutrack.group.repository.GroupRepository;
+import edutrack.payment.repository.PaymentRepository;
+import edutrack.student.constant.LeadStatus;
+import edutrack.student.controller.StudentController;
+import edutrack.student.dto.request.StudentCreateRequest;
+import edutrack.student.dto.response.StudentDataResponse;
+import edutrack.student.repository.StudentRepository;
+import edutrack.student.service.StudentService;
+import edutrack.user.repository.AccountRepository;
 import edutrack.security.JwtTokenCreator;
 import edutrack.security.JwtTokenValidator;
 import edutrack.security.SecurityConfig;

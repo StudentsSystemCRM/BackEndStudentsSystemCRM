@@ -12,17 +12,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
-import edutrack.constant.LeadStatus;
-import edutrack.modul.activityLog.entity.ActivityLog;
-import edutrack.modul.activityLog.repository.ActivityLogRepository;
-import edutrack.modul.payment.entity.Payment;
-import edutrack.modul.payment.repository.PaymentRepository;
-import edutrack.modul.student.dto.request.StudentCreateRequest;
-import edutrack.modul.student.dto.request.StudentUpdateDataRequest;
-import edutrack.modul.student.dto.response.StudentDataResponse;
-import edutrack.modul.student.entity.Student;
-import edutrack.modul.student.repository.StudentRepository;
-import edutrack.modul.student.service.StudentService;
+import edutrack.activityLog.entity.ActivityLogEntity;
+import edutrack.activityLog.repository.ActivityLogRepository;
+import edutrack.payment.entity.PaymentEntity;
+import edutrack.payment.repository.PaymentRepository;
+import edutrack.student.constant.LeadStatus;
+import edutrack.student.dto.request.StudentCreateRequest;
+import edutrack.student.dto.request.StudentUpdateDataRequest;
+import edutrack.student.dto.response.StudentDataResponse;
+import edutrack.student.entity.StudentEntity;
+import edutrack.student.repository.StudentRepository;
+import edutrack.student.service.StudentService;
 
 @SpringBootTest
 @Sql(scripts = {"classpath:testdata.sql"})
@@ -53,11 +53,11 @@ public class StudentServiceIntegrationTest {
         assertEquals("Kate", response.getName());
         assertEquals("Gan", response.getSurname());
 
-        Student savedStudent = studentRepo.findById(response.getId()).orElse(null);
+        StudentEntity savedStudent = studentRepo.findById(response.getId()).orElse(null);
         assertNotNull(savedStudent);
         assertEquals("Kate", savedStudent.getFirstName());
 
-        List<ActivityLog> logs = activityRepo.findByStudentId(savedStudent.getId());
+        List<ActivityLogEntity> logs = activityRepo.findByStudentId(savedStudent.getId());
         assertFalse(logs.isEmpty());
         assertEquals("Initial comment", logs.get(0).getInformation());
     }
@@ -87,10 +87,10 @@ public class StudentServiceIntegrationTest {
         assertEquals(STUDENT_ID_DB_H2, deletedStudent.getId());
         assertFalse(studentRepo.findById(STUDENT_ID_DB_H2).isPresent());
 
-        List<ActivityLog> logs = activityRepo.findByStudentId(deletedStudent.getId());
+        List<ActivityLogEntity> logs = activityRepo.findByStudentId(deletedStudent.getId());
         assertTrue(logs.isEmpty());
 
-        List<Payment> payments = paymentRepo.findByStudentId(deletedStudent.getId());
+        List<PaymentEntity> payments = paymentRepo.findByStudentId(deletedStudent.getId());
         assertTrue(payments.isEmpty());
     }
 

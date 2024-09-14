@@ -10,14 +10,11 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-import edutrack.modul.activityLog.entity.ActivityLog;
-import edutrack.constant.GroupStatus;
-import edutrack.constant.LeadStatus;
+
+import edutrack.activityLog.entity.ActivityLogEntity;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,18 +23,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import edutrack.exception.EmailAlreadyInUseException;
 import edutrack.exception.StudentNotFoundException;
-import edutrack.modul.group.entity.Group;
-import edutrack.modul.activityLog.repository.ActivityLogRepository;
-import edutrack.modul.group.repository.GroupRepository;
-import edutrack.modul.payment.repository.PaymentRepository;
-import edutrack.modul.student.repository.StudentRepository;
-import edutrack.modul.student.service.StudentServiceImp;
-import edutrack.modul.student.dto.request.StudentCreateRequest;
-import edutrack.modul.student.dto.request.StudentUpdateDataRequest;
-import edutrack.modul.student.dto.response.StudentDataResponse;
-import edutrack.modul.student.entity.Student;
+import edutrack.group.constant.GroupStatus;
+import edutrack.group.entity.GroupEntity;
+import edutrack.activityLog.repository.ActivityLogRepository;
+import edutrack.group.repository.GroupRepository;
+import edutrack.payment.repository.PaymentRepository;
+import edutrack.student.repository.StudentRepository;
+import edutrack.student.service.StudentServiceImp;
+import edutrack.student.constant.LeadStatus;
+import edutrack.student.dto.request.StudentCreateRequest;
+import edutrack.student.dto.request.StudentUpdateDataRequest;
+import edutrack.student.dto.response.StudentDataResponse;
+import edutrack.student.entity.StudentEntity;
+import edutrack.student.exception.EmailAlreadyInUseException;
 
 @ExtendWith(MockitoExtension.class)
 public class StudentServiceTest {
@@ -57,14 +56,14 @@ public class StudentServiceTest {
     @InjectMocks
     StudentServiceImp studentService;
 
-    Group groupStudent;
-    Student student;
+    GroupEntity groupStudent;
+    StudentEntity student;
     StudentCreateRequest request;
     StudentUpdateDataRequest updateDataRequest;
 
     @BeforeEach
     public void setUp() {
-        groupStudent = new Group(
+        groupStudent = new GroupEntity(
                 "Example Group",
                 "example-whatsapp",
                 "example-skype",
@@ -80,9 +79,9 @@ public class StudentServiceTest {
                 "",
                 ""
         );
-        List<Group> groups = new ArrayList<>();
+        List<GroupEntity> groups = new ArrayList<>();
         groups.add(groupStudent);
-        student = new Student(1L, "John", "Doe", "123456789",
+        student = new StudentEntity(1L, "John", "Doe", "123456789",
                 "john.doe@example.com", "City", "Course", "Source",
                 LeadStatus.CONSULTATION, "testGroup",
                 16000, groups,null,null,null,"","");
@@ -123,14 +122,14 @@ public class StudentServiceTest {
 
     @Test
     public void testCreateStudent_Success() {
-        when(studentRepo.save(any(Student.class))).thenReturn(student);
+        when(studentRepo.save(any(StudentEntity.class))).thenReturn(student);
        
         StudentDataResponse response = studentService.createStudent(request);
 
         assertNotNull(response);
         verify(studentRepo, times(1)).findByEmail("john.doe@example.com");
-        verify(studentRepo, times(1)).save(any(Student.class));
-        verify(activityRepo, times(1)).save(any(ActivityLog.class));
+        verify(studentRepo, times(1)).save(any(StudentEntity.class));
+        verify(activityRepo, times(1)).save(any(ActivityLogEntity.class));
         
         assertEquals(student.getFirstName(), response.getName());
         assertEquals(student.getLastName(), response.getSurname());
@@ -145,26 +144,26 @@ public class StudentServiceTest {
     
     @Test
     public void testCreateStudent_EmailAlreadyExists() {
-        when(studentRepo.findByEmail("john.doe@example.com")).thenReturn(new Student());
+        when(studentRepo.findByEmail("john.doe@example.com")).thenReturn(new StudentEntity());
 
         assertThrows(EmailAlreadyInUseException.class, () -> {
             studentService.createStudent(request);
         });
 
         verify(studentRepo, times(1)).findByEmail("john.doe@example.com");
-        verify(studentRepo, times(0)).save(any(Student.class));
-        verify(activityRepo, times(0)).save(any(ActivityLog.class));
+        verify(studentRepo, times(0)).save(any(StudentEntity.class));
+        verify(activityRepo, times(0)).save(any(ActivityLogEntity.class));
     }
     
     @Test
     public void testUpdateStudent_Success() {
-        Student existingStudent = new Student(1L, "John", "Doe",
+        StudentEntity existingStudent = new StudentEntity(1L, "John", "Doe",
                 "123456789", "john.doe@example.com", "City",
                 "Course", "Source", LeadStatus.IN_WORK, "testGroup",
                 16000, null,null,null,null,"","");
 
         when(studentRepo.findById(1L)).thenReturn(Optional.of(existingStudent));
-        when(studentRepo.save(any(Student.class))).thenReturn(existingStudent);
+        when(studentRepo.save(any(StudentEntity.class))).thenReturn(existingStudent);
   
         StudentDataResponse response = studentService.updateStudent(updateDataRequest);
 
@@ -180,7 +179,7 @@ public class StudentServiceTest {
         });
 
         verify(studentRepo, times(1)).findById(1L);
-        verify(studentRepo, times(0)).save(any(Student.class));
+        verify(studentRepo, times(0)).save(any(StudentEntity.class));
     }
 
     @Test
@@ -205,6 +204,6 @@ public class StudentServiceTest {
         });
 
         verify(studentRepo, times(1)).findById(1L);
-        verify(studentRepo, times(0)).delete(any(Student.class));
+        verify(studentRepo, times(0)).delete(any(StudentEntity.class));
     }
 }
