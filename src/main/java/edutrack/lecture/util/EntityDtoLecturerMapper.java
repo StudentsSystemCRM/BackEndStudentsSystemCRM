@@ -1,4 +1,4 @@
-package edutrack.schedule.util;
+package edutrack.lecture.util;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

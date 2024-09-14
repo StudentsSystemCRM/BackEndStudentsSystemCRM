@@ -1,7 +1,7 @@
-package edutrack.reminder.service;
+package edutrack.schedule.service;
 
-import edutrack.reminder.dto.request.AddStudentScheduleRequest;
-import edutrack.reminder.dto.response.ScheduleResponse;
+import edutrack.schedule.dto.request.AddStudentScheduleRequest;
+import edutrack.schedule.dto.response.ScheduleResponse;
 
 public interface StudentScheduleService {
 

@@ -1,8 +1,8 @@
-package edutrack.reminder.repository;
+package edutrack.schedule.repository;
 
 import java.util.List;
 
-import edutrack.reminder.entity.StudentScheduleEntity;
+import edutrack.schedule.entity.StudentScheduleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface StudentScheduleRepository extends JpaRepository<StudentScheduleEntity, Long> {

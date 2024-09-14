@@ -1,4 +1,4 @@
-package edutrack.reminder.dto.request;
+package edutrack.schedule.dto.request;
 
 import java.time.LocalDateTime;
 
@@ -14,9 +14,9 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddGroupScheduleRequest {
-	@NotNull(message = "Group name cannot be null.")
-	String name;
+public class AddStudentScheduleRequest {
+	@NotNull(message = "ID cannot be null.")
+	Long studentId;
 
 	LocalDateTime dateTime;
 	

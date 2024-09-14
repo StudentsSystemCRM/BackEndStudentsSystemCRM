@@ -5,7 +5,7 @@ import java.util.List;
 
 import edutrack.group.constant.GroupStatus;
 import edutrack.group.constant.WeekDay;
-import edutrack.reminder.entity.GroupScheduleEntity;
+import edutrack.schedule.entity.GroupScheduleEntity;
 import edutrack.student.entity.StudentEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

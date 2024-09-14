@@ -1,7 +1,7 @@
-package edutrack.reminder.service;
+package edutrack.schedule.service;
 
-import edutrack.reminder.dto.request.AddGroupScheduleRequest;
-import edutrack.reminder.dto.response.ScheduleResponse;
+import edutrack.schedule.dto.request.AddGroupScheduleRequest;
+import edutrack.schedule.dto.response.ScheduleResponse;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;

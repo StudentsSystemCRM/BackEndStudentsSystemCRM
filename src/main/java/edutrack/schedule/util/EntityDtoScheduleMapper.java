@@ -1,13 +1,13 @@
-package edutrack.reminder.util;
+package edutrack.schedule.util;
 
 import java.util.List;
 
+import edutrack.schedule.dto.response.ScheduleResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import edutrack.reminder.dto.response.ScheduleResponse;
-import edutrack.reminder.dto.response.SingleScheduleResponse;
+import edutrack.schedule.dto.response.SingleScheduleResponse;
 import edutrack.student.entity.StudentEntity;
 
 @Mapper

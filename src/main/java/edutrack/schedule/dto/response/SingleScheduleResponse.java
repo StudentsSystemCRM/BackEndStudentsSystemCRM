@@ -1,4 +1,4 @@
-package edutrack.reminder.dto.response;
+package edutrack.schedule.dto.response;
 
 import java.time.LocalDateTime;
 
