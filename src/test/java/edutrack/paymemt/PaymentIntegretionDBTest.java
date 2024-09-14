@@ -14,14 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
-import edutrack.modul.payment.dto.request.AddPaymentRequest;
-import edutrack.modul.payment.dto.response.PaymentInfoResponse;
-import edutrack.modul.payment.dto.response.SinglePayment;
-import edutrack.modul.payment.entity.Payment;
-import edutrack.modul.payment.repository.PaymentRepository;
-import edutrack.modul.payment.service.PaymentService;
-import edutrack.modul.student.repository.StudentRepository;
-import edutrack.modul.student.service.StudentService;
+import edutrack.payment.dto.request.AddPaymentRequest;
+import edutrack.payment.dto.response.PaymentInfoResponse;
+import edutrack.payment.dto.response.SinglePayment;
+import edutrack.payment.entity.PaymentEntity;
+import edutrack.payment.repository.PaymentRepository;
+import edutrack.payment.service.PaymentService;
+import edutrack.student.repository.StudentRepository;
+import edutrack.student.service.StudentService;
 
 @SpringBootTest
 @Sql(scripts = { "classpath:testdata.sql" })
@@ -63,7 +63,7 @@ public class PaymentIntegretionDBTest {
 				BigDecimal.valueOf(2000.00), 2, "Training Fee");
 		paymentService.addStudentPayment(paymentRequest);
 
-		List<Payment> payments = paymentRepo.findByStudentId(STUDENT_ID_DB_H2);
+		List<PaymentEntity> payments = paymentRepo.findByStudentId(STUDENT_ID_DB_H2);
 		assertFalse(payments.isEmpty());
 
 		studentService.deleteStudent(STUDENT_ID_DB_H2);
