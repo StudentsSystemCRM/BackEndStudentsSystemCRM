@@ -33,18 +33,18 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import edutrack.exception.AccessException;
-import edutrack.exception.ResourceExistsException;
-import edutrack.modul.user.dto.request.PasswordUpdateRequest;
-import edutrack.modul.user.dto.request.UserRegisterRequest;
-import edutrack.modul.user.dto.request.UserRoleRequest;
-import edutrack.modul.user.dto.request.UserUpdateRequest;
-import edutrack.modul.user.dto.response.LoginSuccessResponse;
-import edutrack.modul.user.dto.response.Role;
-import edutrack.modul.user.dto.response.UserDataResponse;
-import edutrack.modul.user.entity.Account;
-import edutrack.modul.user.repository.AccountRepository;
-import edutrack.modul.user.service.AccountServiceImp;
+import edutrack.user.dto.request.PasswordUpdateRequest;
+import edutrack.user.dto.request.UserRegisterRequest;
+import edutrack.user.dto.request.UserRoleRequest;
+import edutrack.user.dto.request.UserUpdateRequest;
+import edutrack.user.dto.response.LoginSuccessResponse;
+import edutrack.user.dto.response.Role;
+import edutrack.user.dto.response.UserDataResponse;
+import edutrack.user.entity.UserEntity;
+import edutrack.user.exception.AccessException;
+import edutrack.user.exception.ResourceExistsException;
+import edutrack.user.repository.AccountRepository;
+import edutrack.user.service.AccountServiceImp;
 import edutrack.security.JwtTokenCreator;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -76,7 +76,7 @@ public class AccountServicempTest {
 	UserRegisterRequest userRegisterRequest = new UserRegisterRequest(userEmail, "Password123!", "John", "Doe",
 			"1234567890", null);
 	UserUpdateRequest userUpdateRequest = new UserUpdateRequest(userEmail, "John", "Doe", "1234567890", null);
-	Account user = new Account (null, userEmail, "Password123", "John", "Doe", "1234567890", null, null, new HashSet<Role>());
+	UserEntity user = new UserEntity (null, userEmail, "Password123", "John", "Doe", "1234567890", null, null, new HashSet<Role>());
     UserRoleRequest roleRequest = new UserRoleRequest("ADMIN");
 	
 	private void mockCurrentUserAuthInfo(String username, boolean isAdmin, boolean isCeo) {
@@ -123,14 +123,14 @@ public class AccountServicempTest {
 		LoginSuccessResponse result = accountingManagementService.registration("invite", userRegisterRequest);
 
 		verify(userRepository, times(1)).findByEmail(eq(userEmail));
-		verify(userRepository, times(1)).save(any(Account.class));
+		verify(userRepository, times(1)).save(any(UserEntity.class));
 		assertEquals(expect.getName(), result.getName());
 	}
 
 	@Test
 	public void testRegistration_userAlreadyExists() {
 
-		when(userRepository.findByEmail(userRegisterRequest.getEmail())).thenReturn(new Account());
+		when(userRepository.findByEmail(userRegisterRequest.getEmail())).thenReturn(new UserEntity());
 		assertThrows(ResourceExistsException.class,
 				() -> accountingManagementService.registration("invite", userRegisterRequest));
 	}
@@ -166,7 +166,7 @@ public class AccountServicempTest {
 	public void testUpdateUser_NotAccessUser() {
 
 		String notAccessUserMail = "user@mail.com";
-		Account notAccessUser = new Account();
+		UserEntity notAccessUser = new UserEntity();
 		notAccessUser.setEmail(notAccessUserMail);
 		notAccessUser.setRoles(new HashSet<>());
 		when(userRepository.findByEmail(userUpdateRequest.getEmail())).thenReturn(user);

@@ -5,7 +5,11 @@ import java.util.UUID;
 
 import edutrack.exception.*;
 import edutrack.exception.response.GeneralErrorResponse;
-import edutrack.exception.response.GeneralErrorResponseValidation;
+import edutrack.exception.response.GeneralErrorResponseValidationDto;
+import edutrack.student.exception.EmailAlreadyInUseException;
+import edutrack.user.exception.AccessException;
+import edutrack.user.exception.InvalidDateFormatException;
+import edutrack.user.exception.ResourceExistsException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,22 +29,22 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public GeneralErrorResponseValidation handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+	public GeneralErrorResponseValidationDto handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
 		List<String> messages = ex.getAllErrors()
 				.stream()
 				.map(DefaultMessageSourceResolvable::getDefaultMessage)
 				.toList();
-		return new GeneralErrorResponseValidation(UUID.randomUUID().toString(), messages);
+		return new GeneralErrorResponseValidationDto(UUID.randomUUID().toString(), messages);
 	}
 
 	@ExceptionHandler(HandlerMethodValidationException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public GeneralErrorResponseValidation handleConstraintViolationException(HandlerMethodValidationException ex) {
+	public GeneralErrorResponseValidationDto handleConstraintViolationException(HandlerMethodValidationException ex) {
 		List<String> messages = ex.getAllErrors()
 				.stream()
 				.map(MessageSourceResolvable::getDefaultMessage)
 				.toList();
-		return new GeneralErrorResponseValidation(UUID.randomUUID().toString(), messages);
+		return new GeneralErrorResponseValidationDto(UUID.randomUUID().toString(), messages);
 	}
 
 	@ExceptionHandler(InvalidDateFormatException.class)

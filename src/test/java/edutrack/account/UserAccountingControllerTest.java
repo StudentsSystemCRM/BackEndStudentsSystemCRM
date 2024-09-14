@@ -1,22 +1,23 @@
 package edutrack.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edutrack.constant.ValidationAccountingMessage;
-import edutrack.exception.AccessException;
-import edutrack.exception.ResourceExistsException;
-import edutrack.modul.user.controller.AccountController;
-import edutrack.modul.user.dto.request.PasswordUpdateRequest;
-import edutrack.modul.user.dto.request.UserRegisterRequest;
-import edutrack.modul.user.dto.request.UserRoleRequest;
-import edutrack.modul.user.dto.request.UserUpdateRequest;
-import edutrack.modul.user.dto.response.LoginSuccessResponse;
-import edutrack.modul.user.dto.response.Role;
-import edutrack.modul.user.dto.response.UserDataResponse;
-import edutrack.modul.user.service.AccountService;
+
+import edutrack.user.constant.ValidationAccountingMessage;
+import edutrack.user.controller.AccountController;
+import edutrack.user.dto.request.PasswordUpdateRequest;
+import edutrack.user.dto.request.UserRegisterRequest;
+import edutrack.user.dto.request.UserRoleRequest;
+import edutrack.user.dto.request.UserUpdateRequest;
+import edutrack.user.dto.response.LoginSuccessResponse;
+import edutrack.user.dto.response.Role;
+import edutrack.user.dto.response.UserDataResponse;
+import edutrack.user.dto.validation.ValidRangeDate;
+import edutrack.user.dto.validation.ValidRole;
+import edutrack.user.exception.AccessException;
+import edutrack.user.exception.ResourceExistsException;
+import edutrack.user.service.AccountService;
 import edutrack.security.AuthorizationFilterChain;
 import edutrack.security.JwtTokenValidator;
-import edutrack.validation.ValidRangeDate;
-import edutrack.validation.ValidRole;
 import lombok.AccessLevel;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;

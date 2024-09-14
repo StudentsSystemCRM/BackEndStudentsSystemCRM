@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
-import edutrack.modul.activityLog.dto.request.AddActivityLogRequest;
-import edutrack.modul.activityLog.dto.response.ActivityLogResponse;
-import edutrack.modul.activityLog.service.ActivityLogService;
+import edutrack.activityLog.dto.request.AddActivityLogRequest;
+import edutrack.activityLog.dto.response.ActivityLogResponse;
+import edutrack.activityLog.service.ActivityLogService;
 
 @SpringBootTest
 @Sql(scripts = {"classpath:testdata.sql"})
