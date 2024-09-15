@@ -34,8 +34,8 @@ import edutrack.student.dto.response.StudentDataResponse;
 import edutrack.student.repository.StudentRepository;
 import edutrack.student.service.StudentService;
 import edutrack.user.repository.AccountRepository;
-import edutrack.security.JwtTokenCreator;
-import edutrack.security.JwtTokenValidator;
+import edutrack.security.jwt.JwtTokenCreator;
+import edutrack.security.jwt.JwtTokenValidator;
 import edutrack.security.SecurityConfig;
 
 @WebMvcTest(StudentController.class)

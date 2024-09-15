@@ -1,8 +1,12 @@
-package edutrack.security;
+package edutrack.security.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import edutrack.user.dto.response.Role;
@@ -14,18 +18,27 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class JwtTokenCreator {
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final Key key;
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenCreator.class);
+
+    @Value("${jwt.expirationTime}")
+    private long expirationTime;
 
     public String createToken(String email, Set<Role> roles) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", roles);
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setClaims(claims)
                 .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(key)
                 .compact();
+
+        logger.info("JWT token created for user: {}", email);
+        return token;
     }
 }
