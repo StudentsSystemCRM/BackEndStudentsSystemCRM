@@ -17,7 +17,7 @@ import edutrack.user.exception.AccessException;
 import edutrack.user.exception.ResourceExistsException;
 import edutrack.user.service.AccountService;
 import edutrack.security.AuthorizationFilterChain;
-import edutrack.security.JwtTokenValidator;
+import edutrack.security.jwt.JwtTokenValidator;
 import lombok.AccessLevel;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;

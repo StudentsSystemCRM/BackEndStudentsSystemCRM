@@ -3,7 +3,8 @@ package edutrack.user.service;
 import java.security.Principal;
 import java.util.*;
 
-import edutrack.security.JwtTokenCreator;
+import edutrack.security.jwt.JwtTokenCreator;
+import edutrack.security.jwt.JwtTokenValidator;
 import edutrack.user.dto.request.PasswordUpdateRequest;
 import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
@@ -34,6 +35,7 @@ public class AccountServiceImp implements AccountService {
     AccountRepository userRepository;
     PasswordEncoder passwordEncoder;
     JwtTokenCreator jwtTokenCreator;
+    JwtTokenValidator jwtTokenValidator;
 
     @Override
     @Transactional
@@ -41,7 +43,7 @@ public class AccountServiceImp implements AccountService {
 
         //TODO  invite check invite
 
-        
+
         UserEntity user = userRepository.findByEmail(data.getEmail());
 
         if (user != null)
@@ -52,6 +54,7 @@ public class AccountServiceImp implements AccountService {
         userRepository.save(user);
         // token
         String token = jwtTokenCreator.createToken(user.getEmail(), user.getRoles());
+
         LoginSuccessResponse response = EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(user);
         response.setToken(token);
 
@@ -63,8 +66,13 @@ public class AccountServiceImp implements AccountService {
         UserEntity userService = userRepository.findByEmail(user.getName());
         //token
         String token = jwtTokenCreator.createToken(userService.getEmail(), userService.getRoles());
-        LoginSuccessResponse response = EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(userService);
-        response.setToken(token);
+        LoginSuccessResponse response = new LoginSuccessResponse();
+        if (jwtTokenValidator.validateToken(token)) {
+            response = EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(userService);
+            response.setToken(token);
+            return response;
+        }
+        response.setToken("wrongToken");
         return response;
     }
 
@@ -179,9 +187,9 @@ public class AccountServiceImp implements AccountService {
         if (user.getRoles().contains(Role.ADMIN) && !isCeo)
             throw new AccessException("You don't have rules to update this user's profile.");
         if (role.equalsIgnoreCase("ceo") && !isCeo)
-        	throw new AccessException("add or remove role 'CEO' can only user with CEO role");
+            throw new AccessException("add or remove role 'CEO' can only user with CEO role");
     }
-    
+
 
     private UserAuthInfo getCurrentUserAuthInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -196,7 +204,7 @@ public class AccountServiceImp implements AccountService {
         return new UserAuthInfo(username, isAdmin, isCeo);
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
