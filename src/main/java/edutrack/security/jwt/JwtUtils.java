@@ -42,6 +42,8 @@ public class JwtUtils {
 
     public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
         String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+        logger.info("JWT token generated for user: {}", userPrincipal.getUsername());
+
         return ResponseCookie.from(jwtCookie, jwt)
                 .path("/api").maxAge(24 * 60 *60)
                 .httpOnly(true).build();
@@ -77,9 +79,12 @@ public class JwtUtils {
         try {
             Instant now = Instant.now(Clock.systemUTC());
             logger.info("Current UTC time: {}", now);
+
             Jwts.parserBuilder().setSigningKey(key())
-                    .setAllowedClockSkewSeconds(120)
+                    .setAllowedClockSkewSeconds(60)
                     .build().parse(authToken);
+
+            logger.info("JWT token is valid");
             return true;
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());

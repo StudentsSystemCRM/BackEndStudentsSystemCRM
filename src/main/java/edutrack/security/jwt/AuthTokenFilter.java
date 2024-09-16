@@ -30,6 +30,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = parseJwt(request);
+
+            logger.info("Received JWT token: {}", jwt);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 // get name (email) from token
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
@@ -40,12 +42,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                         userDetails, null, userDetails.getAuthorities());
 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                logger.info("User '{}' is authenticated", username);
 
                 // install authentication
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e);
+            logger.error("Cannot set user authentication: {}", e.getMessage());
         }
 
         // next filters
@@ -53,6 +56,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     }
 
     private String parseJwt(HttpServletRequest request) {
-        return jwtUtils.getJwtFromCookies(request);
+        String jwt = jwtUtils.getJwtFromCookies(request);
+        if (jwt == null) {
+            logger.warn("JWT token is not found in cookies");
+        } else {
+            logger.info("JWT token found in cookies: {}", jwt);
+        }
+        return jwt;
     }
 }
