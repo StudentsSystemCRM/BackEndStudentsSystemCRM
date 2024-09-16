@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
 import java.security.Key;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Date;
 
 @Component
@@ -46,8 +48,11 @@ public class JwtUtils {
     }
 
     public String generateTokenFromUsername(String username) {
-        return Jwts.builder().setSubject(username).setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+        Instant now = Instant.now(Clock.systemUTC());
+        logger.info("Token generated at UTC time: {}" + now);
+        return Jwts.builder().setSubject(username)
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(now.plusMillis(jwtExpirationMs)))
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -70,7 +75,11 @@ public class JwtUtils {
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
+            Instant now = Instant.now(Clock.systemUTC());
+            logger.info("Current UTC time: {}", now);
+            Jwts.parserBuilder().setSigningKey(key())
+                    .setAllowedClockSkewSeconds(120)
+                    .build().parse(authToken);
             return true;
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());
