@@ -2,9 +2,10 @@ package edutrack.user.service;
 
 import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.response.LoginSuccessResponse;
+import edutrack.user.dto.response.UserDataResponse;
 
 public interface AuthService {
-    LoginSuccessResponse registration(String invite, UserRegisterRequest data);
+    UserDataResponse registerUser(String invite, UserRegisterRequest data);
 
-    LoginSuccessResponse loginByEmailAndPassword(String email, String password);
+    LoginSuccessResponse authenticateUser(String email, String password);
 }

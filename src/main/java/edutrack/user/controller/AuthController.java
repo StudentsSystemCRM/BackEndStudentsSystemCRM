@@ -5,6 +5,7 @@ import edutrack.security.services.UserDetailsImpl;
 import edutrack.user.dto.request.LoginRequest;
 import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.response.LoginSuccessResponse;
+import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,10 +29,15 @@ public class AuthController {
 
     @PostMapping("/auth/signup")
     @Operation(summary = "Register a new user", description = "Registers a new user using an invite code and user details.")
-    public LoginSuccessResponse registerUser(
+    public ResponseEntity<UserDataResponse> registerUser(
             @RequestParam String invite,
             @RequestBody @Valid UserRegisterRequest userRequest) {
-        return authService.registration(invite, userRequest);
+        try {
+            UserDataResponse response = authService.registerUser(invite, userRequest);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/auth/signin")
@@ -49,9 +55,17 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 
         // Entity mapping to DTO and added token to response
-        LoginSuccessResponse loginResponse = authService.loginByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
+        LoginSuccessResponse loginResponse = authService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
         loginResponse.setToken(jwtUtils.generateTokenFromUsername(userDetails.getUsername()));
 
         return ResponseEntity.ok(loginResponse);
+    }
+
+    @PostMapping("/signout")
+    @Operation(summary = "User logout", description = "Logs out the user by clearing the JWT cookie.")
+    public ResponseEntity<?> logoutUser() {
+        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body("You've been signed out!");
     }
 }
