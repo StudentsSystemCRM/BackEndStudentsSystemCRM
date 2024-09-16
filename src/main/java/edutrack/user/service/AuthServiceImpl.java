@@ -3,6 +3,7 @@ package edutrack.user.service;
 import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.response.LoginSuccessResponse;
 import edutrack.user.dto.response.Role;
+import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.entity.UserEntity;
 import edutrack.user.exception.AccessException;
 import edutrack.user.exception.ResourceExistsException;
@@ -27,23 +28,24 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     @Transactional
-    public LoginSuccessResponse registration(String invite, UserRegisterRequest data) {
-
+    public UserDataResponse registerUser(String invite, UserRegisterRequest data) {
         //TODO  invite check invite
 
-        UserEntity user = userRepository.findByEmail(data.getEmail());
+        UserEntity existingUser = userRepository.findByEmail(data.getEmail());
 
-        if (user != null)
+        if (existingUser != null)
             throw new ResourceExistsException("user with email " + data.getEmail() + "already exists");
-        user = EntityDtoUserMapper.INSTANCE.userRegisterRequestToUser(data);
-        user.setRoles(new HashSet<>(List.of(Role.USER)));
-        userRepository.save(user);
 
-        return EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(user);
+       UserEntity newUser = EntityDtoUserMapper.INSTANCE.userRegisterRequestToUser(data);
+       newUser.setRoles(new HashSet<>(List.of(Role.USER)));
+       newUser.setHashedPassword(passwordEncoder.encode(data.getPassword()));
+       userRepository.save(newUser);
+
+       return EntityDtoUserMapper.INSTANCE.userToUserDataResponse(newUser);
     }
 
     @Override
-    public LoginSuccessResponse loginByEmailAndPassword(String email, String password) {
+    public LoginSuccessResponse authenticateUser(String email, String password) {
         UserEntity user = userRepository.findByEmail(email);
         if (user == null || !passwordEncoder.matches(password, user.getHashedPassword())) {
             throw new AccessException("Invalid email or password");
