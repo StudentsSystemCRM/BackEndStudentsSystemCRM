@@ -8,7 +8,8 @@ public interface ValidationAccountingMessage {
 			+ "	- No whitespace, "
 			+ "	- Minimum 8 characters";
 	String NULL_PASSWORD = "Password cannot be null";
-	
+	String BLANK_PASSWORD = "Password cannot be blank";
+
 	String INVALID_EMAIL = "Invalid email";	
 	String NULL_EMAIL = "Email cannot be null";
 	String BLANK_EMAIL = "Email cannot be blank";

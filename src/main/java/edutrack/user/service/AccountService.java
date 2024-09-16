@@ -83,4 +83,6 @@ public interface AccountService {
 	UserDataResponse addRole(String login, UserRoleRequest data);
 
 	UserDataResponse removeRole(String login, UserRoleRequest data);
+
+	LoginSuccessResponse loginByEmailAndPassword(String email, String password);
 }
