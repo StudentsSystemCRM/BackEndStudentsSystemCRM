@@ -1,5 +1,6 @@
 package edutrack.user.controller;
 
+import edutrack.security.jwt.AuthTokenFilter;
 import edutrack.security.jwt.JwtUtils;
 import edutrack.security.services.UserDetailsImpl;
 import edutrack.user.dto.request.LoginRequest;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +29,8 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final AuthService authService;
     private final AuthenticationManager authenticationManager;
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
     @PostMapping("/auth/signup")
     @Operation(summary = "Register a new user", description = "Registers a new user using an invite code and user details.")
@@ -43,6 +48,8 @@ public class AuthController {
     @PostMapping("/auth/signin")
     @Operation(summary = "User login", description = "Logs in the user and returns a token for authentication.")
     public ResponseEntity<?> loginUser(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response){
+        logger.info("User attempting to log in with email: {}", loginRequest.getEmail());
+
         // auth user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
@@ -50,9 +57,13 @@ public class AuthController {
         // get info about user
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
+        logger.info("User '{}' logged in successfully", userDetails.getUsername());
+
         // generate  JWT cookie
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
         response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+
+        logger.info("JWT token added to response for user '{}'", userDetails.getUsername());
 
         // Entity mapping to DTO and added token to response
         LoginSuccessResponse loginResponse = authService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
