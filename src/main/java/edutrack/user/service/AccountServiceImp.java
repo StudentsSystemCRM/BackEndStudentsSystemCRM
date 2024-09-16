@@ -1,6 +1,5 @@
 package edutrack.user.service;
 
-import java.security.Principal;
 import java.util.*;
 
 import edutrack.user.dto.request.PasswordUpdateRequest;
@@ -34,47 +33,6 @@ public class AccountServiceImp implements AccountService {
 
     @Override
     @Transactional
-    public LoginSuccessResponse registration(String invite, UserRegisterRequest data) {
-
-        //TODO  invite check invite
-
-        UserEntity user = userRepository.findByEmail(data.getEmail());
-
-        if (user != null)
-            throw new ResourceExistsException("user with email " + data.getEmail() + "already exists");
-        user = EntityDtoUserMapper.INSTANCE.userRegisterRequestToUser(data);
-        user.setRoles(new HashSet<>(List.of(Role.USER)));
-        userRepository.save(user);
-
-        return EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(user);
-    }
-
-    @Override
-    public LoginSuccessResponse login(Principal user) {
-        UserEntity userService = userRepository.findByEmail(user.getName());
-
-        return EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(userService);
-    }
-
-    @Override
-    public LoginSuccessResponse loginByEmailAndPassword(String email, String password) {
-        UserEntity user = userRepository.findByEmail(email);
-        if (user == null || !passwordEncoder.matches(password, user.getHashedPassword())) {
-            throw new AccessException("Invalid email or password");
-        }
-
-        return EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(user);
-    }
-
-
-
-
-
-
-
-
-    @Override
-    @Transactional
     public UserDataResponse updateUser(UserUpdateRequest data) {
         UserEntity user = userRepository.findByEmail(data.getEmail());
         if (user == null)
@@ -94,23 +52,30 @@ public class AccountServiceImp implements AccountService {
 
     @Override
     @Transactional
-    public void updatePassword(Principal user, PasswordUpdateRequest data) {
-        if (user.getName().equals("ada@gmail.com"))
+    public void updatePassword(String email, PasswordUpdateRequest data) {
+        if (email.equals("ada@gmail.com")) {
             throw new NoSuchElementException("you can't change default user Ada Lovelace, create new one");
-        UserEntity account = userRepository.findByEmail(user.getName());
-//        account.setHashedPassword(passwordEncoder.encode(data.getPassword()));
+        }
+
+        UserEntity account = userRepository.findByEmail(email);
+
+        if (account == null) {
+            throw new NoSuchElementException("Account with email '%s' not found".formatted(email));
+        }
+
+        account.setHashedPassword(passwordEncoder.encode(data.getPassword()));
         userRepository.save(account);
     }
 
     @Override
     @Transactional
-    public UserDataResponse removeUser(String login) {
-        if (login.equals("ada@gmail.com"))
+    public UserDataResponse removeUser(String email) {
+        if (email.equals("ada@gmail.com"))
             throw new NoSuchElementException("you can't change default user Ada Lovelace, create new one");
 
-        UserEntity user = userRepository.findByEmail(login);
+        UserEntity user = userRepository.findByEmail(email);
         if (user == null)
-            throw new NoSuchElementException("Account with login '%s' not found".formatted(login));
+            throw new NoSuchElementException("Account with login '%s' not found".formatted(email));
 
         checkAccessCurrentAccountChangeUser(user);
 
@@ -120,10 +85,10 @@ public class AccountServiceImp implements AccountService {
 
     @Override
     @Transactional
-    public UserDataResponse addRole(String login, UserRoleRequest data) {
-        UserEntity user = userRepository.findByEmail(login);
+    public UserDataResponse addRole(String email, UserRoleRequest data) {
+        UserEntity user = userRepository.findByEmail(email);
         if (user == null)
-            throw new NoSuchElementException("Account with login '%s' not found".formatted(login));
+            throw new NoSuchElementException("Account with login '%s' not found".formatted(email));
 
         checkAccessChangeRoleUser(user, data.getRole());
 
@@ -135,10 +100,10 @@ public class AccountServiceImp implements AccountService {
 
     @Override
     @Transactional
-    public UserDataResponse removeRole(String login, UserRoleRequest data) {
-        UserEntity user = userRepository.findByEmail(login);
+    public UserDataResponse removeRole(String email, UserRoleRequest data) {
+        UserEntity user = userRepository.findByEmail(email);
         if (user == null)
-            throw new NoSuchElementException("Account with login '%s' not found".formatted(login));
+            throw new NoSuchElementException("Account with login '%s' not found".formatted(email));
 
         checkAccessChangeRoleUser(user, data.getRole());
 
