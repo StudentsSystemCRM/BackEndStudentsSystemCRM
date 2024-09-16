@@ -21,8 +21,8 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DefaultCEOAccountCreationBoot implements ApplicationRunner{
-	PasswordEncoder passwordEncoder;
 	AccountRepository repository;
+	PasswordEncoder passwordEncoder;
 	
 	@Override
 	public void run(ApplicationArguments args) {
@@ -31,9 +31,11 @@ public class DefaultCEOAccountCreationBoot implements ApplicationRunner{
 			if(user == null) {
 				Set<Role> roles = new HashSet<>();
 				roles.add(Role.CEO);
-				String password = passwordEncoder.encode("12345");
+
+				String encodedPassword = passwordEncoder.encode("12345");
+
 				LocalDate birthdate = LocalDate.of(1815, 12, 10);
-				user = new UserEntity("0", "ada@gmail.com", password, "Ada", "Lovelace", null, birthdate, LocalDate.now(), roles);
+				user = new UserEntity("0", "ada@gmail.com", encodedPassword, "Ada", "Lovelace", null, birthdate, LocalDate.now(), roles);
 				repository.save(user);
 			}
 		} catch (DataAccessException e) {

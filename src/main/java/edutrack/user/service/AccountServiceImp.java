@@ -3,8 +3,6 @@ package edutrack.user.service;
 import java.security.Principal;
 import java.util.*;
 
-import edutrack.security.jwt.JwtTokenCreator;
-import edutrack.security.jwt.JwtTokenValidator;
 import edutrack.user.dto.request.PasswordUpdateRequest;
 import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
@@ -31,11 +29,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class AccountServiceImp implements AccountService {
-
-    AccountRepository userRepository;
     PasswordEncoder passwordEncoder;
-    JwtTokenCreator jwtTokenCreator;
-    JwtTokenValidator jwtTokenValidator;
+    AccountRepository userRepository;
 
     @Override
     @Transactional
@@ -43,38 +38,40 @@ public class AccountServiceImp implements AccountService {
 
         //TODO  invite check invite
 
-
         UserEntity user = userRepository.findByEmail(data.getEmail());
 
         if (user != null)
             throw new ResourceExistsException("user with email " + data.getEmail() + "already exists");
         user = EntityDtoUserMapper.INSTANCE.userRegisterRequestToUser(data);
-        user.setHashedPassword(passwordEncoder.encode(data.getPassword()));
         user.setRoles(new HashSet<>(List.of(Role.USER)));
         userRepository.save(user);
-        // token
-        String token = jwtTokenCreator.createToken(user.getEmail(), user.getRoles());
 
-        LoginSuccessResponse response = EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(user);
-        response.setToken(token);
-
-        return response;
+        return EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(user);
     }
 
     @Override
     public LoginSuccessResponse login(Principal user) {
         UserEntity userService = userRepository.findByEmail(user.getName());
-        //token
-        String token = jwtTokenCreator.createToken(userService.getEmail(), userService.getRoles());
-        LoginSuccessResponse response = new LoginSuccessResponse();
-        if (jwtTokenValidator.validateToken(token)) {
-            response = EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(userService);
-            response.setToken(token);
-            return response;
-        }
-        response.setToken("wrongToken");
-        return response;
+
+        return EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(userService);
     }
+
+    @Override
+    public LoginSuccessResponse loginByEmailAndPassword(String email, String password) {
+        UserEntity user = userRepository.findByEmail(email);
+        if (user == null || !passwordEncoder.matches(password, user.getHashedPassword())) {
+            throw new AccessException("Invalid email or password");
+        }
+
+        return EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(user);
+    }
+
+
+
+
+
+
+
 
     @Override
     @Transactional
@@ -101,7 +98,7 @@ public class AccountServiceImp implements AccountService {
         if (user.getName().equals("ada@gmail.com"))
             throw new NoSuchElementException("you can't change default user Ada Lovelace, create new one");
         UserEntity account = userRepository.findByEmail(user.getName());
-        account.setHashedPassword(passwordEncoder.encode(data.getPassword()));
+//        account.setHashedPassword(passwordEncoder.encode(data.getPassword()));
         userRepository.save(account);
     }
 
