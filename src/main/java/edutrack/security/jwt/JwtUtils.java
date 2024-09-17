@@ -32,7 +32,7 @@ public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
     public String getJwtFromCookies(HttpServletRequest request) {
-        Cookie cookie = WebUtils.getCookie(request, jwtCookie);
+        Cookie cookie = WebUtils.getCookie(request, jwtCookie); // get token from cookie
         if (cookie != null) {
             return cookie.getValue();
         } else {
@@ -40,18 +40,21 @@ public class JwtUtils {
         }
     }
 
+    // generate token after success authentication user (for login method - look at AuthController)
     public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-        String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+        String jwt = generateTokenFromUsername(userPrincipal.getUsername());        // create cookie
         logger.info("JWT token generated for user: {}", userPrincipal.getUsername());
 
-        return ResponseCookie.from(jwtCookie, jwt)
-                .path("/api").maxAge(24 * 60 *60)
-                .httpOnly(true).build();
+        return ResponseCookie.from(jwtCookie, jwt)                  // create cookie with token
+                .path("/api").maxAge(24 * 60 * 60)    // access for all paths, and time live = 24 hours
+                .httpOnly(true).build();                            // HttpOnly for security
     }
 
+    // generate token bu email (username = email)
     public String generateTokenFromUsername(String username) {
         Instant now = Instant.now(Clock.systemUTC());
-        logger.info("Token generated at UTC time: {}" + now);
+        logger.info("Token generated at UTC time: {}", now);
+
         return Jwts.builder().setSubject(username)
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(now.plusMillis(jwtExpirationMs)))
@@ -59,15 +62,16 @@ public class JwtUtils {
                 .compact();
     }
 
+    // get email method from JWT (email = username)
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key()).build()
                 .parseClaimsJws(token).getBody().getSubject();
     }
 
+    // create cookie without JWT (for logout - look at AuthController)
     public ResponseCookie getCleanJwtCookie() {
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, null)
+        return ResponseCookie.from(jwtCookie, null)
                 .path("/api").build();
-        return cookie;
     }
 
     // create the key for subscribe JWT

@@ -3,15 +3,12 @@ package edutrack.user.service;
 import java.util.*;
 
 import edutrack.user.dto.request.PasswordUpdateRequest;
-import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
-import edutrack.user.dto.response.LoginSuccessResponse;
 import edutrack.user.dto.response.Role;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.entity.UserEntity;
 import edutrack.user.exception.AccessException;
-import edutrack.user.exception.ResourceExistsException;
 import lombok.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
