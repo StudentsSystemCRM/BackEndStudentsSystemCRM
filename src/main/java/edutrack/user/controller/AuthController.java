@@ -59,9 +59,9 @@ public class AuthController {
 
         logger.info("User '{}' logged in successfully", userDetails.getUsername());
 
-        // generate  JWT cookie
-        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
-        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+        // generate JWT cookie after success authorization
+        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails); // generate cookie (with JWT)
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());   // HttpCookie packing for storage
 
         logger.info("JWT token added to response for user '{}'", userDetails.getUsername());
 
@@ -75,7 +75,7 @@ public class AuthController {
     @PostMapping("/signout")
     @Operation(summary = "User logout", description = "Logs out the user by clearing the JWT cookie.")
     public ResponseEntity<?> logoutUser() {
-        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
+        ResponseCookie cookie = jwtUtils.getCleanJwtCookie(); // return the same cookie, but without JWT
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body("You've been signed out!");
     }
