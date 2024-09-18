@@ -17,6 +17,7 @@ import org.springframework.web.util.WebUtils;
 import java.security.Key;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Component
@@ -39,6 +40,7 @@ public class JwtUtils {
     public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
         String jwt = generateTokenFromUsername(userPrincipal.getUsername());        // create cookie
         logger.info("JWT token generated for user: {}", userPrincipal.getUsername());
+        logger.info("USER TOKEN: {}", jwt);
 
         return generateCookie(jwtCookie, jwt, "/api");
     }
@@ -46,25 +48,25 @@ public class JwtUtils {
     public ResponseCookie generateJwtCookie(String userEmail) {
         String jwt = generateTokenFromUsername(userEmail);
         logger.info("JWT token generated for userEntity: {}", userEmail);
+        logger.info("USER ENTITY TOKEN: {}", jwt);
 
         return generateCookie(jwtCookie, jwt, "/api");
     }
 
     // generate token bu email (username = email)
     public String generateTokenFromUsername(String username) {
-        Instant now = Instant.now(Clock.systemUTC());
-        logger.info("Token generated at UTC time: {}", now);
-
         return Jwts.builder()
                 .setSubject(username)
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(now.plusMillis(jwtExpirationMs)))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public ResponseCookie generateRefreshJwtCookie(String refreshToken) {
-        return  generateCookie(jwtRefreshCookie, refreshToken, "/api/auth/refreshtoken");
+        ResponseCookie refreshCookie = generateCookie(jwtRefreshCookie, refreshToken, "/api/auth/refreshtoken");
+        logger.info("Token generated REFRESH JWT COOKIE: {}", refreshCookie);
+        return  refreshCookie;
     }
 
     public String getJwtFromCookies(HttpServletRequest request) {
@@ -79,6 +81,7 @@ public class JwtUtils {
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key())
+                .setAllowedClockSkewSeconds(60)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -100,9 +103,6 @@ public class JwtUtils {
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Instant now = Instant.now(Clock.systemUTC());
-            logger.info("Current UTC time: {}", now);
-
             Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build().parse(authToken);
