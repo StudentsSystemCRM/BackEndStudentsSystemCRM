@@ -4,7 +4,6 @@ import edutrack.security.entity.RefreshTokenEntity;
 import edutrack.security.jwt.AuthTokenFilter;
 import edutrack.security.jwt.JwtUtils;
 import edutrack.security.services.RefreshTokenService;
-import edutrack.security.services.UserDetailsImpl;
 import edutrack.user.dto.request.LoginRequest;
 import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.response.LoginSuccessResponse;
@@ -24,6 +23,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -58,7 +58,7 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
         // get info about user
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         logger.info("User '{}' logged in successfully", userDetails.getUsername()); // username = email
 
         // generate JWT access token after and add to cookie
@@ -82,9 +82,9 @@ public class AuthController {
     @PostMapping("/signout")
     @Operation(summary = "User logout", description = "Logs out the user by clearing the JWT cookie.")
     public ResponseEntity<?> logoutUser() {
-        Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!"anonymousUser".equals(principle.toString())) {
-            String userEmail = ((UserDetailsImpl) principle).getUsername(); // get email
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!"anonymousUser".equals(authentication.getPrincipal().toString())) {
+            String userEmail = authentication.getName(); // get email
             refreshTokenService.deleteByUserEmail(userEmail);               // delete refresh by email
         }
 

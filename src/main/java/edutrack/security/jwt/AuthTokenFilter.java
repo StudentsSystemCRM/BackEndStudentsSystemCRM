@@ -1,6 +1,5 @@
 package edutrack.security.jwt;
 
-import edutrack.security.services.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,60 +7,68 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import edutrack.exception.AuthenticationFaildException;
+import edutrack.exception.response.GeneralErrorResponse;
+import edutrack.security.util.Utils;
+import edutrack.user.entity.UserEntity;
 
 import java.io.IOException;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtUtils jwtUtils;
+	@Autowired
+	private JwtUtils jwtUtils;
+	private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
+		try {
+			String jwt = parseJwt(request);
+			logger.info("Received JWT token: {}", jwt);
+			if (jwt != null) {
+				// get name (email) from token
+				UserEntity account = jwtUtils.validateJwtToken(jwt);
+				String[] roles = account.getRoles().stream().map(r -> "ROLE_" + r).toArray(String[]::new);
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(account,
+						null, AuthorityUtils.createAuthorityList(roles));
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				logger.info("User '{}' is authenticated", account.getEmail());
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        try {
-            String jwt = parseJwt(request);
+				// install authentication
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			}
+			
+			
+		} catch (AuthenticationFaildException e) {
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+		} catch (Exception e) {
+			GeneralErrorResponse responseData = new GeneralErrorResponse(null, "Internel Server Error");
+			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+			response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+			response.getWriter().write(Utils.getJsonFromObjectOrEmtyString(responseData));
+			response.getWriter().flush();
+		}
+		// next filters
+		filterChain.doFilter(request, response);
+	}
 
-            logger.info("Received JWT token: {}", jwt);
-            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-                // get name (email) from token
-                String username = jwtUtils.getUserNameFromJwtToken(jwt);
-
-                // load user details
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                logger.info("User '{}' is authenticated", username);
-
-                // install authentication
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-        } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e.getMessage());
-        }
-
-        // next filters
-        filterChain.doFilter(request, response);
-    }
-
-    private String parseJwt(HttpServletRequest request) {
-        String jwt = jwtUtils.getJwtFromCookies(request);
-        if (jwt == null) {
-            logger.warn("JWT token is not found in cookies");
-        } else {
-            logger.info("JWT token found in cookies: {}", jwt);
-        }
-        return jwt;
-    }
+	private String parseJwt(HttpServletRequest request) {
+		String jwt = jwtUtils.getJwtFromCookies(request);
+		if (jwt == null) {
+			logger.warn("JWT token is not found in cookies");
+		} else {
+			logger.info("JWT token found in cookies: {}", jwt);
+		}
+		return jwt;
+	}
 }
