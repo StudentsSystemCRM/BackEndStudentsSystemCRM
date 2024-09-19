@@ -11,15 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 
-import edutrack.EdutreckBackendApplication;
 import edutrack.activityLog.entity.ActivityLogEntity;
 import edutrack.activityLog.repository.ActivityLogRepository;
 import edutrack.payment.entity.PaymentEntity;
 import edutrack.payment.repository.PaymentRepository;
-import edutrack.security.TestSecurityConfig;
 import edutrack.student.constant.LeadStatus;
 import edutrack.student.dto.request.StudentCreateRequest;
 import edutrack.student.dto.request.StudentUpdateDataRequest;
@@ -30,7 +27,6 @@ import edutrack.student.service.StudentService;
 
 @SpringBootTest
 @Sql(scripts = {"classpath:testdata.sql"})
-@ContextConfiguration(classes = {EdutreckBackendApplication.class, TestSecurityConfig.class})
 @EnableMethodSecurity
 public class StudentServiceIntegrationTest {
 

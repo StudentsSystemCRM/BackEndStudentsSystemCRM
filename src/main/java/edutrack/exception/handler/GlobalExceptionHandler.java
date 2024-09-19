@@ -6,6 +6,7 @@ import java.util.UUID;
 import edutrack.exception.*;
 import edutrack.exception.response.GeneralErrorResponse;
 import edutrack.exception.response.GeneralErrorResponseValidationDto;
+import edutrack.group.exception.GroupNotFoundException;
 import edutrack.student.exception.EmailAlreadyInUseException;
 import edutrack.user.exception.AccessException;
 import edutrack.user.exception.InvalidDateFormatException;
@@ -102,6 +103,15 @@ public class GlobalExceptionHandler {
 		logger.error("JWT token has expired.", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
+	
+	@ExceptionHandler(GroupNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public GeneralErrorResponse handleJwtTokenExpiredException(GroupNotFoundException ex) {
+		logger.error("GroupNotFoundException", ex);
+		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
+	}
+	
+	
 
 	@ExceptionHandler(JwtTokenMissingException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)

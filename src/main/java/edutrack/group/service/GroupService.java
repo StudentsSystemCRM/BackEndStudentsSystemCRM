@@ -17,6 +17,7 @@ public interface GroupService {
 	List<GroupDataResponse> getStudentGroups(Long id);
 	
 	GroupDataResponse addStudentToGroup(Long id, String name);
+	GroupDataResponse deleteStudentFromGroup(Long id, String name);
 	
 	GroupDataResponse updateGroup(GroupUpdateDataRequest group);
 	
