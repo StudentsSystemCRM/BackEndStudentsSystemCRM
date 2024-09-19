@@ -8,19 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import edutrack.activityLog.controller.ActivityLogController;
 import edutrack.activityLog.service.ActivityLogService;
 import edutrack.student.service.StudentService;
 import edutrack.user.repository.AccountRepository;
-import edutrack.security.jwt.JwtTokenCreator;
-import edutrack.security.jwt.JwtTokenValidator;
-import edutrack.security.SecurityConfig;
 
 @WebMvcTest(ActivityLogController.class)
-@Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class ActivityLogControllerTest {
 	

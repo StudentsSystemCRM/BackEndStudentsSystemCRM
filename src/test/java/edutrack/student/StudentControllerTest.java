@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,12 +33,9 @@ import edutrack.student.dto.response.StudentDataResponse;
 import edutrack.student.repository.StudentRepository;
 import edutrack.student.service.StudentService;
 import edutrack.user.repository.AccountRepository;
-import edutrack.security.jwt.JwtTokenCreator;
-import edutrack.security.jwt.JwtTokenValidator;
-import edutrack.security.SecurityConfig;
+
 
 @WebMvcTest(StudentController.class)
-@Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class StudentControllerTest {
 

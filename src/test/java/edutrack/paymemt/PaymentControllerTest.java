@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,12 +30,10 @@ import edutrack.payment.dto.response.SinglePayment;
 import edutrack.payment.service.PaymentService;
 import edutrack.student.constant.LeadStatus;
 import edutrack.user.repository.AccountRepository;
-import edutrack.security.jwt.JwtTokenCreator;
-import edutrack.security.jwt.JwtTokenValidator;
-import edutrack.security.SecurityConfig;
+
 
 @WebMvcTest(PaymentController.class)
-@Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})
+
 @AutoConfigureMockMvc(addFilters = false)
 public class PaymentControllerTest {
 	

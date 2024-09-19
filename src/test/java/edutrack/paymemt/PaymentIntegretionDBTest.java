@@ -24,6 +24,7 @@ import edutrack.student.repository.StudentRepository;
 import edutrack.student.service.StudentService;
 
 @SpringBootTest
+
 @Sql(scripts = { "classpath:testdata.sql" })
 public class PaymentIntegretionDBTest {
 

@@ -15,6 +15,7 @@ import edutrack.activityLog.dto.response.ActivityLogResponse;
 import edutrack.activityLog.service.ActivityLogService;
 
 @SpringBootTest
+
 @Sql(scripts = {"classpath:testdata.sql"})
 public class ActivityLogIntegrationDBTest {
 	
