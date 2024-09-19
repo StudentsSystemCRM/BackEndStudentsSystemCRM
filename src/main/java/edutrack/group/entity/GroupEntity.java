@@ -53,10 +53,12 @@ public class GroupEntity {
     
     @ElementCollection
     @Enumerated(EnumType.STRING)
+    @CollectionTable(name="group_lessons_days")
     private List<WeekDay> lessonsDays = new ArrayList<>();
     
     @ElementCollection
     @Enumerated(EnumType.STRING)
+    @CollectionTable(name="group_webinars_days")
     private List<WeekDay> webinarsDays = new ArrayList<>();
     
     @CreatedBy

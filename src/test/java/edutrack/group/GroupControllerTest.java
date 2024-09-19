@@ -75,8 +75,9 @@ class GroupControllerTest {
 				LocalDate.of(2024, 6, 1),
 				Arrays.asList(WeekDay.MONDAY, WeekDay.WEDNESDAY),
 				Arrays.asList(WeekDay.TUESDAY, WeekDay.THURSDAY),
-				false, Collections.emptyList(),
-				Collections.emptyList());
+				false
+//				, Collections.emptyList(),Collections.emptyList()
+				);
 		
 	}
 
@@ -113,8 +114,9 @@ class GroupControllerTest {
 
 	        GroupDataResponse group2 = new GroupDataResponse("java-20", "whatsApp", "skype", "slack", GroupStatus.INACTIVE,
 	                LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1), Arrays.asList(WeekDay.FRIDAY),
-	                Arrays.asList(WeekDay.SATURDAY), false, Collections.emptyList(),
-	                Collections.emptyList());
+	                Arrays.asList(WeekDay.SATURDAY), false
+//	                , Collections.emptyList(), Collections.emptyList()
+	                );
 
 	        List<GroupDataResponse> groups = Arrays.asList(responseGroup, group2);
 
