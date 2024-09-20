@@ -1,24 +1,21 @@
 package edutrack.security.services;
 
-import edutrack.security.entity.RefreshTokenEntity;
-import edutrack.security.repository.RefreshTokenRepository;
-import edutrack.user.repository.AccountRepository;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
+import edutrack.security.entity.RefreshTokenEntity;
+import edutrack.security.repository.RefreshTokenRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class RefreshTokenService {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
-    @Autowired
-    private AccountRepository accountRepository;
 
     @Value("${jwt.refreshExpirationMs}")
     private Long refreshTokenDurationMs;

@@ -38,8 +38,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 				// get name (email) from token
 				UserEntity account = jwtUtils.validateJwtToken(jwt);
 				String[] roles = account.getRoles().stream().map(r -> "ROLE_" + r).toArray(String[]::new);
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(account,
-						null, AuthorityUtils.createAuthorityList(roles));
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(account.getEmail(),
+						account.getHashedPassword(), AuthorityUtils.createAuthorityList(roles));
 
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				logger.info("User '{}' is authenticated", account.getEmail());

@@ -1,10 +1,5 @@
 package edutrack.security;
 
-import edutrack.security.jwt.AuthEntryPointJwt;
-import edutrack.security.jwt.AuthTokenFilter;
-import edutrack.user.entity.UserEntity;
-import edutrack.user.repository.AccountRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,11 +19,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import edutrack.security.jwt.AuthEntryPointJwt;
+import edutrack.security.jwt.AuthTokenFilter;
+import edutrack.user.entity.UserEntity;
+import edutrack.user.repository.AccountRepository;
+
 @Configuration
 @EnableMethodSecurity
 public class WebSecurityConfig {
-//    @Autowired
-//    private UserDetailsService userDetailsService;
+	
 
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
@@ -37,14 +36,6 @@ public class WebSecurityConfig {
      AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
-//
-//    @Bean
-//     DaoAuthenticationProvider authenticationProvider() {
-//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-//        authProvider.setUserDetailsService(userDetailsService);
-//        authProvider.setPasswordEncoder(passwordEncoder());
-//        return authProvider;
-//    }
 
     @Bean
      AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
@@ -71,9 +62,8 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/students/payment").hasAnyRole("ADMIN", "CEO")   // ONLY ADMIN and CEO can assign payments
                         .requestMatchers(HttpMethod.DELETE, "/api/students/*").hasAnyRole("ADMIN", "CEO")       // ONLY ADMIN and CEO can delete students
                         .anyRequest().authenticated())
-//                .authenticationProvider(authenticationProvider())                                               // install auth provider
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);   // add JWT filter
-
+        
         return http.build();
     }
     
