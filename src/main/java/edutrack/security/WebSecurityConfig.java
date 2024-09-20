@@ -58,8 +58,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()                                                   // access to auth
                         .requestMatchers("/api/users/assign-role/*", "/api/users/remove-role/*").hasAnyRole("ADMIN", "CEO")  // ONLY ADMIN and CEO can assign/delete roles
                         .requestMatchers(HttpMethod.POST, "/api/students").hasAnyRole("ADMIN", "CEO")           // ONLY ADMIN and CEO can assign students
-                        .requestMatchers(HttpMethod.GET, "/api/students/*/payments").hasAnyRole("ADMIN", "CEO") // ONLY ADMIN and CEO can see student payments
-                        .requestMatchers(HttpMethod.POST, "/api/students/payment").hasAnyRole("ADMIN", "CEO")   // ONLY ADMIN and CEO can assign payments
+                        .requestMatchers(HttpMethod.GET, "/api/payments/*/payments").hasAnyRole("ADMIN", "CEO")
+                        .requestMatchers(HttpMethod.POST, "/api/payments/payment").hasAnyRole("ADMIN", "CEO")   
                         .requestMatchers(HttpMethod.DELETE, "/api/students/*").hasAnyRole("ADMIN", "CEO")       // ONLY ADMIN and CEO can delete students
                         .anyRequest().authenticated())
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);   // add JWT filter

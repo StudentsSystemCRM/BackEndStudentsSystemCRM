@@ -8,14 +8,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import edutrack.activityLog.controller.ActivityLogController;
 import edutrack.activityLog.service.ActivityLogService;
+import edutrack.security.jwt.RefreshTokenFilter;
+import edutrack.security.jwt.TokenGenerationFilter;
 import edutrack.student.service.StudentService;
 import edutrack.user.repository.AccountRepository;
 
-@WebMvcTest(ActivityLogController.class)
+
+@WebMvcTest(
+	    controllers = ActivityLogController.class,
+	    excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
+	    classes = {RefreshTokenFilter.class, TokenGenerationFilter.class}))
 @AutoConfigureMockMvc(addFilters = false)
 public class ActivityLogControllerTest {
 	

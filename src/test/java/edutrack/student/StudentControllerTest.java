@@ -19,23 +19,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edutrack.activityLog.repository.ActivityLogRepository;
-import edutrack.group.repository.GroupRepository;
-import edutrack.payment.repository.PaymentRepository;
+import edutrack.security.jwt.RefreshTokenFilter;
+import edutrack.security.jwt.TokenGenerationFilter;
 import edutrack.student.constant.LeadStatus;
 import edutrack.student.controller.StudentController;
 import edutrack.student.dto.request.StudentCreateRequest;
 import edutrack.student.dto.response.StudentDataResponse;
-import edutrack.student.repository.StudentRepository;
 import edutrack.student.service.StudentService;
-import edutrack.user.repository.AccountRepository;
 
 
-@WebMvcTest(StudentController.class)
+@WebMvcTest(
+	    controllers = StudentController.class,
+	    excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
+	    classes = {RefreshTokenFilter.class, TokenGenerationFilter.class}))
 @AutoConfigureMockMvc(addFilters = false)
 public class StudentControllerTest {
 
@@ -44,19 +46,6 @@ public class StudentControllerTest {
 
     @MockBean
     private StudentService studentService;
-    @MockBean
-    private AccountRepository userRepository;
-
-    @MockBean
-    private GroupRepository groupRepository;
-    @MockBean
-    private StudentRepository studentRepository;
-
-    @MockBean
-    private PaymentRepository paymentRepository;
-
-    @MockBean
-    private ActivityLogRepository activityLogRepository;
 
     @BeforeEach
     public void setup() {
