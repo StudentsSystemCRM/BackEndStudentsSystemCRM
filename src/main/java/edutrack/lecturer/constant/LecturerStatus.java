@@ -1,5 +1,5 @@
 package edutrack.lecturer.constant;
 
 public enum LecturerStatus {
-    ACTIVE, INACTIVE, TEMPORARY, PERMANENT;
+    ACTIVE, INACTIVE;
 }
