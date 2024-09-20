@@ -1,6 +1,8 @@
 package edutrack.security.jwt;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.security.sasl.AuthenticationException;
 
@@ -9,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,8 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edutrack.security.entity.RefreshTokenEntity;
 import edutrack.security.services.RefreshTokenService;
 import edutrack.user.dto.request.LoginRequest;
-import edutrack.user.dto.response.LoginSuccessResponse;
-import edutrack.user.service.AuthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +39,6 @@ public class TokenGenerationFilter extends OncePerRequestFilter {
     AuthenticationManager authenticationManager;
     JwtUtils jwtUtils;
     RefreshTokenService refreshTokenService;
-    AuthService authService;
     ObjectMapper objectMapper;
 
     @Override
@@ -62,18 +62,23 @@ public class TokenGenerationFilter extends OncePerRequestFilter {
             ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());
             response.addHeader(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString());
 
-            logger.info("JWT and Refresh tokens added to response for user '{}'"+ userDetails.getUsername());
-            LoginSuccessResponse loginResponse = authService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
-            loginResponse.setToken(jwtUtils.generateTokenFromUsername(userDetails.getUsername()));
+            String token = jwtUtils.generateTokenFromUsername(userDetails.getUsername());
+            Map<String, String> responseMap = new HashMap<>();
+            responseMap.put("token", token);
+            responseMap.put("name", userDetails.getUsername());
 
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write(objectMapper.writeValueAsString(loginResponse));
+            response.getWriter().write(objectMapper.writeValueAsString(responseMap));
             response.setStatus(HttpStatus.OK.value());
-        } catch (AuthenticationException e) {
+
+        } catch (AuthenticationException | BadCredentialsException e) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getWriter().write("{\"message\": \"Invalid email or password\"}");
-        } catch (Exception e) {
+        }  catch (Exception e) {
+        	e.printStackTrace();
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getWriter().write("{\"message\": \"Internal Server Error\"}");
         }
     }

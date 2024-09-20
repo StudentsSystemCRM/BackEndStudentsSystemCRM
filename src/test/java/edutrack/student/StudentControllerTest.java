@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edutrack.security.jwt.LogoutFilter;
 import edutrack.security.jwt.RefreshTokenFilter;
 import edutrack.security.jwt.TokenGenerationFilter;
 import edutrack.student.constant.LeadStatus;
@@ -37,7 +38,7 @@ import edutrack.student.service.StudentService;
 @WebMvcTest(
 	    controllers = StudentController.class,
 	    excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
-	    classes = {RefreshTokenFilter.class, TokenGenerationFilter.class}))
+	    classes = {RefreshTokenFilter.class, TokenGenerationFilter.class, LogoutFilter.class}))
 @AutoConfigureMockMvc(addFilters = false)
 public class StudentControllerTest {
 

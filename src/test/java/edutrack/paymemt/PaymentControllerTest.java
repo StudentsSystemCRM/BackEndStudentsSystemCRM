@@ -30,6 +30,7 @@ import edutrack.payment.dto.request.AddPaymentRequest;
 import edutrack.payment.dto.response.PaymentInfoResponse;
 import edutrack.payment.dto.response.SinglePayment;
 import edutrack.payment.service.PaymentService;
+import edutrack.security.jwt.LogoutFilter;
 import edutrack.security.jwt.RefreshTokenFilter;
 import edutrack.security.jwt.TokenGenerationFilter;
 import edutrack.student.constant.LeadStatus;
@@ -37,7 +38,7 @@ import edutrack.user.repository.AccountRepository;
 
 @WebMvcTest(controllers = PaymentController.class,
 	    excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
-	    classes = {RefreshTokenFilter.class, TokenGenerationFilter.class}))
+	    classes = {RefreshTokenFilter.class, TokenGenerationFilter.class, LogoutFilter.class}))
 @AutoConfigureMockMvc(addFilters = false)
 public class PaymentControllerTest {
 	

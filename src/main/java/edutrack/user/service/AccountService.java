@@ -1,11 +1,14 @@
 package edutrack.user.service;
 
 import edutrack.user.dto.request.PasswordUpdateRequest;
+import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
 import edutrack.user.dto.response.UserDataResponse;
 
 public interface AccountService {
+	
+	 UserDataResponse registerUser(String invite, UserRegisterRequest data);
 	/*
 	 * CEO able update any user ADMIN able update any user, except another ADMIN and
 	 * CEO USER able update only himself so in implementation service we have to

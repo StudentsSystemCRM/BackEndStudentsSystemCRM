@@ -51,10 +51,12 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
                         .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
             } else {
                 response.setStatus(HttpStatus.BAD_REQUEST.value());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                 response.getWriter().write("{\"message\": \"Refresh Token is empty!\"}");
             }
         } catch (Exception e) {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getWriter().write("{\"message\": \"Internal Server Error\"}");
         }
     }

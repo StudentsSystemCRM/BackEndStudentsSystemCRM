@@ -45,7 +45,6 @@ public class JwtUtils {
     public ResponseCookie generateJwtCookie(UserDetails userPrincipal) {
         String jwt = generateTokenFromUsername(userPrincipal.getUsername());        // create cookie
         logger.info("JWT token generated for user: {}", userPrincipal.getUsername());
-        logger.info("USER TOKEN: {}", jwt);
 
         return generateCookie(jwtCookie, jwt, "/api");
     }
@@ -53,7 +52,6 @@ public class JwtUtils {
     public ResponseCookie generateJwtCookie(String userEmail) {
         String jwt = generateTokenFromUsername(userEmail);
         logger.info("JWT token generated for userEntity: {}", userEmail);
-        logger.info("USER ENTITY TOKEN: {}", jwt);
 
         return generateCookie(jwtCookie, jwt, "/api");
     }
@@ -121,13 +119,14 @@ public class JwtUtils {
             throw new AuthenticationFaildException("Invalid token value, " + e.getMessage());
         } catch (ExpiredJwtException e) {
             logger.error("JWT token is expired: {}", e.getMessage());
-            throw new AuthenticationFaildException("JWT token is expired: " + e.getMessage());
+            throw new ExpiredJwtException(null, null, "JWT token is expired");
+           // throw new AuthenticationFaildException("JWT token is expired: " + e.getMessage());
         } catch (UnsupportedJwtException e) {
             logger.error("JWT token is unsupported: {}", e.getMessage());
             throw new AuthenticationFaildException("JWT token is unsupported: " + e.getMessage());
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims string is empty: {}", e.getMessage());
-            throw new AuthenticationFaildException("JWT claims string is empty: " + e.getMessage());
+            throw new IllegalArgumentException("JWT claims string is empty: " + e.getMessage());
         }
     }
 
@@ -151,4 +150,14 @@ public class JwtUtils {
             return null;
         }
     }
+    
+	public String parseJwt(HttpServletRequest request) {
+		String jwt = getJwtFromCookies(request);
+		if (jwt == null) {
+			logger.warn("JWT token is not found in cookies");
+		} else {
+			logger.info("JWT token found in cookies: {}", jwt);
+		}
+		return jwt;
+	}
 }

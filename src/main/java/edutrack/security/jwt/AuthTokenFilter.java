@@ -19,6 +19,7 @@ import edutrack.exception.AuthenticationFaildException;
 import edutrack.exception.response.GeneralErrorResponse;
 import edutrack.security.util.Utils;
 import edutrack.user.entity.UserEntity;
+import io.jsonwebtoken.ExpiredJwtException;
 
 import java.io.IOException;
 
@@ -32,47 +33,47 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
-			String jwt = parseJwt(request);
+			String jwt = jwtUtils.parseJwt(request);
 			logger.info("Received JWT token: {}", jwt);
 			if (jwt != null) {
-				// get name (email) from token
 				UserEntity account = jwtUtils.validateJwtToken(jwt);
-				String[] roles = account.getRoles().stream().map(r -> "ROLE_" + r).toArray(String[]::new);
-				
+				String[] roles = account.getRoles().stream().map(r -> "ROLE_" + r).toArray(String[]::new);				
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(account.getEmail(),
 						account.getHashedPassword(), AuthorityUtils.createAuthorityList(roles));
-
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				logger.info("User '{}' is authenticated", account.getEmail());
 				
-
 				// install authentication
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 				logger.info("Roles for user '{}': {}", account.getEmail(), AuthorityUtils.createAuthorityList(roles));
+			}	
+			
 
-			}
-			
-			
-		} catch (AuthenticationFaildException e) {
+		} catch (ExpiredJwtException | IllegalArgumentException e) {
+			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+			response.getWriter().write(e.getMessage());
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+			return;
+		} catch (AuthenticationFaildException e) {
+			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+			response.getWriter().write(e.getMessage());
+			response.setStatus(HttpStatus.FORBIDDEN.value());
+			return;
 		} catch (Exception e) {
 			GeneralErrorResponse responseData = new GeneralErrorResponse(null, "Internel Server Error");
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 			response.getWriter().write(Utils.getJsonFromObjectOrEmtyString(responseData));
 			response.getWriter().flush();
+			return;
 		}
-		// next filters
 		filterChain.doFilter(request, response);
 	}
-
-	private String parseJwt(HttpServletRequest request) {
-		String jwt = jwtUtils.getJwtFromCookies(request);
-		if (jwt == null) {
-			logger.warn("JWT token is not found in cookies");
-		} else {
-			logger.info("JWT token found in cookies: {}", jwt);
-		}
-		return jwt;
-	}
+	
+	   @Override
+	    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+	        String path = request.getRequestURI();
+	        return path.equalsIgnoreCase("/api/auth/signin") || path.equalsIgnoreCase("/api/auth/signup")
+	        		|| path.equalsIgnoreCase("/api/auth/signout") || path.equalsIgnoreCase("/api/auth/refreshtoken");
+	        
+	    }
 }

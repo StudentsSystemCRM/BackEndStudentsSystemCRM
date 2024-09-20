@@ -37,6 +37,7 @@ import edutrack.group.dto.request.GroupUpdateDataRequest;
 import edutrack.group.dto.response.GroupDataResponse;
 import edutrack.group.exception.GroupNotFoundException;
 import edutrack.group.service.GroupService;
+import edutrack.security.jwt.LogoutFilter;
 import edutrack.security.jwt.RefreshTokenFilter;
 import edutrack.security.jwt.TokenGenerationFilter;
 import edutrack.user.constant.ValidationAccountingMessage;
@@ -44,7 +45,7 @@ import edutrack.user.constant.ValidationAccountingMessage;
 @WebMvcTest(
 	    controllers = GroupController.class,
 	    excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
-	    classes = {RefreshTokenFilter.class, TokenGenerationFilter.class}))
+	    classes = {RefreshTokenFilter.class, TokenGenerationFilter.class, LogoutFilter.class}))
 @AutoConfigureMockMvc(addFilters = false)
 class GroupControllerTest {
 

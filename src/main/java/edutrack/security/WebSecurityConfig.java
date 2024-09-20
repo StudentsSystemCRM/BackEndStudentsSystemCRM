@@ -19,8 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import edutrack.security.jwt.AuthEntryPointJwt;
 import edutrack.security.jwt.AuthTokenFilter;
+import edutrack.security.jwt.LogoutFilter;
 import edutrack.user.entity.UserEntity;
 import edutrack.user.repository.AccountRepository;
 
@@ -28,9 +28,8 @@ import edutrack.user.repository.AccountRepository;
 @EnableMethodSecurity
 public class WebSecurityConfig {
 	
-
-    @Autowired
-    private AuthEntryPointJwt unauthorizedHandler;
+	@Autowired
+	LogoutFilter logoutFilter;
 
     @Bean
      AuthTokenFilter authenticationJwtTokenFilter() {
@@ -51,19 +50,17 @@ public class WebSecurityConfig {
      SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)                                                          // off CSRF for work with token
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))        // error handling
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))   // session stateless for JWT
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()      // access to swagger UI
                         .requestMatchers("/api/auth/**").permitAll()                                                   // access to auth
                         .requestMatchers("/api/users/assign-role/*", "/api/users/remove-role/*").hasAnyRole("ADMIN", "CEO")  // ONLY ADMIN and CEO can assign/delete roles
                         .requestMatchers(HttpMethod.POST, "/api/students").hasAnyRole("ADMIN", "CEO")           // ONLY ADMIN and CEO can assign students
-                        .requestMatchers(HttpMethod.GET, "/api/payments/*/payments").hasAnyRole("ADMIN", "CEO")
-                        .requestMatchers(HttpMethod.POST, "/api/payments/payment").hasAnyRole("ADMIN", "CEO")   
+                        .requestMatchers("/api/payments/**").hasAnyRole("ADMIN", "CEO")  
                         .requestMatchers(HttpMethod.DELETE, "/api/students/*").hasAnyRole("ADMIN", "CEO")       // ONLY ADMIN and CEO can delete students
                         .anyRequest().authenticated())
-                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);   // add JWT filter
-        
+                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)   // add JWT filter
+                .addFilterBefore(logoutFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
     

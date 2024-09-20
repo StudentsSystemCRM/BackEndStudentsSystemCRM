@@ -3,12 +3,14 @@ package edutrack.user.service;
 import java.util.*;
 
 import edutrack.user.dto.request.PasswordUpdateRequest;
+import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
 import edutrack.user.dto.response.Role;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.entity.UserEntity;
 import edutrack.user.exception.AccessException;
+import edutrack.user.exception.ResourceExistsException;
 import lombok.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,6 +29,23 @@ import lombok.experimental.FieldDefaults;
 public class AccountServiceImp implements AccountService {
     PasswordEncoder passwordEncoder;
     AccountRepository userRepository;
+    
+	@Override
+	public UserDataResponse registerUser(String invite, UserRegisterRequest data) {
+        //TODO  invite check invite
+
+        UserEntity existingUser = userRepository.findByEmail(data.getEmail());
+
+        if (existingUser != null)
+            throw new ResourceExistsException("user with email " + data.getEmail() + "already exists");
+
+       UserEntity newUser = EntityDtoUserMapper.INSTANCE.userRegisterRequestToUser(data);
+       newUser.setRoles(new HashSet<>(List.of(Role.USER)));
+       newUser.setHashedPassword(passwordEncoder.encode(data.getPassword()));
+       userRepository.save(newUser);
+
+       return EntityDtoUserMapper.INSTANCE.userToUserDataResponse(newUser);
+	}
 
     @Override
     @Transactional
@@ -173,4 +192,7 @@ public class AccountServiceImp implements AccountService {
         private boolean isAdmin;
         private boolean isCeo;
     }
+
+
+
 }
