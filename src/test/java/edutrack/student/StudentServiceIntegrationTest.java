@@ -19,7 +19,6 @@ import edutrack.activityLog.entity.ActivityLogEntity;
 import edutrack.activityLog.repository.ActivityLogRepository;
 import edutrack.payment.entity.PaymentEntity;
 import edutrack.payment.repository.PaymentRepository;
-import edutrack.security.TestSecurityConfig;
 import edutrack.student.constant.LeadStatus;
 import edutrack.student.dto.request.StudentCreateRequest;
 import edutrack.student.dto.request.StudentUpdateDataRequest;
@@ -30,7 +29,6 @@ import edutrack.student.service.StudentService;
 
 @SpringBootTest
 @Sql(scripts = {"classpath:testdata.sql"})
-@ContextConfiguration(classes = {EdutreckBackendApplication.class, TestSecurityConfig.class})
 @EnableMethodSecurity
 public class StudentServiceIntegrationTest {
 
