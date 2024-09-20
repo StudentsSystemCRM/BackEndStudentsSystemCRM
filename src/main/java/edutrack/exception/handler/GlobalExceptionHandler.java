@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import edutrack.exception.*;
+import edutrack.exception.ResourceNotFoundException;
 import edutrack.exception.response.GeneralErrorResponse;
 import edutrack.exception.response.GeneralErrorResponseValidationDto;
 import edutrack.student.exception.EmailAlreadyInUseException;
@@ -109,4 +110,10 @@ public class GlobalExceptionHandler {
 		logger.error("JWT token is missing.", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
+	@ExceptionHandler(ResourceNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public GeneralErrorResponse handleResourceNotFoundException(ResourceNotFoundException ex) {
+		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
+	}
+
 }
