@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +45,15 @@ public class GroupController {
     @Operation(summary = "Get all groups", description = "Returns a list of all groups.")
     public List<GroupDataResponse> getAllGroups() {
         return groupService.getAllGroups();
+    }
+    
+    @GetMapping("/pageable")
+    @Operation(summary = "Get all groups", description = "Returns a list of all groups.")
+    public List<GroupDataResponse> getAllGroups(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+    		@RequestParam(defaultValue = "name") String sortBy, @RequestParam(defaultValue = "true") boolean ascending) {
+    	Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+    	Pageable pageable = PageRequest.of(page, size, sort);
+        return groupService.getAllGroups(pageable);
     }
 
     @GetMapping("/status")

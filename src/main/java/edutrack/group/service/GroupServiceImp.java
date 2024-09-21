@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -75,13 +76,18 @@ public class GroupServiceImp implements GroupService {
         groupRepo.save(groupEntity);
         return toGroupDataResponse(groupEntity);
 	}
-
+	
 	@Override
 	public List<GroupDataResponse> getAllGroups() {
 		List<GroupEntity> groupResponse = groupRepo.findAll();
         if (groupResponse.isEmpty())
             return new ArrayList<>();
         return groupResponse.stream().map(group -> toGroupDataResponse(group)).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<GroupDataResponse> getAllGroups(Pageable pageable) {
+        return groupRepo.findAll(pageable).isEmpty() ? new ArrayList<>() : groupRepo.findAll(pageable).stream().map(group -> toGroupDataResponse(group)).collect(Collectors.toList());
 	}
 
 	@Override
