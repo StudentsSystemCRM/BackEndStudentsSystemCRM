@@ -1,11 +1,10 @@
 package edutrack.lecturer.service;
 
-import edutrack.group.entity.GroupEntity;
 import edutrack.lecturer.constant.LecturerStatus;
 import edutrack.lecturer.dto.request.LecturerCreateRequest;
 import edutrack.lecturer.dto.request.LecturerUpdateRequest;
 import edutrack.lecturer.dto.response.LecturerDataResponse;
-import edutrack.lecturer.entity.LecturerEntity;
+
 
 import java.util.List;
 import java.util.Set;
