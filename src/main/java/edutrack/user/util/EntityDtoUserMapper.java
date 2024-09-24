@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import edutrack.user.dto.request.UserRegisterRequest;
-import edutrack.user.dto.response.LoginSuccessResponse;
+import edutrack.authentication.dto.responce.LoginSuccessResponse;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.entity.UserEntity;
 
