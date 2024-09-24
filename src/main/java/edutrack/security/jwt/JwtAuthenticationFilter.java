@@ -1,5 +1,6 @@
 package edutrack.security.jwt;
 
+import edutrack.security.jwt.redis.TokenBlackListService;
 import edutrack.user.entity.UserEntity;
 import edutrack.user.repository.AccountRepository;
 import io.jsonwebtoken.Claims;
@@ -7,7 +8,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,10 +22,13 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtService jwtService;
-    private final AccountRepository accountRepository;
+    JwtService jwtService;
+    AccountRepository accountRepository;
+    TokenBlackListService tokenBlackListService;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -32,6 +38,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
+
+            // check token in redis DB
+            if (tokenBlackListService.isBlacklisted(token)) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is blacklisted");
+                return;
+            }
+
             try {
                 email = jwtService.extractClaim(token, Claims::getSubject);
             } catch (Exception e) {

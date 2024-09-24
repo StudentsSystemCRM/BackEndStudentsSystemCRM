@@ -1,5 +1,7 @@
 package edutrack.authentication.controller;
 
+import edutrack.authentication.dto.request.SignOutRequest;
+import edutrack.authentication.dto.responce.SignOutResponse;
 import edutrack.authentication.service.AuthService;
 import edutrack.authentication.dto.request.LoginRequest;
 import edutrack.authentication.dto.request.RefreshTokenRequest;
@@ -36,9 +38,12 @@ public class AuthController {
         return authService.refreshToken(refreshTokenRequest);
     }
 
-//    @PostMapping("/signout")
-//    @Operation(summary = "Sign out user", description = "Signs out the user by invalidating the refresh token.")
-//    public SignOutResponse signOutUser(@RequestBody SignOutRequest signOutRequest) {
-//
-//    }
+    @PostMapping("/signout")
+    @Operation(summary = "Sign out user", description = "Signs out the user by invalidating the refresh token.")
+    public SignOutResponse signOutUser(@RequestBody SignOutRequest signOutRequest,
+                                       @RequestHeader("Authorization") String accessToken,
+                                       @RequestHeader("Refresh-Token") String refreshToken) {
+        return authService.signOutUser(signOutRequest, accessToken, refreshToken);
+    }
+
 }
