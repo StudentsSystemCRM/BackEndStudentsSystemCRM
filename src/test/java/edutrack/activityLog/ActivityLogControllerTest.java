@@ -15,9 +15,6 @@ import edutrack.activityLog.controller.ActivityLogController;
 import edutrack.activityLog.service.ActivityLogService;
 import edutrack.student.service.StudentService;
 import edutrack.user.repository.AccountRepository;
-import edutrack.security.JwtTokenCreator;
-import edutrack.security.JwtTokenValidator;
-import edutrack.security.SecurityConfig;
 
 @WebMvcTest(ActivityLogController.class)
 @Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})

@@ -6,7 +6,7 @@ import edutrack.user.dto.request.PasswordUpdateRequest;
 import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
-import edutrack.user.dto.response.LoginSuccessResponse;
+import edutrack.authentication.dto.responce.LoginSuccessResponse;
 import edutrack.user.dto.response.UserDataResponse;
 
 /*
@@ -17,26 +17,6 @@ import edutrack.user.dto.response.UserDataResponse;
  * Authorization jwt token,  we will add jwt security later 
  */
 public interface AccountService {
-	/*
-	 * permit all, doesn't need header authorization later we will generate invite
-	 * and save it in DB when somebody will want to register we will check this
-	 * invite in service and get new user role(it depends on invite)
-	 */
-	LoginSuccessResponse registration(String invite, UserRegisterRequest data);
-
-	/*
-	 * http header has to have field Authorization login : password in base64 when
-	 * we will add security we realize PasswordEncoder(default bcrypt) and
-	 * UserDetailsService and security will check automatically password and if hash
-	 * password from mongo equals password in header our service will be able to give
-	 * access to user and return the json token inside UserDataResponse, example
-	 * response: {... "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9 ... } or
-	 * response status 401 if not equals "
-	 * 
-	 * user.getName() => give the login and get from DB all info for LoginSuccessResponse
-	 */
-	LoginSuccessResponse login(Principal user);
-
 	/*
 	 * CEO able update any user ADMIN able update any user, except another ADMIN and
 	 * CEO USER able update only himself so in implementation service we have to

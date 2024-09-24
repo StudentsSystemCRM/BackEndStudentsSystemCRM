@@ -1,8 +1,9 @@
-package edutrack.user.dto.response;
+package edutrack.authentication.dto.responce;
 
 import java.time.LocalDate;
 import java.util.Set;
 
+import edutrack.user.dto.response.Role;
 import lombok.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,7 @@ import lombok.experimental.FieldDefaults;
 @ToString
 public class LoginSuccessResponse {
 	String token;
+	String refreshToken;
 	String name;
 	String surname;
 	String phone;
