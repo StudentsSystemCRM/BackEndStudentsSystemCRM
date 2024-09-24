@@ -35,14 +35,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 email = jwtService.extractClaim(token, Claims::getSubject);
             } catch (Exception e) {
-                logger.error("Token validation failed", e);
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT");
                 return;
             }
         }
 
         if (token != null && jwtService.isTokenExpired(token)) {
             SecurityContextHolder.clearContext();
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT");
             response.getWriter().write("Access token expired");
             return;
         }
@@ -70,6 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
         return path.equalsIgnoreCase("/api/auth/signin") ||
-                path.equalsIgnoreCase("/api/auth/signup");
+                path.equalsIgnoreCase("/api/auth/signup") ||
+                path.equalsIgnoreCase("/api/auth/refreshtoken");
     }
 }
