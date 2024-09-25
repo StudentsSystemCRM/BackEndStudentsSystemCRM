@@ -108,6 +108,19 @@ public class GroupServiceImp implements GroupService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public GroupDataResponse deleteStudentFromGroup(Long id, String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void changeStudentGroup(Long id, String groupName) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 
 //	@Override
