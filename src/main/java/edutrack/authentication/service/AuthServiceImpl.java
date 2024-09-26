@@ -31,7 +31,7 @@ import java.util.List;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-public class AuthServiceImpl implements AuthService{
+public class AuthServiceImpl implements AuthService {
     JwtTokenProvider jwtTokenProvider;
     PasswordEncoder passwordEncoder;
     AccountRepository accountRepository;
@@ -146,10 +146,13 @@ public class AuthServiceImpl implements AuthService{
             refreshToken = refreshToken.replace("Bearer ", "");
         }
 
+        boolean isAccessTokenExpired = false;
+
         // 2. check valid tokens
         try {
             jwtTokenProvider.validateAccessToken(accessToken);
         } catch (ExpiredJwtException e) {
+            isAccessTokenExpired = true;
             tokenBlackListService.addTokenToBlacklist(accessToken, "ACCESS_TOKEN");
         } catch (Exception e) {
             throw new AccessException("Invalid access token");
@@ -164,7 +167,7 @@ public class AuthServiceImpl implements AuthService{
         }
 
         // 3. check tokens in the blacklist (if one of the tokens is already in the blacklist, continue execution)
-        if (tokenBlackListService.isTokenBlacklisted(accessToken)) {
+        if (!isAccessTokenExpired && tokenBlackListService.isTokenBlacklisted(accessToken)) {
             throw new AccessException("Access token is already blacklisted.");
         }
         if (tokenBlackListService.isTokenBlacklisted(refreshToken)) {
@@ -172,7 +175,8 @@ public class AuthServiceImpl implements AuthService{
         }
 
         // 4. add tokens to the blacklist
-        tokenBlackListService.addTokenToBlacklist(accessToken, "ACCESS_TOKEN");
+        if (!isAccessTokenExpired)
+            tokenBlackListService.addTokenToBlacklist(accessToken, "ACCESS_TOKEN");
         tokenBlackListService.addTokenToBlacklist(refreshToken, "REFRESH_TOKEN");
 
         // 5. find user by email
