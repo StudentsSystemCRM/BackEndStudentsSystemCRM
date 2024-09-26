@@ -1,9 +1,11 @@
 package edutrack.user.boot;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import edutrack.security.jwt.JwtTokenProvider;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.dao.DataAccessException;
@@ -23,6 +25,7 @@ import lombok.experimental.FieldDefaults;
 public class DefaultCEOAccountCreationBoot implements ApplicationRunner{
 	PasswordEncoder passwordEncoder;
 	AccountRepository repository;
+	JwtTokenProvider jwtTokenProvider;
 	
 	@Override
 	public void run(ApplicationArguments args) {
@@ -33,7 +36,8 @@ public class DefaultCEOAccountCreationBoot implements ApplicationRunner{
 				roles.add(Role.CEO);
 				String password = passwordEncoder.encode("12345");
 				LocalDate birthdate = LocalDate.of(1815, 12, 10);
-				user = new UserEntity("0", "ada@gmail.com", password, "Ada", "Lovelace", null, birthdate, LocalDate.now(), roles);
+				user = new UserEntity("0", "ada@gmail.com", password, "Ada", "Lovelace", null, birthdate, LocalDate.now(), roles,
+						jwtTokenProvider.generateAccessToken(user), jwtTokenProvider.generateRefreshToken(user), Instant.now());
 				repository.save(user);
 			}
 		} catch (DataAccessException e) {

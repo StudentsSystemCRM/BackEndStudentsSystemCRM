@@ -5,7 +5,7 @@ import edutrack.user.dto.request.PasswordUpdateRequest;
 import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
-import edutrack.user.dto.response.LoginSuccessResponse;
+import edutrack.authentication.dto.response.LoginSuccessResponse;
 import edutrack.user.dto.response.UserDataResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -21,22 +21,7 @@ import java.security.Principal;
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class AccountController {
-	
     private final AccountService accountingService;
-
-    @PostMapping("/register")
-    @Operation(summary = "Register a new user", description = "Registers a new user using an invite code and user details.")
-    public LoginSuccessResponse registerUser(
-    		@RequestParam String invite,
-    		@RequestBody @Valid UserRegisterRequest userRequest) {
-        return accountingService.registration(invite, userRequest);
-    }
-
-    @PostMapping("/login")
-    @Operation(summary = "User login", description = "Logs in the user and returns a token for authentication.")
-    public LoginSuccessResponse loginUser(Principal principal) {
-        return accountingService.login(principal);
-    }
 
     @PutMapping("/update")
     @Operation(summary = "Update user information", description = "Updates the user's profile information. Note: Password should be updated separately.")

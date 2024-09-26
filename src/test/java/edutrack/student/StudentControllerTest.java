@@ -34,12 +34,10 @@ import edutrack.student.dto.response.StudentDataResponse;
 import edutrack.student.repository.StudentRepository;
 import edutrack.student.service.StudentService;
 import edutrack.user.repository.AccountRepository;
-import edutrack.security.JwtTokenCreator;
-import edutrack.security.JwtTokenValidator;
-import edutrack.security.SecurityConfig;
+import edutrack.security.WebSecurityConfig;
 
 @WebMvcTest(StudentController.class)
-@Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})
+@Import({JwtTokenValidator.class, JwtTokenCreator.class, WebSecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class StudentControllerTest {
 

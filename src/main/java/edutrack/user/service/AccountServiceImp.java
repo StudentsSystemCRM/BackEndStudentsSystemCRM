@@ -3,17 +3,13 @@ package edutrack.user.service;
 import java.security.Principal;
 import java.util.*;
 
-import edutrack.security.JwtTokenCreator;
 import edutrack.user.dto.request.PasswordUpdateRequest;
-import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
-import edutrack.user.dto.response.LoginSuccessResponse;
 import edutrack.user.dto.response.Role;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.entity.UserEntity;
 import edutrack.user.exception.AccessException;
-import edutrack.user.exception.ResourceExistsException;
 import lombok.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,43 +26,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class AccountServiceImp implements AccountService {
-
     AccountRepository userRepository;
     PasswordEncoder passwordEncoder;
-    JwtTokenCreator jwtTokenCreator;
-
-    @Override
-    @Transactional
-    public LoginSuccessResponse registration(String invite, UserRegisterRequest data) {
-
-        //TODO  invite check invite
-
-        
-        UserEntity user = userRepository.findByEmail(data.getEmail());
-
-        if (user != null)
-            throw new ResourceExistsException("user with email " + data.getEmail() + "already exists");
-        user = EntityDtoUserMapper.INSTANCE.userRegisterRequestToUser(data);
-        user.setHashedPassword(passwordEncoder.encode(data.getPassword()));
-        user.setRoles(new HashSet<>(List.of(Role.USER)));
-        userRepository.save(user);
-        // token
-        String token = jwtTokenCreator.createToken(user.getEmail(), user.getRoles());
-        LoginSuccessResponse response = EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(user);
-        response.setToken(token);
-
-        return response;
-    }
-
-    @Override
-    public LoginSuccessResponse login(Principal user) {
-        UserEntity userService = userRepository.findByEmail(user.getName());
-        //token
-        String token = jwtTokenCreator.createToken(userService.getEmail(), userService.getRoles());
-        LoginSuccessResponse response = EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(userService);
-        response.setToken(token);
-        return response;
-    }
 
     @Override
     @Transactional
@@ -151,7 +112,7 @@ public class AccountServiceImp implements AccountService {
         // Check if the user is attempting to update someone else's profile
         if (!username.equals(user.getEmail())) {
             // Prevent changing data of a CEO
-            if (user.getRoles().contains(Role.CEO))
+            if (user.getRoles().contains(Role.CEO) && !isCeo)
                 throw new AccessException("You don't have rules to update this user's profile.");
 
             // Prevent update if the authenticated user is neither an ADMIN nor a CEO
@@ -181,7 +142,6 @@ public class AccountServiceImp implements AccountService {
         if (role.equalsIgnoreCase("ceo") && !isCeo)
         	throw new AccessException("add or remove role 'CEO' can only user with CEO role");
     }
-    
 
     private UserAuthInfo getCurrentUserAuthInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -196,7 +156,6 @@ public class AccountServiceImp implements AccountService {
         return new UserAuthInfo(username, isAdmin, isCeo);
     }
 
-    
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor

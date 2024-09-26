@@ -31,12 +31,10 @@ import edutrack.payment.dto.response.SinglePayment;
 import edutrack.payment.service.PaymentService;
 import edutrack.student.constant.LeadStatus;
 import edutrack.user.repository.AccountRepository;
-import edutrack.security.JwtTokenCreator;
-import edutrack.security.JwtTokenValidator;
-import edutrack.security.SecurityConfig;
+import edutrack.security.WebSecurityConfig;
 
 @WebMvcTest(PaymentController.class)
-@Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})
+@Import({JwtTokenValidator.class, JwtTokenCreator.class, WebSecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class PaymentControllerTest {
 	

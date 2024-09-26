@@ -37,7 +37,7 @@ import edutrack.user.dto.request.PasswordUpdateRequest;
 import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
-import edutrack.user.dto.response.LoginSuccessResponse;
+import edutrack.authentication.dto.response.LoginSuccessResponse;
 import edutrack.user.dto.response.Role;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.entity.UserEntity;
@@ -45,7 +45,6 @@ import edutrack.user.exception.AccessException;
 import edutrack.user.exception.ResourceExistsException;
 import edutrack.user.repository.AccountRepository;
 import edutrack.user.service.AccountServiceImp;
-import edutrack.security.JwtTokenCreator;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
