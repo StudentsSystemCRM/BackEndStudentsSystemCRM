@@ -43,7 +43,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 email = claims.getSubject();
 
                 // check token by blacklist
-                if (tokenBlackListService.isTokenBlacklisted(jwt)) {
+                if (!(request.getRequestURI().equalsIgnoreCase("/api/auth/signout")) && tokenBlackListService.isTokenBlacklisted(jwt)) {
                     throw new AccessException("Token is blacklisted");
                 }
 
@@ -55,9 +55,22 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             } catch (ExpiredJwtException e) {
-                // if token expired - add it to the blacklist
-                tokenBlackListService.addTokenToBlacklist(jwt, "ACCESS_TOKEN");
-                throw new AccessException("Access token expired");
+                if (request.getRequestURI().equalsIgnoreCase("/api/auth/signout")) {
+                    Claims expiredClaims = e.getClaims();
+                    email = expiredClaims.getSubject();
+                    String roles = expiredClaims.get("roles").toString();
+
+                    logger.warn("Access token expired but allowing sign out");
+
+                    if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                email, null, AuthorityUtils.createAuthorityList(roles));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
+                } else {
+                    tokenBlackListService.addTokenToBlacklist(jwt, "ACCESS_TOKEN");
+                    throw new AccessException("Access token expired and added to the blacklist");
+                }
             } catch (Exception e) {
                 throw new AccessException("Invalid access token");
             }
