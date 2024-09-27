@@ -6,6 +6,7 @@ import java.util.UUID;
 import edutrack.exception.*;
 import edutrack.exception.response.GeneralErrorResponse;
 import edutrack.exception.response.GeneralErrorResponseValidationDto;
+import edutrack.group.exception.GroupNotFoundException;
 import edutrack.student.exception.EmailAlreadyInUseException;
 import edutrack.user.exception.AccessException;
 import edutrack.user.exception.InvalidDateFormatException;
@@ -81,13 +82,15 @@ public class GlobalExceptionHandler {
 		logger.error("Email already in use.", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
-
-	@ExceptionHandler(Exception.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public GeneralErrorResponse handleException(Exception ex) {
-		logger.error("An unexpected error occurred.", ex);
-		return new GeneralErrorResponse(UUID.randomUUID().toString(), "An unexpected error: " + ex.getMessage());
+	
+	@ExceptionHandler(GroupNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public GeneralErrorResponse handleJwtTokenExpiredException(GroupNotFoundException ex) {
+		logger.error("GroupNotFoundException", ex);
+		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
+
+
 
 	@ExceptionHandler(JwtTokenMalformedException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -108,5 +111,12 @@ public class GlobalExceptionHandler {
 	public GeneralErrorResponse handleJwtTokenMissingException(JwtTokenMissingException ex) {
 		logger.error("JWT token is missing.", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
+	}
+	
+	@ExceptionHandler(Exception.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public GeneralErrorResponse handleException(Exception ex) {
+		logger.error("An unexpected error occurred.", ex);
+		return new GeneralErrorResponse(UUID.randomUUID().toString(), "An unexpected error: " + ex.getMessage());
 	}
 }

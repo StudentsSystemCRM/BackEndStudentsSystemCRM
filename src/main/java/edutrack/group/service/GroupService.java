@@ -21,5 +21,9 @@ public interface GroupService {
 	GroupDataResponse updateGroup(GroupUpdateDataRequest group);
 	
 	GroupDataResponse deleteGroup(String name);
+	
+	GroupDataResponse deleteStudentFromGroup(Long id, String name);
+	
+	void changeStudentGroup(Long id, String groupName);
 
 }
