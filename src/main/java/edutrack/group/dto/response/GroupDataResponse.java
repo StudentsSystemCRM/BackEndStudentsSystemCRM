@@ -28,6 +28,6 @@ public class GroupDataResponse {
     private List<WeekDay> lessons;
     private List<WeekDay> webinars;
     private Boolean DeactivateAfter30Days;
-    private List<StudentEntity> students;
-    private List<GroupScheduleEntity> groupReminders;
+//    private List<StudentEntity> students;
+//    private List<GroupScheduleEntity> groupReminders;
 }
