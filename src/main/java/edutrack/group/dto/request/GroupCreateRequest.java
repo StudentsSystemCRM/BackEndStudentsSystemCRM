@@ -20,7 +20,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class GroupCreateRequest {
 	@NotNull(message = "Name cannot be null.")
-	@Pattern(regexp = "^[a-zA-Zа-яА-ЯёЁ1-9א-ת\\-\\s']{1,50}$", message = INVALID_NAME)
+	@Pattern(regexp = "^[a-zA-Zа-яА-ЯёЁ0-9א-ת\\-\\s']{1,50}$", message = INVALID_NAME)
     String name;
 
     String whatsApp;

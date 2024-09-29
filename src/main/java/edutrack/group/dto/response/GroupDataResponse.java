@@ -5,8 +5,6 @@ import java.util.List;
 
 import edutrack.group.constant.GroupStatus;
 import edutrack.group.constant.WeekDay;
-import edutrack.schedule.entity.GroupScheduleEntity;
-import edutrack.student.entity.StudentEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,16 +16,15 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupDataResponse {
-    private String name;
-    private String whatsApp;
-    private String skype;
-    private String slack;
-    private GroupStatus status;
-    private LocalDate startDate;
-    private LocalDate expFinishDate;
-    private List<WeekDay> lessons;
-    private List<WeekDay> webinars;
-    private Boolean DeactivateAfter30Days;
-//    private List<StudentEntity> students;
-//    private List<GroupScheduleEntity> groupReminders;
+	Long id;
+    String name;
+    String whatsApp;
+    String skype;
+    String slack;
+    GroupStatus status;
+    LocalDate startDate;
+    LocalDate expFinishDate;
+    List<WeekDay> lessons;
+    List<WeekDay> webinars;
+    Boolean DeactivateAfter30Days;
 }
