@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -40,11 +39,10 @@ public class GroupServiceImp implements GroupService {
 	private GroupDataResponse toGroupDataResponse(GroupEntity group) {
         Boolean deactivateAfter30Days = false;
         if (group.getDeactivateAfter30Days()!=null) deactivateAfter30Days = true;
-		return new GroupDataResponse(group.getName(), group.getWhatsApp(), group.getSkype(), group.getSlack(),group.getStatus(),
+		return new GroupDataResponse(group.getId(), group.getName(), group.getWhatsApp(), group.getSkype(), group.getSlack(),group.getStatus(),
         		group.getStartDate(), group.getExpFinishDate()
-        		,getLessonsDays(group.getName()), getWebinarsDays(group.getName())
+        		,getLessonsDays(group.getId()), getWebinarsDays(group.getId())
         		,deactivateAfter30Days
-//        		,group.getStudents(),group.getGroupReminders()
         		);
 	}
 
@@ -53,12 +51,12 @@ public class GroupServiceImp implements GroupService {
                 () -> new StudentNotFoundException("Student with id " + id + " not found"));
     }
     
-    private List<WeekDay> getLessonsDays(String name) {
-        return groupRepo.getLessonsDays(name);
+    private List<WeekDay> getLessonsDays(Long id) {
+        return groupRepo.getLessonsDays(id);
     }
 	
-    private List<WeekDay> getWebinarsDays(String name) {
-        return groupRepo.getWebinarsDays(name);
+    private List<WeekDay> getWebinarsDays(Long id) {
+        return groupRepo.getWebinarsDays(id);
     }
     
 	private GroupEntity findGroupByName(String name) {
@@ -146,13 +144,17 @@ public class GroupServiceImp implements GroupService {
         return true;
 	}
 	
+    private GroupEntity findGroupById(Long id) {
+        return groupRepo.findById(id).orElseThrow(
+                () -> new GroupNotFoundException("Group with id " + id + " not found"));
+    }
+    
 	@Override
 	@Transactional
 	public GroupDataResponse updateGroup(GroupUpdateDataRequest groupRequest) {
-        GroupEntity groupEntity = groupRepo.findByName(groupRequest.getName());
-        if (groupEntity == null)
-            throw new GroupNotFoundException("Group with name " + groupRequest.getName() + "  doesn't exists");
-        groupEntity.setName(groupRequest.getName());
+        GroupEntity groupEntity = findGroupById(groupRequest.getId());
+        if(groupEntity.getName() != null)
+        	groupEntity.setName(groupRequest.getName());
         if(groupEntity.getWhatsApp() != null)
         	groupEntity.setWhatsApp(groupRequest.getWhatsApp());
         if(groupEntity.getSkype() != null)
@@ -181,7 +183,7 @@ public class GroupServiceImp implements GroupService {
         GroupEntity group = findGroupByName(name);
         group.getStudents().forEach(student -> group.getStudents().remove(student));
         group.getStudents().clear();
-        groupRepo.deleteById(name);
+        groupRepo.deleteById(group.getId());
         return toGroupDataResponse(group);
 	}
 
@@ -196,7 +198,7 @@ public class GroupServiceImp implements GroupService {
         GroupEntity group = groupRepo.findByName(groupName);
         if (group == null)
             throw new GroupNotFoundException("Group with name " + groupName + " doesn't exists");    
-        groupRepo.updateStudentGroups(id, groupName, oldGroupName);
+        groupRepo.updateStudentGroups(id, group.getId(), oldGroup.getId());
 		student.setOriginalGroup(groupName);
 		studentRepo.save(student);
 		return true;

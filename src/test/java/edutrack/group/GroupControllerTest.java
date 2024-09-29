@@ -74,6 +74,7 @@ class GroupControllerTest {
 	}
 	@BeforeEach
 	void setUp()throws Exception {
+		Long groupId = 1L;
 		requestGroup = new GroupCreateRequest(
 				"java-24",
 				"whatsApp", 
@@ -85,6 +86,7 @@ class GroupControllerTest {
 				Arrays.asList(WeekDay.TUESDAY, WeekDay.THURSDAY));
 
 		responseGroup = new GroupDataResponse(
+				groupId,
 				"java-24",
 				"whatsApp", 
 				"skype",
@@ -94,9 +96,7 @@ class GroupControllerTest {
 				LocalDate.of(2024, 6, 1),
 				Arrays.asList(WeekDay.MONDAY, WeekDay.WEDNESDAY),
 				Arrays.asList(WeekDay.TUESDAY, WeekDay.THURSDAY),
-				false 
-//				,Collections.emptyList(),
-//				Collections.emptyList()
+				false
 				);
 
 	}
@@ -131,8 +131,8 @@ class GroupControllerTest {
 
 	 @Test
 	    void shouldGetAllGroups() throws Exception {
-
-	        GroupDataResponse group2 = new GroupDataResponse("java-20", "whatsApp", "skype", "slack", GroupStatus.INACTIVE,
+		 Long groupId = 1L;
+	        GroupDataResponse group2 = new GroupDataResponse(groupId, "java-20", "whatsApp", "skype", "slack", GroupStatus.INACTIVE,
 	                LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1), Arrays.asList(WeekDay.FRIDAY),
 	                Arrays.asList(WeekDay.SATURDAY), false 
 //	                ,Collections.emptyList(),
@@ -273,7 +273,9 @@ class GroupControllerTest {
 
 	    @Test
 	    void shouldUpdateGroup_whenValidRequest() throws Exception {
+	    	Long groupId = 1L;
 	        GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(
+	        		groupId,
 	                "java-24",
 	                "newWhatsApp", 
 	                "newSkype", 
@@ -299,7 +301,9 @@ class GroupControllerTest {
 
 	    @Test
 	    void shouldReturnBadRequest_whenNameIsEmpty() throws Exception {
+	    	Long groupId = 1L;
 	        GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(
+	        		groupId,
 	                "",
 	                "newWhatsApp", 
 	                "newSkype", 
@@ -322,7 +326,9 @@ class GroupControllerTest {
 	    @Test
 	    void shouldReturnNotFound_whenGroupNotFound() throws Exception {
 	        // Arrange
+	    	Long groupId = 1L;
 	        GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(
+	        		groupId,
 	                "non-existent-group", 
 	                "newWhatsApp", 
 	                "newSkype", 

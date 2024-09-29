@@ -12,11 +12,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GroupRepository extends JpaRepository<GroupEntity, String> {
+public interface GroupRepository extends JpaRepository<GroupEntity, Long> {
 
-	public static final String UPDATE_STUDENT_GROUP = "UPDATE groups_students SET group_name=:name where students_id = :id and group_name=:old_name";
-	public static final String GROUP_LESSONS_DAYS = "SELECT lessons_days FROM group_lessons_days where group_entity_name = :group_name";
-	public static final String GROUP_WEBINARS_DAYS = "SELECT webinars_days FROM group_webinars_days where group_entity_name = :group_name";
+	public static final String UPDATE_STUDENT_GROUP = "UPDATE groups_students SET group_id=:id where students_id = :student_id and group_id=:old_id";
+	public static final String GROUP_LESSONS_DAYS = "SELECT lessons_days FROM group_lessons_days where group_entity_id = :group_id";
+	public static final String GROUP_WEBINARS_DAYS = "SELECT webinars_days FROM group_webinars_days where group_entity_id = :group_id";
 	
 	GroupEntity findByName(String name);
 
@@ -24,11 +24,11 @@ public interface GroupRepository extends JpaRepository<GroupEntity, String> {
 	
 	@Modifying
 	@Query(value = UPDATE_STUDENT_GROUP, nativeQuery = true)
-	public int updateStudentGroups(@Param("id") long id, @Param("name") String name,@Param("old_name") String old_name);
+	public int updateStudentGroups(@Param("student_id") long student_id, @Param("id") Long id,@Param("old_id") Long old_id);
 	
 	@Query(value = GROUP_LESSONS_DAYS, nativeQuery = true)
-	public List<WeekDay> getLessonsDays(@Param("group_name") String group_name);
+	public List<WeekDay> getLessonsDays(@Param("group_id") Long group_id);
 	
 	@Query(value = GROUP_LESSONS_DAYS, nativeQuery = true)
-	public List<WeekDay> getWebinarsDays(@Param("group_name") String group_name);
+	public List<WeekDay> getWebinarsDays(@Param("group_id") Long group_id);
 }
