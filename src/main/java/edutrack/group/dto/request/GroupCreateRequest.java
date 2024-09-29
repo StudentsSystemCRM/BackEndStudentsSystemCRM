@@ -1,13 +1,11 @@
 package edutrack.group.dto.request;
 
-import static edutrack.user.constant.ValidAccountConstant.NAME_PATTERN;
 import static edutrack.user.constant.ValidationAccountingMessage.INVALID_NAME;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import edutrack.group.constant.WeekDay;
-import edutrack.student.entity.StudentEntity;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
@@ -22,7 +20,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class GroupCreateRequest {
 	@NotNull(message = "Name cannot be null.")
-	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
+	@Pattern(regexp = "^[a-zA-Zа-яА-ЯёЁ1-9א-ת\\-\\s']{1,50}$", message = INVALID_NAME)
     String name;
 
     String whatsApp;
@@ -32,5 +30,4 @@ public class GroupCreateRequest {
     LocalDate expFinishDate;
     List<WeekDay> lessonsDays;
     List<WeekDay> webinarsDays;
-    List<StudentEntity> students;
 }
