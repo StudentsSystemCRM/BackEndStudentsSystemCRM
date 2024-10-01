@@ -9,12 +9,11 @@ import edutrack.user.dto.response.LoginSuccessResponse;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.entity.UserEntity;
 
-
 @Mapper
 public interface EntityDtoUserMapper {
-	
+
 	EntityDtoUserMapper INSTANCE = Mappers.getMapper(EntityDtoUserMapper.class);
-	
+
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "hashedPassword", ignore = true)
 	@Mapping(target = "createdDate", expression = "java(java.time.LocalDate.now())")
@@ -23,7 +22,7 @@ public interface EntityDtoUserMapper {
 
 	@Mapping(target = "token", ignore = true)
 	LoginSuccessResponse userToLoginSuccessResponse(UserEntity user);
-	
+
 	UserDataResponse userToUserDataResponse(UserEntity user);
 
 }

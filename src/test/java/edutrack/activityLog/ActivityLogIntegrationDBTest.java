@@ -17,15 +17,12 @@ import edutrack.activityLog.service.ActivityLogService;
 @SpringBootTest
 @Sql(scripts = {"classpath:testdata.sql"})
 public class ActivityLogIntegrationDBTest {
-	
-    
+	 
     @Autowired
     private ActivityLogService activityLogService;
-
-    
+  
     static final Long STUDENT_ID_DB_H2 = 2L;
-    
-    
+      
     @Test
     public void testAddStudentComment() {
 

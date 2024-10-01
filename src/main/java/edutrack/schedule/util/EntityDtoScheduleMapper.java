@@ -12,11 +12,10 @@ import edutrack.student.entity.StudentEntity;
 
 @Mapper
 public interface EntityDtoScheduleMapper {
-	
-	EntityDtoScheduleMapper INSTANCE = Mappers.getMapper(EntityDtoScheduleMapper.class);
-	
-	@Mapping(target = "reminders", source = "studentReminders")
-    ScheduleResponse studentToReminderResponse(StudentEntity student, List<SingleScheduleResponse> studentReminders);
 
+	EntityDtoScheduleMapper INSTANCE = Mappers.getMapper(EntityDtoScheduleMapper.class);
+
+	@Mapping(target = "reminders", source = "studentReminders")
+	ScheduleResponse studentToReminderResponse(StudentEntity student, List<SingleScheduleResponse> studentReminders);
 
 }

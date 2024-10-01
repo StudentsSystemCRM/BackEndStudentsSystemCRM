@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN" "https://checkstyle.sourceforge.io/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+
+	<!-- Check for more than one consecutive empty line -->
+	<module name="RegexpMultiline">
+		<property name="format" value="(\r?\n\s*){3,}" />
+		<property name="message" value="More than one consecutive empty line." />
+	</module>
+
+	<module name="TreeWalker">
+		<!-- Ensures that whitespace is placed around operators and keywords
+		like 'if', 'for', etc. -->
+		<module name="WhitespaceAround" />
+
+		<!-- Ensures that control statements (like 'if', 'for', 'while') are
+		enclosed in braces, even for single statements. -->
+		<module name="NeedBraces" />
+
+		<!-- Ensures that code blocks are not empty. Warns if a block does not
+		contain any code. -->
+		<module name="EmptyBlock" />
+
+		<!-- Ensures that constants (static final variables) are named in upper
+		case with underscores. -->
+		<module name="ConstantName" />
+
+		<!-- Ensures that local variable names follow camelCase naming
+		convention. -->
+		<module name="LocalVariableName" />
+
+		<!-- Ensures that method names follow camelCase naming convention. -->
+		<module name="MethodName" />
+
+		<!-- Ensures that method parameter names follow camelCase naming
+		convention. -->
+		<module name="ParameterName" />
+
+		<!-- Ensures that class and interface names follow PascalCase naming
+		convention (capitalized first letter). -->
+		<module name="TypeName" />
+
+		<!-- Ensures that there are no unused imports in the code. -->
+		<module name="UnusedImports" />
+
+		<!-- Ensures that there are no redundant imports (duplicate or
+		unnecessary imports). -->
+		<module name="RedundantImport" />
+
+		<!-- Ensures that long lines are not wrapped and that lines exceed a
+		specified character limit, if configured. -->
+		<module name="NoLineWrap" />
+	</module>
+</module>
+

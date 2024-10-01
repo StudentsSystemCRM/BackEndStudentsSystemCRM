@@ -36,138 +36,82 @@ import edutrack.security.JwtTokenValidator;
 import edutrack.security.SecurityConfig;
 
 @WebMvcTest(PaymentController.class)
-@Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})
+@Import({ JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class })
 @AutoConfigureMockMvc(addFilters = false)
 public class PaymentControllerTest {
-	
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @MockBean
-    private PaymentService paymentService;
-    
-    @MockBean
-    private AccountRepository accountRepository;
-    
-    @Autowired
-    private ObjectMapper objectMapper;
+	@MockBean
+	private PaymentService paymentService;
 
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
-    }
-	
+	@MockBean
+	private AccountRepository accountRepository;
+
+	@Autowired
+	private ObjectMapper objectMapper;
+
+	@BeforeEach
+	public void setup() {
+		MockitoAnnotations.openMocks(this);
+	}
+
 	@Test
-    public void testAddStudentPayment() throws Exception {
+	public void testAddStudentPayment() throws Exception {
 
-        AddPaymentRequest request = new AddPaymentRequest();
-        request.setStudentId(123L);
-        request.setDate(LocalDate.of(2024, 8, 23));
-        request.setType("tuition");
-        request.setAmount(BigDecimal.valueOf(100.0));
-        request.setDetails("Payment for August semester");
+		AddPaymentRequest request = new AddPaymentRequest();
+		request.setStudentId(123L);
+		request.setDate(LocalDate.of(2024, 8, 23));
+		request.setType("tuition");
+		request.setAmount(BigDecimal.valueOf(100.0));
+		request.setDetails("Payment for August semester");
 
-        PaymentInfoResponse response = new PaymentInfoResponse(
-                1L,
-                "John",
-                "Doe",
-                "123-456-7890",
-                "john.doe@example.com",
-                "Sample City",
-                "Sample Course",
-                "Sample Source",
-                LeadStatus.STUDENT,
-                List.of(new SinglePayment(
-                		1L,
-                        LocalDate.of(2024, 8, 23),
-                        "tuition",
-                        BigDecimal.valueOf(100.0),
-                        12,
-                        "Payment for August semester"
-                ))
-        );
+		PaymentInfoResponse response = new PaymentInfoResponse(1L, "John", "Doe", "123-456-7890",
+				"john.doe@example.com", "Sample City", "Sample Course", "Sample Source", LeadStatus.STUDENT,
+				List.of(new SinglePayment(1L, LocalDate.of(2024, 8, 23), "tuition", BigDecimal.valueOf(100.0), 12,
+						"Payment for August semester")));
 
-        when(paymentService.addStudentPayment(any(AddPaymentRequest.class)))
-                .thenReturn(response);
+		when(paymentService.addStudentPayment(any(AddPaymentRequest.class))).thenReturn(response);
 
-                mockMvc.perform(post("/api/payments/payment")
-                                .contentType("application/json")
-                                .content(objectMapper.writeValueAsString(request)))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath
-                                        ("$.id").value(1))
-                                .andExpect(jsonPath
-                                		("$.paymentInfo[0].date").value("2024-08-23"))
+		mockMvc.perform(post("/api/payments/payment").contentType("application/json")
+				.content(objectMapper.writeValueAsString(request))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.paymentInfo[0].date").value("2024-08-23"))
 
-                                .andExpect(jsonPath
-                                        ("$.paymentInfo[0].type").value("tuition"))
+				.andExpect(jsonPath("$.paymentInfo[0].type").value("tuition"))
 
-                                .andExpect(jsonPath(
-                                        "$.paymentInfo[0].amount").value(100.0))
-                                .andExpect(jsonPath(
+				.andExpect(jsonPath("$.paymentInfo[0].amount").value(100.0)).andExpect(jsonPath(
 
-                                        "$.paymentInfo[0].details").value("Payment for August semester"));
-    }
-    @Test
-    public void testGetStudentPaymentInfo() throws Exception {
-        Long studentId = 1L;
-        LeadStatus leadStatus = LeadStatus.STUDENT;
-     PaymentInfoResponse response = new PaymentInfoResponse(
-                studentId,
-                "John",
-                "Doe",
-                "123-456-7890",
-                "john.doe@example.com",
-                "Sample City",
-                "Sample Course",
-                "Sample Source",
-                leadStatus,
-                List.of(new SinglePayment(
-                		1L,
-                        LocalDate.of(2024, 8, 23),
-                        "tuition",
-                        BigDecimal.valueOf(100.0),
-                        12,
-                        "Payment for August semester"
-                ))
-        );
+						"$.paymentInfo[0].details").value("Payment for August semester"));
+	}
 
-        when(paymentService.getStudentPaymentInfo(anyLong())).thenReturn(response);
+	@Test
+	public void testGetStudentPaymentInfo() throws Exception {
+		Long studentId = 1L;
+		LeadStatus leadStatus = LeadStatus.STUDENT;
+		PaymentInfoResponse response = new PaymentInfoResponse(studentId, "John", "Doe", "123-456-7890",
+				"john.doe@example.com", "Sample City", "Sample Course", "Sample Source", leadStatus,
+				List.of(new SinglePayment(1L, LocalDate.of(2024, 8, 23), "tuition", BigDecimal.valueOf(100.0), 12,
+						"Payment for August semester")));
 
-                mockMvc.perform(get
-                                ("/api/payments/{id}/payments", studentId)
-                                .contentType
-                                        ("application/json"))
-                        .andExpect(status().isOk())
-                .andExpect(jsonPath
-                        ("$.id").value(studentId))
-                .andExpect(jsonPath(
+		when(paymentService.getStudentPaymentInfo(anyLong())).thenReturn(response);
 
-                        "$.firstName").value("John"))
-                .andExpect(jsonPath
-                        ("$.lastName").value("Doe"))
-                        .andExpect(jsonPath
-                                ("$.phoneNumber").value("123-456-7890"))
-                .andExpect(jsonPath
-                        ("$.email").value("john.doe@example.com"))
-                .andExpect(jsonPath
-                ("$.city").value("Sample City"))
-                .andExpect(jsonPath(
+		mockMvc.perform(get("/api/payments/{id}/payments", studentId).contentType("application/json"))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.id").value(studentId)).andExpect(jsonPath(
 
-                "$.course").value("Sample Course"))
-                .andExpect(jsonPath
-                        ("$.source").value("Sample Source"))
-                .andExpect(jsonPath("$.leadStatus").value("STUDENT"))
-                .andExpect(jsonPath
-                        ("$.paymentInfo[0].date").value("2024-08-23"))
-                .andExpect(jsonPath
-                        ("$.paymentInfo[0].type").value("tuition"))
-                .andExpect(jsonPath("$.paymentInfo[0].amount").value(100.0))
-                .andExpect(jsonPath
-                        ("$.paymentInfo[0].details")
-                        .value("Payment for August semester"));
-    }
+						"$.firstName").value("John"))
+				.andExpect(jsonPath("$.lastName").value("Doe"))
+				.andExpect(jsonPath("$.phoneNumber").value("123-456-7890"))
+				.andExpect(jsonPath("$.email").value("john.doe@example.com"))
+				.andExpect(jsonPath("$.city").value("Sample City")).andExpect(jsonPath(
 
+						"$.course").value("Sample Course"))
+				.andExpect(jsonPath("$.source").value("Sample Source"))
+				.andExpect(jsonPath("$.leadStatus").value("STUDENT"))
+				.andExpect(jsonPath("$.paymentInfo[0].date").value("2024-08-23"))
+				.andExpect(jsonPath("$.paymentInfo[0].type").value("tuition"))
+				.andExpect(jsonPath("$.paymentInfo[0].amount").value(100.0))
+				.andExpect(jsonPath("$.paymentInfo[0].details").value("Payment for August semester"));
+	}
 
 }

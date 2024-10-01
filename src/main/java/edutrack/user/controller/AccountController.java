@@ -54,7 +54,7 @@ public class AccountController {
     @Operation(summary = "Assign role to user", description = "Assigns a role to the specified user. Note: Only admins can assign roles.")
     public UserDataResponse assignRole(
     		@PathVariable @NotNull @Email String login,
-    		@RequestBody @Valid UserRoleRequest userRoleRequest) {
+			@RequestBody @Valid UserRoleRequest userRoleRequest) {
         return accountingService.addRole(login, userRoleRequest);
     }
 
