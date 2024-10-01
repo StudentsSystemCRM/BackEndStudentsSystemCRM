@@ -4,10 +4,13 @@ import edutrack.user.entity.UserEntity;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,8 +70,16 @@ public class JwtTokenProvider {
     }
 
     private Key getSigningKey(String secretKey) {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        String hashedSecretKey = generate256BitSecret(secretKey);
+        byte[] keyBytes = Decoders.BASE64.decode(hashedSecretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    @SneakyThrows
+    private String generate256BitSecret(String secretKey) {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(secretKey.getBytes());
+        return Base64.getEncoder().encodeToString(hash);
     }
 
 }

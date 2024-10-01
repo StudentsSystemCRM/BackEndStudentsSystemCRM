@@ -11,5 +11,5 @@ public interface AuthService {
     UserDataResponse registerUser(String invite, UserRegisterRequest data);
     LoginSuccessResponse authenticateUser(String email);
     RefreshTokenResponse refreshToken(RefreshTokenRequest refreshTokenRequest);
-    SignOutResponse signOutUser(String accessToken, String refreshToken);
+    SignOutResponse signOutUser(String accessToken);
 }

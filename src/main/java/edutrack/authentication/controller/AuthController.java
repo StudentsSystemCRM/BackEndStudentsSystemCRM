@@ -45,7 +45,7 @@ public class AuthController {
 
     @PostMapping("/signout")
     @Operation(summary = "Sign out user", description = "Signs out the user.")
-    public SignOutResponse signOutUser(@RequestHeader("Authorization") String accessToken, @RequestHeader("X-Refresh-Token") String refreshToken) {
-        return authService.signOutUser(accessToken, refreshToken);
+    public SignOutResponse signOutUser(@RequestHeader("Authorization") String accessToken) {
+        return authService.signOutUser(accessToken);
     }
 }
