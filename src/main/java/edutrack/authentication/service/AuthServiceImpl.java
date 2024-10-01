@@ -107,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public SignOutResponse signOutUser(String accessToken, String refreshToken) {
+    public SignOutResponse signOutUser(String accessToken) {
         // 1. remove 'Bearer ' from token
         if (accessToken != null && accessToken.startsWith("Bearer ")) {
             accessToken = accessToken.replace("Bearer ", "");
