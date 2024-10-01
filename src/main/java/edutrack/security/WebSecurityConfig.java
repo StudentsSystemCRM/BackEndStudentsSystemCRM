@@ -30,7 +30,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     JwtRequestFilter jwtRequestFilter;
-    AuthenticationUserFilter authenticationUserFilter;
+//    AuthenticationUserFilter authenticationUserFilter;
 
     @Bean
     SecurityFilterChain configure(HttpSecurity http) throws Exception {
@@ -39,16 +39,14 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/signup", "api/auth/refreshtoken").permitAll()
                         .requestMatchers("/api/users/**").hasAnyRole("CEO", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/students").hasAnyRole("ADMIN", "CEO")
-                        .requestMatchers(HttpMethod.GET, "/api/students/*/payments").hasAnyRole("ADMIN", "CEO")
-                        .requestMatchers(HttpMethod.POST, "/api/students/payment").hasAnyRole("ADMIN", "CEO")
                         .requestMatchers(HttpMethod.DELETE, "/api/students/*").hasAnyRole("ADMIN", "CEO")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(authenticationUserFilter, UsernamePasswordAuthenticationFilter.class)
+//                .addFilterAfter(authenticationUserFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
