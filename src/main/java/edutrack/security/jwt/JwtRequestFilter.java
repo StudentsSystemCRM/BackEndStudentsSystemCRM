@@ -1,7 +1,7 @@
 package edutrack.security.jwt;
 
-import edutrack.security.redis.TokenBlackListService;
 import edutrack.user.exception.AccessException;
+import edutrack.user.repository.AccountRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +27,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
     JwtTokenProvider jwtTokenProvider;
-    TokenBlackListService tokenBlackListService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -42,11 +43,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 Claims claims = jwtTokenProvider.validateAccessToken(jwt);
                 email = claims.getSubject();
 
-                // check token by blacklist
-                if (!(request.getRequestURI().equalsIgnoreCase("/api/auth/signout")) && tokenBlackListService.isTokenBlacklisted(jwt)) {
-                    throw new AccessException("Token is blacklisted");
-                }
-
                 // set auth
                 if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -60,20 +56,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     email = expiredClaims.getSubject();
                     String roles = expiredClaims.get("roles").toString();
 
-                    logger.warn("Access token expired but allowing sign out");
-
                     if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                 email, null, AuthorityUtils.createAuthorityList(roles));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 } else {
-                    tokenBlackListService.addTokenToBlacklist(jwt, "ACCESS_TOKEN");
-                    throw new AccessException("Access token expired and added to the blacklist");
+                    throw new AccessException("Access token expired");
                 }
             } catch (Exception e) {
-                throw new AccessException("Invalid access token");
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.getWriter().write("Invalid access token");
+                response.getWriter().flush();
+                return;
             }
+        } else {
+            throw new IllegalArgumentException("Invalid access token or missing");
         }
 
         filterChain.doFilter(request, response);
@@ -87,34 +86,3 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 path.equalsIgnoreCase("/api/auth/refreshtoken");
     }
 }
-
-// OLD REVISION
-//@Override
-//protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-//    final String authorizationHeader = request.getHeader("Authorization");
-//
-//    String email = null;
-//    String jwt = null;
-//
-//    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-//        jwt = authorizationHeader.replace("Bearer ", "");
-//
-//        try {
-//            email = jwtTokenProvider.validateAccessToken(jwt).getSubject();
-//        } catch (ExpiredJwtException e) {
-//            tokenBlackListService.addTokenToBlacklist(jwt, "ACCESS_TOKEN");
-//        }
-//    }
-//
-//    if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-//        Claims claims = jwtTokenProvider.validateAccessToken(jwt);
-//        if (!tokenBlackListService.isTokenBlacklisted(jwt)) {
-//            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-//                    email, null, AuthorityUtils.createAuthorityList(claims.get("roles").toString()));
-//            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//            SecurityContextHolder.getContext().setAuthentication(authToken);
-//        }
-//    }
-//
-//    filterChain.doFilter(request, response);
-//}

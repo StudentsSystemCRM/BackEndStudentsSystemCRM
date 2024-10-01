@@ -1,5 +1,6 @@
 package edutrack.authentication.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,5 +12,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RefreshTokenRequest {
+    @NotBlank(message = "Refresh token must not be blank")
     String refreshToken;
 }
