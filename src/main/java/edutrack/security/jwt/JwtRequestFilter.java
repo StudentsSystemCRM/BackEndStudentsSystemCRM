@@ -1,5 +1,6 @@
 package edutrack.security.jwt;
 
+import edutrack.user.entity.UserEntity;
 import edutrack.user.exception.AccessException;
 import edutrack.user.repository.AccountRepository;
 import io.jsonwebtoken.Claims;
@@ -27,6 +28,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
     JwtTokenProvider jwtTokenProvider;
+    AccountRepository accountRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -39,31 +41,26 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             jwt = authorizationHeader.replace("Bearer ", "");
 
             try {
-                // validation token
+                // validation token and extract email
                 Claims claims = jwtTokenProvider.validateAccessToken(jwt);
                 email = claims.getSubject();
 
-                // set auth
-                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // check if the user exists in the database
+                UserEntity user = accountRepository.findByEmail(email);
+                if (user == null) {
+                    throw new AccessException("User not found in the database.");
+                }
+
+                // set authentication with roles
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            email, null, AuthorityUtils.createAuthorityList(claims.get("roles").toString()));
+                            email, null, AuthorityUtils.createAuthorityList(user.getRoles().stream().map(r -> "ROLE_" + r).toArray(String[]::new))
+                    );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             } catch (ExpiredJwtException e) {
-                if (request.getRequestURI().equalsIgnoreCase("/api/auth/signout")) {
-                    Claims expiredClaims = e.getClaims();
-                    email = expiredClaims.getSubject();
-                    String roles = expiredClaims.get("roles").toString();
-
-                    if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                                email, null, AuthorityUtils.createAuthorityList(roles));
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
-                    }
-                } else {
-                    throw new AccessException("Access token expired");
-                }
+                throw new AccessException("Access token expired");
             } catch (Exception e) {
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -72,7 +69,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 return;
             }
         } else {
-            throw new IllegalArgumentException("Invalid access token or missing");
+            throw new IllegalArgumentException("Authorization header is missing or invalid");
         }
 
         filterChain.doFilter(request, response);
