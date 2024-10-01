@@ -1,6 +1,5 @@
 package edutrack.account;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -76,9 +75,10 @@ public class AccountServicempTest {
 	UserRegisterRequest userRegisterRequest = new UserRegisterRequest(userEmail, "Password123!", "John", "Doe",
 			"1234567890", null);
 	UserUpdateRequest userUpdateRequest = new UserUpdateRequest(userEmail, "John", "Doe", "1234567890", null);
-	UserEntity user = new UserEntity (null, userEmail, "Password123", "John", "Doe", "1234567890", null, null, new HashSet<Role>());
-    UserRoleRequest roleRequest = new UserRoleRequest("ADMIN");
-	
+	UserEntity user = new UserEntity(null, userEmail, "Password123", "John", "Doe", "1234567890", null, null,
+			new HashSet<Role>());
+	UserRoleRequest roleRequest = new UserRoleRequest("ADMIN");
+
 	private void mockCurrentUserAuthInfo(String username, boolean isAdmin, boolean isCeo) {
 		when(securityContext.getAuthentication()).thenReturn(authentication);
 		when(authentication.getName()).thenReturn(username);
@@ -96,7 +96,7 @@ public class AccountServicempTest {
 	}
 
 	@Test
-	public void testRegistration_failure() {
+	public void testRegistrationFailure() {
 		// Set up test mock to exception
 		when(jwtTokenCreator.createToken(anyString(), anySet())).thenThrow(new RuntimeException("Mocked Exception"));
 
@@ -113,7 +113,7 @@ public class AccountServicempTest {
 	}
 
 	@Test
-	public void testRegistration_success() {
+	public void testRegistrationSuccess() {
 		Set<Role> role = new HashSet<>(List.of(Role.USER));
 		LoginSuccessResponse expect = new LoginSuccessResponse(null, "John", "Doe", "1234567890", null, LocalDate.now(),
 				role);
@@ -128,7 +128,7 @@ public class AccountServicempTest {
 	}
 
 	@Test
-	public void testRegistration_userAlreadyExists() {
+	public void testRegistrationUserAlreadyExists() {
 
 		when(userRepository.findByEmail(userRegisterRequest.getEmail())).thenReturn(new UserEntity());
 		assertThrows(ResourceExistsException.class,
@@ -136,7 +136,7 @@ public class AccountServicempTest {
 	}
 
 	@Test
-	public void testUpdateUser_success() {
+	public void testUpdateUserSuccess() {
 
 		when(userRepository.findByEmail(userUpdateRequest.getEmail())).thenReturn(user);
 		UserDataResponse result = accountingManagementService.updateUser(userUpdateRequest);
@@ -144,26 +144,25 @@ public class AccountServicempTest {
 		assertEquals("John", result.getName());
 		assertEquals("Doe", result.getSurname());
 	}
-	
 
 	@Test
-	public void testUpdateUser_userNotFound() {
+	public void testUpdateUseruserNotFound() {
 		assertThrows(NoSuchElementException.class, () -> accountingManagementService.updateUser(userUpdateRequest));
 	}
 
 	@Test
-	public void testUpdateUserCEO_NotAccessAdmin() {
+	public void testUpdateUserCEONotAccessAdmin() {
 
 		user.getRoles().add(Role.CEO);
 		when(userRepository.findByEmail(userUpdateRequest.getEmail())).thenReturn(user);
 		mockCurrentUserAuthInfo(adminEmail, true, false);
-		
-		assertThrows(AccessException.class,()-> accountingManagementService.updateUser(userUpdateRequest));
+
+		assertThrows(AccessException.class, () -> accountingManagementService.updateUser(userUpdateRequest));
 
 	}
-	
+
 	@Test
-	public void testUpdateUser_NotAccessUser() {
+	public void testUpdateUserNotAccessUser() {
 
 		String notAccessUserMail = "user@mail.com";
 		UserEntity notAccessUser = new UserEntity();
@@ -171,12 +170,12 @@ public class AccountServicempTest {
 		notAccessUser.setRoles(new HashSet<>());
 		when(userRepository.findByEmail(userUpdateRequest.getEmail())).thenReturn(user);
 		mockCurrentUserAuthInfo(notAccessUserMail, false, false);
-		assertThrows(AccessException.class,()-> accountingManagementService.updateUser(userUpdateRequest));
+		assertThrows(AccessException.class, () -> accountingManagementService.updateUser(userUpdateRequest));
 
 	}
 
 	@Test
-	public void testUpdatePassword_success() {
+	public void testUpdatePasswordSuccess() {
 
 		when(userRepository.findByEmail(userEmail)).thenReturn(user);
 
@@ -192,95 +191,95 @@ public class AccountServicempTest {
 	}
 
 	@Test
-	public void testRemoveUserAda_throwsAccessExceptionForDefaultUser() {
+	public void testRemoveUserAdaThrowsAccessExceptionForDefaultUser() {
 		assertThrows(NoSuchElementException.class, () -> accountingManagementService.removeUser("ada@gmail.com"));
 	}
-	
-	@Test
-	public void testAddRole_success() {
-	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
-	    mockCurrentUserAuthInfo(adminEmail, true, false);
-	    UserDataResponse result = accountingManagementService.addRole(userEmail, roleRequest);
 
-	    verify(userRepository, times(1)).save(user);
-	    assertTrue(user.getRoles().contains(Role.ADMIN));
-	    assertTrue(result.getRoles().contains(Role.ADMIN));
-	}
-	
 	@Test
-	public void testAddRoleCeo_success() {
+	public void testAddRoleSuccess() {
+		when(userRepository.findByEmail(userEmail)).thenReturn(user);
+		mockCurrentUserAuthInfo(adminEmail, true, false);
+		UserDataResponse result = accountingManagementService.addRole(userEmail, roleRequest);
+
+		verify(userRepository, times(1)).save(user);
+		assertTrue(user.getRoles().contains(Role.ADMIN));
+		assertTrue(result.getRoles().contains(Role.ADMIN));
+	}
+
+	@Test
+	public void testAddRoleCeoSuccess() {
 		UserRoleRequest seoRole = new UserRoleRequest("CEO");
-	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
-	    mockCurrentUserAuthInfo("ceo@mail.com", false, true);
-	    UserDataResponse result = accountingManagementService.addRole(userEmail, seoRole);
+		when(userRepository.findByEmail(userEmail)).thenReturn(user);
+		mockCurrentUserAuthInfo("ceo@mail.com", false, true);
+		UserDataResponse result = accountingManagementService.addRole(userEmail, seoRole);
 
-	    verify(userRepository, times(1)).save(user);
-	    assertTrue(user.getRoles().contains(Role.CEO));
-	    assertTrue(result.getRoles().contains(Role.CEO));
+		verify(userRepository, times(1)).save(user);
+		assertTrue(user.getRoles().contains(Role.CEO));
+		assertTrue(result.getRoles().contains(Role.CEO));
 	}
 
 	@Test
-	public void testAddRole_userNotFound() {
-	    String login = "nonexistent@mail.com";
-	    assertThrows(NoSuchElementException.class, () -> accountingManagementService.addRole(login, roleRequest));
+	public void testAddRoleUserNotFound() {
+		String login = "nonexistent@mail.com";
+		assertThrows(NoSuchElementException.class, () -> accountingManagementService.addRole(login, roleRequest));
 	}
 
 	@Test
-	public void testAddRoleYourSelf_NotAccess() {
-	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
-	    mockCurrentUserAuthInfo(userEmail, true, true);
-	    assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
-	
-	    mockCurrentUserAuthInfo(userEmail, false, false);
-	    assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
+	public void testAddRoleYourSelfNotAccess() {
+		when(userRepository.findByEmail(userEmail)).thenReturn(user);
+		mockCurrentUserAuthInfo(userEmail, true, true);
+		assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
+
+		mockCurrentUserAuthInfo(userEmail, false, false);
+		assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
 	}
-	
+
 	@Test
-	public void testAddRole_NotAccess() {
+	public void testAddRoleNotAccess() {
 		user.getRoles().add(Role.CEO);
-	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
-	    
-	    mockCurrentUserAuthInfo(adminEmail, true, false);
-	    assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
+		when(userRepository.findByEmail(userEmail)).thenReturn(user);
+
+		mockCurrentUserAuthInfo(adminEmail, true, false);
+		assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
 	}
-	
+
 	@Test
-	public void testAddRoleCEO_NotAccessforADMIN() {
+	public void testAddRoleCEONotAccessforADMIN() {
 		UserRoleRequest seoRole = new UserRoleRequest("CEO");
-		
-	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
-	    
-	    mockCurrentUserAuthInfo(adminEmail, true, false);
-	    assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, seoRole));
-	}
-	
-	@Test
-	public void testRemoveRole_success() {
-	    user.setRoles(new HashSet<>(List.of(Role.ADMIN)));
-	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
-	    mockCurrentUserAuthInfo("ceo@mail.com", false, true);
 
-	    UserDataResponse result = accountingManagementService.removeRole(userEmail, roleRequest);
+		when(userRepository.findByEmail(userEmail)).thenReturn(user);
 
-	    verify(userRepository, times(1)).save(user);
-	    assertFalse(user.getRoles().contains(Role.ADMIN));
-	    assertFalse(result.getRoles().contains(Role.ADMIN));
+		mockCurrentUserAuthInfo(adminEmail, true, false);
+		assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, seoRole));
 	}
 
 	@Test
-	public void testRemoveRole_userNotFound() {
-	    String login = "nonexistent@mail.com";
-	    assertThrows(NoSuchElementException.class, () -> accountingManagementService.removeRole(login, roleRequest));
+	public void testRemoveRoleSuccess() {
+		user.setRoles(new HashSet<>(List.of(Role.ADMIN)));
+		when(userRepository.findByEmail(userEmail)).thenReturn(user);
+		mockCurrentUserAuthInfo("ceo@mail.com", false, true);
+
+		UserDataResponse result = accountingManagementService.removeRole(userEmail, roleRequest);
+
+		verify(userRepository, times(1)).save(user);
+		assertFalse(user.getRoles().contains(Role.ADMIN));
+		assertFalse(result.getRoles().contains(Role.ADMIN));
 	}
 
 	@Test
-	public void testRemoveRoleAdmin_NotAccessAdmin() {
-	    user.setRoles(new HashSet<>(List.of(Role.ADMIN)));
+	public void testRemoveRoleUserNotFound() {
+		String login = "nonexistent@mail.com";
+		assertThrows(NoSuchElementException.class, () -> accountingManagementService.removeRole(login, roleRequest));
+	}
 
-	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
+	@Test
+	public void testRemoveRoleAdminNotAccessAdmin() {
+		user.setRoles(new HashSet<>(List.of(Role.ADMIN)));
 
-	    mockCurrentUserAuthInfo(adminEmail, true, false);
+		when(userRepository.findByEmail(userEmail)).thenReturn(user);
 
-	    assertThrows(AccessException.class, () -> accountingManagementService.removeRole(userEmail, roleRequest));
+		mockCurrentUserAuthInfo(adminEmail, true, false);
+
+		assertThrows(AccessException.class, () -> accountingManagementService.removeRole(userEmail, roleRequest));
 	}
 }

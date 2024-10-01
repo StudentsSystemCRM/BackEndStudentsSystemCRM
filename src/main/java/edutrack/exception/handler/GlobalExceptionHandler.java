@@ -31,9 +31,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public GeneralErrorResponseValidationDto handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-		List<String> messages = ex.getAllErrors()
-				.stream()
-				.map(DefaultMessageSourceResolvable::getDefaultMessage)
+		List<String> messages = ex.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage)
 				.toList();
 		return new GeneralErrorResponseValidationDto(UUID.randomUUID().toString(), messages);
 	}
@@ -41,10 +39,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(HandlerMethodValidationException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public GeneralErrorResponseValidationDto handleConstraintViolationException(HandlerMethodValidationException ex) {
-		List<String> messages = ex.getAllErrors()
-				.stream()
-				.map(MessageSourceResolvable::getDefaultMessage)
-				.toList();
+		List<String> messages = ex.getAllErrors().stream().map(MessageSourceResolvable::getDefaultMessage).toList();
 		return new GeneralErrorResponseValidationDto(UUID.randomUUID().toString(), messages);
 	}
 
@@ -82,15 +77,13 @@ public class GlobalExceptionHandler {
 		logger.error("Email already in use.", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
-	
+
 	@ExceptionHandler(GroupNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public GeneralErrorResponse handleJwtTokenExpiredException(GroupNotFoundException ex) {
 		logger.error("GroupNotFoundException", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
-
-
 
 	@ExceptionHandler(JwtTokenMalformedException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -112,7 +105,7 @@ public class GlobalExceptionHandler {
 		logger.error("JWT token is missing.", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
-	
+
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public GeneralErrorResponse handleException(Exception ex) {

@@ -20,57 +20,59 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/students")
-public class StudentController{
-    private final StudentService service;
-    public StudentController(StudentService service) {
-        this.service = service;
-    }
+public class StudentController {
+	private final StudentService service;
 
-    @GetMapping
-    @Operation(summary = "Get all students", description = "Retrieve a list of all students.")
-    public List<StudentDataResponse> getAllStudents() {
-        return service.getAllStudents();
-    }
+	public StudentController(StudentService service) {
+		this.service = service;
+	}
 
-    @PostMapping("/create_student")
-    @Operation(summary = "Create new student", description = "Provide necessary data to create a new student.")
-    public StudentDataResponse createStudent(@RequestBody @Valid StudentCreateRequest student) {
-        return service.createStudent(student);
-    }
+	@GetMapping
+	@Operation(summary = "Get all students", description = "Retrieve a list of all students.")
+	public List<StudentDataResponse> getAllStudents() {
+		return service.getAllStudents();
+	}
 
-    @GetMapping("/name")
-    @Operation(summary = "Get a student by name", description = "Provide necessary a name of student.")
-    public List<StudentDataResponse> getStudentsByName(@RequestParam String name) {
-        return service.getStudentsByName(name);
-    }
+	@PostMapping("/create_student")
+	@Operation(summary = "Create new student", description = "Provide necessary data to create a new student.")
+	public StudentDataResponse createStudent(@RequestBody @Valid StudentCreateRequest student) {
+		return service.createStudent(student);
+	}
 
-    @GetMapping("/surname")
-    @Operation(summary = "Get a student by surname", description = "Provide necessary a surname of student.")
-    public List<StudentDataResponse> getStudentsBySurname(@RequestParam String surname) {
-        return service.getStudentsBySurname(surname);
-    }
+	@GetMapping("/name")
+	@Operation(summary = "Get a student by name", description = "Provide necessary a name of student.")
+	public List<StudentDataResponse> getStudentsByName(@RequestParam String name) {
+		return service.getStudentsByName(name);
+	}
 
-    @GetMapping("/name_and_surname")
-    @Operation(summary = "Get a student by name and surname", description = "Provide necessary a name and surname of student.")
-    public List<StudentDataResponse> getStudentsByNameAndSurname(@RequestParam String name, @RequestParam String surname) {
-        return service.getStudentsByNameAndSurname(name, surname);
-    }
+	@GetMapping("/surname")
+	@Operation(summary = "Get a student by surname", description = "Provide necessary a surname of student.")
+	public List<StudentDataResponse> getStudentsBySurname(@RequestParam String surname) {
+		return service.getStudentsBySurname(surname);
+	}
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Get a student by ID", description = "Provide an ID to lookup a specific student.")
-    public StudentDataResponse getStudentById(@PathVariable Long id) {
-        return service.getStudentById(id);
-    }
+	@GetMapping("/name_and_surname")
+	@Operation(summary = "Get a student by name and surname", description = "Provide necessary a name and surname of student.")
+	public List<StudentDataResponse> getStudentsByNameAndSurname(@RequestParam String name,
+			@RequestParam String surname) {
+		return service.getStudentsByNameAndSurname(name, surname);
+	}
 
-    @PutMapping("/update_student_information")
-    @Operation(summary = "Update student information.", description = "Provide all data specific student and updated a needed fields.")
-    public StudentDataResponse updateStudent(@RequestBody @Valid StudentUpdateDataRequest student) {
-        return service.updateStudent(student);
-    }
+	@GetMapping("/{id}")
+	@Operation(summary = "Get a student by ID", description = "Provide an ID to lookup a specific student.")
+	public StudentDataResponse getStudentById(@PathVariable Long id) {
+		return service.getStudentById(id);
+	}
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a student by ID", description = "Provide an ID to delete a specific student.")
-    public StudentDataResponse deleteStudent(@PathVariable Long id) {
-        return service.deleteStudent(id);
-    }
+	@PutMapping("/update_student_information")
+	@Operation(summary = "Update student information.", description = "Provide all data specific student and updated a needed fields.")
+	public StudentDataResponse updateStudent(@RequestBody @Valid StudentUpdateDataRequest student) {
+		return service.updateStudent(student);
+	}
+
+	@DeleteMapping("/{id}")
+	@Operation(summary = "Delete a student by ID", description = "Provide an ID to delete a specific student.")
+	public StudentDataResponse deleteStudent(@PathVariable Long id) {
+		return service.deleteStudent(id);
+	}
 }

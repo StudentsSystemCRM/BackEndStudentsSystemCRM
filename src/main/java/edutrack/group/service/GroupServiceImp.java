@@ -22,32 +22,35 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class GroupServiceImp implements GroupService {
 
-    GroupRepository groupRepo;
-    StudentRepository studentRepo;
-	
+	GroupRepository groupRepo;
+	StudentRepository studentRepo;
+
 	private GroupDataResponse toGroupDataResponse(GroupEntity group) {
-        Boolean deactivateAfter30Days = false;
-        if (group.getDeactivateAfter30Days()!=null) deactivateAfter30Days = true;
-		return new GroupDataResponse(group.getName(), group.getWhatsApp(), group.getSkype(), group.getSlack(),group.getStatus(),
-        		group.getStartDate(), group.getExpFinishDate(), group.getLessonsDays(), group.getWebinarsDays(), deactivateAfter30Days, 
-        		group.getStudents(),group.getGroupReminders());
+		Boolean deactivateAfter30Days = false;
+		if (group.getDeactivateAfter30Days() != null) {
+			deactivateAfter30Days = true;
+		}
+		return new GroupDataResponse(group.getName(), group.getWhatsApp(), group.getSkype(), group.getSlack(),
+				group.getStatus(), group.getStartDate(), group.getExpFinishDate(), group.getLessonsDays(),
+				group.getWebinarsDays(), deactivateAfter30Days, group.getStudents(), group.getGroupReminders());
 	}
 
 	@Override
 	@Transactional
 	public GroupDataResponse createGroup(GroupCreateRequest groupRequest) {
-        GroupEntity groupResponse = groupRepo.findByName(groupRequest.getName());
-        if (groupResponse != null)
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Group with name " + groupRequest.getName() + " is already exists");
-        GroupEntity groupEntity = EntityDtoGroupMapper.INSTANCE.groupCreateRequestToGroup(groupRequest);
-        groupRepo.save(groupEntity);
-        return toGroupDataResponse(groupEntity);
+		GroupEntity groupResponse = groupRepo.findByName(groupRequest.getName());
+		if (groupResponse != null) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					"Group with name " + groupRequest.getName() + " is already exists");
+		}
+		GroupEntity groupEntity = EntityDtoGroupMapper.INSTANCE.groupCreateRequestToGroup(groupRequest);
+		groupRepo.save(groupEntity);
+		return toGroupDataResponse(groupEntity);
 	}
 
 	@Override
@@ -72,10 +75,10 @@ public class GroupServiceImp implements GroupService {
 		return groupRepo.findByName(name);
 	}
 
-    private StudentEntity findStudentById(Long id) {
-        return studentRepo.findById(id).orElseThrow(
-                () -> new StudentNotFoundException("Student with id " + id + " not found"));
-    }
+	private StudentEntity findStudentById(Long id) {
+		return studentRepo.findById(id)
+				.orElseThrow(() -> new StudentNotFoundException("Student with id " + id + " not found"));
+	}
 
 	@Override
 	public GroupDataResponse deleteGroup(String name) {
@@ -89,7 +92,7 @@ public class GroupServiceImp implements GroupService {
 		StudentEntity student = findStudentById(id);
 		GroupEntity group = groupRepo.findByName(name);
 		List<StudentEntity> students = group.getStudents();
-		if (students==null) {
+		if (students == null) {
 			students = new ArrayList<>();
 		}
 		students.add(student);
@@ -108,7 +111,7 @@ public class GroupServiceImp implements GroupService {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public GroupDataResponse deleteStudentFromGroup(Long id, String name) {
 		// TODO Auto-generated method stub
@@ -118,10 +121,8 @@ public class GroupServiceImp implements GroupService {
 	@Override
 	public void changeStudentGroup(Long id, String groupName) {
 		// TODO Auto-generated method stub
-		
+
 	}
-
-
 
 //	@Override
 //	@Transactional
@@ -155,4 +156,3 @@ public class GroupServiceImp implements GroupService {
 //	}
 
 }
-

@@ -44,7 +44,7 @@ import edutrack.user.repository.AccountRepository;
 
 @WebMvcTest(GroupController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})
+@Import({ JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class })
 class GroupControllerTest {
 
 	@Autowired
@@ -55,49 +55,33 @@ class GroupControllerTest {
 
 	@Autowired
 	private ObjectMapper objectMapper;
-	
-    @MockBean
-    private AccountRepository userRepository;
 
+	@MockBean
+	private AccountRepository userRepository;
 
 	private GroupCreateRequest requestGroup = new GroupCreateRequest();
 	private GroupDataResponse responseGroup = new GroupDataResponse();
 
-	
-	@Test void test(){
-		
+	@Test
+	void test() {
+
 	}
+
 	@BeforeEach
-	void setUp()throws Exception {
-		requestGroup = new GroupCreateRequest(
-				"java-24",
-				"whatsApp", 
-				"skype", 
-				"slack",
-				LocalDate.of(2024, 1, 1), 
-				LocalDate.of(2024, 6, 1),
-				Arrays.asList(WeekDay.MONDAY, WeekDay.WEDNESDAY),
+	void setUp() throws Exception {
+		requestGroup = new GroupCreateRequest("java-24", "whatsApp", "skype", "slack", LocalDate.of(2024, 1, 1),
+				LocalDate.of(2024, 6, 1), Arrays.asList(WeekDay.MONDAY, WeekDay.WEDNESDAY),
 				Arrays.asList(WeekDay.TUESDAY, WeekDay.THURSDAY));
 
-		responseGroup = new GroupDataResponse(
-				"java-24",
-				"whatsApp", 
-				"skype",
-				"slack", 
-				GroupStatus.ACTIVE,
-				LocalDate.of(2024, 1, 1),
-				LocalDate.of(2024, 6, 1),
-				Arrays.asList(WeekDay.MONDAY, WeekDay.WEDNESDAY),
-				Arrays.asList(WeekDay.TUESDAY, WeekDay.THURSDAY),
-				false, Collections.emptyList(),
+		responseGroup = new GroupDataResponse("java-24", "whatsApp", "skype", "slack", GroupStatus.ACTIVE,
+				LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1), Arrays.asList(WeekDay.MONDAY, WeekDay.WEDNESDAY),
+				Arrays.asList(WeekDay.TUESDAY, WeekDay.THURSDAY), false, Collections.emptyList(),
 				Collections.emptyList());
 
 	}
 
 	@Test
-	void shouldCreateGroup_whenValidRequest() throws Exception {
-
-
+	void shouldCreateGroupWhenValidRequest() throws Exception {
 
 		when(groupService.createGroup(any(GroupCreateRequest.class))).thenReturn(responseGroup);
 
@@ -113,7 +97,7 @@ class GroupControllerTest {
 	}
 
 	@Test
-	void shouldReturnBadRequest_whenInvalidRequest() throws Exception {
+	void shouldReturnBadRequestWhenInvalidRequest() throws Exception {
 		GroupCreateRequest invalidRequest = new GroupCreateRequest("", "", "", "", null, null, null, null);
 
 		mockMvc.perform(post("/api/groups/create").contentType(MediaType.APPLICATION_JSON)
@@ -122,277 +106,204 @@ class GroupControllerTest {
 				.andExpect(jsonPath("$.message", hasItem(ValidationAccountingMessage.INVALID_NAME)));
 	}
 
-	 @Test
-	    void shouldGetAllGroups() throws Exception {
+	@Test
+	void shouldGetAllGroups() throws Exception {
 
-	        GroupDataResponse group2 = new GroupDataResponse("java-20", "whatsApp", "skype", "slack", GroupStatus.INACTIVE,
-	                LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1), Arrays.asList(WeekDay.FRIDAY),
-	                Arrays.asList(WeekDay.SATURDAY), false, Collections.emptyList(),
-	                Collections.emptyList());
+		GroupDataResponse group2 = new GroupDataResponse("java-20", "whatsApp", "skype", "slack", GroupStatus.INACTIVE,
+				LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1), Arrays.asList(WeekDay.FRIDAY),
+				Arrays.asList(WeekDay.SATURDAY), false, Collections.emptyList(), Collections.emptyList());
 
-	        List<GroupDataResponse> groups = Arrays.asList(responseGroup, group2);
+		List<GroupDataResponse> groups = Arrays.asList(responseGroup, group2);
 
-	        when(groupService.getAllGroups()).thenReturn(groups);
+		when(groupService.getAllGroups()).thenReturn(groups);
 
-	        mockMvc.perform(get("/api/groups").contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isOk())
-	                .andExpect(jsonPath("$[0].name").value("java-24"))
-	                .andExpect(jsonPath("$[1].name").value("java-20"));
-	    }
+		mockMvc.perform(get("/api/groups").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].name").value("java-24")).andExpect(jsonPath("$[1].name").value("java-20"));
+	}
 
-	    @Test
-	    void shouldGetGroupsByStatus_whenValidStatus() throws Exception {
+	@Test
+	void shouldGetGroupsByStatusWhenValidStatus() throws Exception {
 
-	        when(groupService.getGroupsByStatus(GroupStatus.ACTIVE)).thenReturn(Collections.singletonList(responseGroup));
+		when(groupService.getGroupsByStatus(GroupStatus.ACTIVE)).thenReturn(Collections.singletonList(responseGroup));
 
-	        mockMvc.perform(get("/api/groups/status")
-	                .param("status", "ACTIVE")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isOk())
-	                .andExpect(jsonPath("$[0].name").value("java-24"))
-	                .andExpect(jsonPath("$[0].status").value("ACTIVE"));
-	    }
+		mockMvc.perform(get("/api/groups/status").param("status", "ACTIVE").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].name").value("java-24"))
+				.andExpect(jsonPath("$[0].status").value("ACTIVE"));
+	}
 
-	    @Test
-	    void shouldReturnBadRequest_whenInvalidStatus() throws Exception {
-	        mockMvc.perform(get("/api/groups/status")
-	                .param("status", "INVALID_STATUS")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isBadRequest());
-	    }
+	@Test
+	void shouldReturnBadRequestWhenInvalidStatus() throws Exception {
+		mockMvc.perform(
+				get("/api/groups/status").param("status", "INVALID_STATUS").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest());
+	}
 
-	    @Test
-	    void shouldGetGroupByName_whenValidName() throws Exception {
-	        // Arrange
-	        when(groupService.getGroupByName("java-24")).thenReturn(responseGroup);
+	@Test
+	void shouldGetGroupByNameWhenValidName() throws Exception {
+		// Arrange
+		when(groupService.getGroupByName("java-24")).thenReturn(responseGroup);
 
-	        // Act & Assert
-	        mockMvc.perform(get("/api/groups/name/{name}", "java-24")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isOk())
-	                .andExpect(jsonPath("$.name").value("java-24"))
-	                .andExpect(jsonPath("$.status").value("ACTIVE"));
-	    }
+		// Act & Assert
+		mockMvc.perform(get("/api/groups/name/{name}", "java-24").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.name").value("java-24"))
+				.andExpect(jsonPath("$.status").value("ACTIVE"));
+	}
 
-	    @Test
-	    void groupget_NameIsEmpty() throws Exception {
-	        mockMvc.perform(get("/api/groups/name/{name}", "")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isBadRequest());
-	    }
+	@Test
+	void groupgetNameIsEmpty() throws Exception {
+		mockMvc.perform(get("/api/groups/name/{name}", "").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest());
+	}
 
-	    @Test
-	    void shouldReturnNotFound_whenGroupDoesNotExist() throws Exception {
+	@Test
+	void shouldReturnNotFoundWhenGroupDoesNotExist() throws Exception {
 
-	        when(groupService.getGroupByName("non-existent-group")).thenThrow(new GroupNotFoundException("Group not found"));
+		when(groupService.getGroupByName("non-existent-group"))
+				.thenThrow(new GroupNotFoundException("Group not found"));
 
-	        mockMvc.perform(get("/api/groups/name/{name}", "non-existent-group")
-	        		.contentType(MediaType.APPLICATION_JSON))
-            		.andExpect(jsonPath("$.message").value("Group not found"));
-	    }
+		mockMvc.perform(get("/api/groups/name/{name}", "non-existent-group").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$.message").value("Group not found"));
+	}
 
-	    @Test
-	    void shouldGetStudentGroups_whenValidId() throws Exception {
-	        when(groupService.getStudentGroups(1L)).thenReturn(Collections.singletonList(responseGroup));
+	@Test
+	void shouldGetStudentGroupsWhenValidId() throws Exception {
+		when(groupService.getStudentGroups(1L)).thenReturn(Collections.singletonList(responseGroup));
 
-	        mockMvc.perform(get("/api/groups/student/{id}", 1L)
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isOk())
-	                .andExpect(jsonPath("$[0].name").value("java-24"));
-	    }
+		mockMvc.perform(get("/api/groups/student/{id}", 1L).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].name").value("java-24"));
+	}
 
-	    @Test
-	    void shouldReturnBadRequest_whenInvalidStudentId() throws Exception {
-	        mockMvc.perform(get("/api/groups/student/{id}", -1)
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isBadRequest());
-	    }
+	@Test
+	void shouldReturnBadRequestWhenInvalidStudentId() throws Exception {
+		mockMvc.perform(get("/api/groups/student/{id}", -1).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest());
+	}
 
-	    @Test
-	    void shouldAddStudentToGroup_whenValidRequest() throws Exception {
-	        when(groupService.addStudentToGroup(1L, "java-24")).thenReturn(responseGroup);
+	@Test
+	void shouldAddStudentToGroupWhenValidRequest() throws Exception {
+		when(groupService.addStudentToGroup(1L, "java-24")).thenReturn(responseGroup);
 
-	        mockMvc.perform(post("/api/groups/add-student")
-	                .param("id", "1")
-	                .param("name", "java-24")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isOk())
-	                .andExpect(jsonPath("$.name").value("java-24"));
-	    }
+		mockMvc.perform(post("/api/groups/add-student").param("id", "1").param("name", "java-24")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("java-24"));
+	}
 
-	    @Test
-	    void shouldReturnBadRequest_whenIdIsNegative() throws Exception {
-	        mockMvc.perform(post("/api/groups/add-student")
-	                .param("id", "-1")
-	                .param("name", "java-24")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isBadRequest());
-	    }
+	@Test
+	void shouldReturnBadRequestWhenIdIsNegative() throws Exception {
+		mockMvc.perform(post("/api/groups/add-student").param("id", "-1").param("name", "java-24")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+	}
 
-	    @Test
-	    void shouldReturnNotFound_whenStudentNotFound() throws Exception {
-	        when(groupService.addStudentToGroup(1L, "java-24"))
-	                .thenThrow(new StudentNotFoundException("Student with id 1 not found"));
+	@Test
+	void shouldReturnNotFoundWhenStudentNotFound() throws Exception {
+		when(groupService.addStudentToGroup(1L, "java-24"))
+				.thenThrow(new StudentNotFoundException("Student with id 1 not found"));
 
-	        mockMvc.perform(post("/api/groups/add-student")
-	                .param("id", "1")
-	                .param("name", "java-24")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isNotFound())
-	                .andExpect(jsonPath("$.message").value("Student with id 1 not found"));
-	    }
+		mockMvc.perform(post("/api/groups/add-student").param("id", "1").param("name", "java-24")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.message").value("Student with id 1 not found"));
+	}
 
-	    @Test
-	    void addStudentToGroup_whenGroupNotFound() throws Exception {
-	        when(groupService.addStudentToGroup(1L, "non-existent-group"))
-	                .thenThrow(new GroupNotFoundException("Group with name non-existent-group not found"));
+	@Test
+	void addStudentToGroupWhenGroupNotFound() throws Exception {
+		when(groupService.addStudentToGroup(1L, "non-existent-group"))
+				.thenThrow(new GroupNotFoundException("Group with name non-existent-group not found"));
 
-	        mockMvc.perform(post("/api/groups/add-student")
-	                .param("id", "1")
-	                .param("name", "non-existent-group")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isNotFound())
-	                .andExpect(jsonPath("$.message").value("Group with name non-existent-group not found"));
-	    }
+		mockMvc.perform(post("/api/groups/add-student").param("id", "1").param("name", "non-existent-group")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.message").value("Group with name non-existent-group not found"));
+	}
 
-	    @Test
-	    void shouldUpdateGroup_whenValidRequest() throws Exception {
-	        GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(
-	                "java-24",
-	                "newWhatsApp", 
-	                "newSkype", 
-	                "newSlack",
-	                GroupStatus.ACTIVE,
-	                LocalDate.of(2024, 2, 1), 
-	                LocalDate.of(2024, 7, 1),
-	                Arrays.asList(WeekDay.FRIDAY),
-	                Arrays.asList(WeekDay.SATURDAY),
-	                false
-	        );
-	        responseGroup.setWhatsApp("newWhatsApp");
+	@Test
+	void shouldUpdateGroupWhenValidRequest() throws Exception {
+		GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest("java-24", "newWhatsApp", "newSkype",
+				"newSlack", GroupStatus.ACTIVE, LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1),
+				Arrays.asList(WeekDay.FRIDAY), Arrays.asList(WeekDay.SATURDAY), false);
+		responseGroup.setWhatsApp("newWhatsApp");
 
-	        when(groupService.updateGroup(any(GroupUpdateDataRequest.class))).thenReturn(responseGroup);
+		when(groupService.updateGroup(any(GroupUpdateDataRequest.class))).thenReturn(responseGroup);
 
-	        mockMvc.perform(put("/api/groups/update")
-	                .contentType(MediaType.APPLICATION_JSON)
-	                .content(objectMapper.writeValueAsString(updateRequest)))
-	                .andExpect(status().isOk())
-	                .andExpect(jsonPath("$.name").value("java-24"))
-	                .andExpect(jsonPath("$.whatsApp").value("newWhatsApp"));
-	    }
+		mockMvc.perform(put("/api/groups/update").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(updateRequest))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("java-24")).andExpect(jsonPath("$.whatsApp").value("newWhatsApp"));
+	}
 
-	    @Test
-	    void shouldReturnBadRequest_whenNameIsEmpty() throws Exception {
-	        GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(
-	                "",
-	                "newWhatsApp", 
-	                "newSkype", 
-	                "newSlack",
-	                GroupStatus.ACTIVE,
-	                LocalDate.of(2024, 2, 1), 
-	                LocalDate.of(2024, 7, 1),
-	                Arrays.asList(WeekDay.FRIDAY),
-	                Arrays.asList(WeekDay.SATURDAY),
-	                false
-	        );
+	@Test
+	void shouldReturnBadRequestWhenNameIsEmpty() throws Exception {
+		GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest("", "newWhatsApp", "newSkype", "newSlack",
+				GroupStatus.ACTIVE, LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1), Arrays.asList(WeekDay.FRIDAY),
+				Arrays.asList(WeekDay.SATURDAY), false);
 
-	        mockMvc.perform(put("/api/groups/update")
-	                .contentType(MediaType.APPLICATION_JSON)
-	                .content(objectMapper.writeValueAsString(updateRequest)))
-	                .andExpect(status().isBadRequest())
-	                .andExpect(jsonPath("$.message").value(ValidationAccountingMessage.INVALID_NAME));
-	    }
+		mockMvc.perform(put("/api/groups/update").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(updateRequest))).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message").value(ValidationAccountingMessage.INVALID_NAME));
+	}
 
-	    @Test
-	    void shouldReturnNotFound_whenGroupNotFound() throws Exception {
-	        // Arrange
-	        GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(
-	                "non-existent-group", 
-	                "newWhatsApp", 
-	                "newSkype", 
-	                "newSlack",
-	                GroupStatus.ACTIVE,
-	                LocalDate.of(2024, 2, 1), 
-	                LocalDate.of(2024, 7, 1),
-	                Arrays.asList(WeekDay.FRIDAY),
-	                Arrays.asList(WeekDay.SATURDAY),
-	                false
-	        );
+	@Test
+	void shouldReturnNotFoundWhenGroupNotFound() throws Exception {
+		// Arrange
+		GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest("non-existent-group", "newWhatsApp",
+				"newSkype", "newSlack", GroupStatus.ACTIVE, LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1),
+				Arrays.asList(WeekDay.FRIDAY), Arrays.asList(WeekDay.SATURDAY), false);
 
-	        when(groupService.updateGroup(any(GroupUpdateDataRequest.class)))
-	                .thenThrow(new GroupNotFoundException("Group with name non-existent-group not found"));
+		when(groupService.updateGroup(any(GroupUpdateDataRequest.class)))
+				.thenThrow(new GroupNotFoundException("Group with name non-existent-group not found"));
 
-	        mockMvc.perform(put("/api/groups/update")
-	                .contentType(MediaType.APPLICATION_JSON)
-	                .content(objectMapper.writeValueAsString(updateRequest)))
-	                .andExpect(status().isNotFound())
-	                .andExpect(jsonPath("$.message").value("Group with name non-existent-group not found"));
-	    }
+		mockMvc.perform(put("/api/groups/update").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(updateRequest))).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.message").value("Group with name non-existent-group not found"));
+	}
 
-	    @Test
-	    void shouldRemoveStudentFromGroup_whenValidRequest() throws Exception {
-	        when(groupService.deleteStudentFromGroup(1L, "java-24")).thenReturn(responseGroup);
-	        mockMvc.perform(delete("/api/groups/remove-student")
-	                .param("id", "1")
-	                .param("name", "java-24")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isOk())
-	                .andExpect(jsonPath("$.name").value("java-24"));
-	    }
+	@Test
+	void shouldRemoveStudentFromGroupWhenValidRequest() throws Exception {
+		when(groupService.deleteStudentFromGroup(1L, "java-24")).thenReturn(responseGroup);
+		mockMvc.perform(delete("/api/groups/remove-student").param("id", "1").param("name", "java-24")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("java-24"));
+	}
 
-	    @Test
-	    void shouldReturnBadRequest_whenStudentIdIsNegative() throws Exception {
-	        mockMvc.perform(delete("/api/groups/remove-student")
-	                .param("id", "-1") 
-	                .param("name", "java-24")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isBadRequest());
-	    }
+	@Test
+	void shouldReturnBadRequestWhenStudentIdIsNegative() throws Exception {
+		mockMvc.perform(delete("/api/groups/remove-student").param("id", "-1").param("name", "java-24")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+	}
 
-	    @Test
-	    void shouldReturnNotFound_whenStudentNotFoundInGroup() throws Exception {
-	        when(groupService.deleteStudentFromGroup(1L, "java-24"))
-	                .thenThrow(new StudentNotFoundException("Student with id 1 not found"));
+	@Test
+	void shouldReturnNotFoundWhenStudentNotFoundInGroup() throws Exception {
+		when(groupService.deleteStudentFromGroup(1L, "java-24"))
+				.thenThrow(new StudentNotFoundException("Student with id 1 not found"));
 
-	        mockMvc.perform(delete("/api/groups/remove-student")
-	                .param("id", "1")
-	                .param("name", "java-24")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isNotFound())
-	                .andExpect(jsonPath("$.message").value("Student with id 1 not found"));
-	    }
+		mockMvc.perform(delete("/api/groups/remove-student").param("id", "1").param("name", "java-24")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.message").value("Student with id 1 not found"));
+	}
 
-	    @Test
-	    void shouldReturnNotFound_whenGroupNotFoundForRemovingStudent() throws Exception {
-	        when(groupService.deleteStudentFromGroup(1L, "non-existent-group"))
-	                .thenThrow(new GroupNotFoundException("Group with name non-existent-group not found"));
+	@Test
+	void shouldReturnNotFoundWhenGroupNotFoundForRemovingStudent() throws Exception {
+		when(groupService.deleteStudentFromGroup(1L, "non-existent-group"))
+				.thenThrow(new GroupNotFoundException("Group with name non-existent-group not found"));
 
-	        mockMvc.perform(delete("/api/groups/remove-student")
-	                .param("id", "1")
-	                .param("name", "non-existent-group")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isNotFound())
-	                .andExpect(jsonPath("$.message").value("Group with name non-existent-group not found"));
-	    }
+		mockMvc.perform(delete("/api/groups/remove-student").param("id", "1").param("name", "non-existent-group")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.message").value("Group with name non-existent-group not found"));
+	}
 
-	    @Test
-	    void shouldDeleteGroup_whenValidName() throws Exception {
-	        when(groupService.deleteGroup("java-24")).thenReturn(responseGroup);
+	@Test
+	void shouldDeleteGroupWhenValidName() throws Exception {
+		when(groupService.deleteGroup("java-24")).thenReturn(responseGroup);
 
-	        mockMvc.perform(delete("/api/groups/delete/{name}", "java-24")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isOk())
-	                .andExpect(jsonPath("$.name").value("java-24"));
-	    }
+		mockMvc.perform(delete("/api/groups/delete/{name}", "java-24").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.name").value("java-24"));
+	}
 
-	    @Test
-	    void shouldReturnNotFound_whenGroupNotFoundForDeletion() throws Exception {
-	        when(groupService.deleteGroup("non-existent-group"))
-	                .thenThrow(new GroupNotFoundException("Group with name non-existent-group not found"));
-	        mockMvc.perform(delete("/api/groups/delete/{name}", "non-existent-group")
-	                .contentType(MediaType.APPLICATION_JSON))
-	                .andExpect(status().isNotFound())
-	                .andExpect(jsonPath("$.message").value("Group with name non-existent-group not found"));
-	    }
+	@Test
+	void shouldReturnNotFoundWhenGroupNotFoundForDeletion() throws Exception {
+		when(groupService.deleteGroup("non-existent-group"))
+				.thenThrow(new GroupNotFoundException("Group with name non-existent-group not found"));
+		mockMvc.perform(
+				delete("/api/groups/delete/{name}", "non-existent-group").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.message").value("Group with name non-existent-group not found"));
+	}
 
 }
