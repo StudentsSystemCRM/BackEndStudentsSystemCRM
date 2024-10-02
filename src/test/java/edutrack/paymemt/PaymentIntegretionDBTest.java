@@ -29,10 +29,10 @@ public class PaymentIntegretionDBTest {
 
 	@Autowired
 	private PaymentService paymentService;
-	
+
 	@Autowired
 	private StudentRepository studentRepo;
-	
+
 	@Autowired
     private StudentService studentService;
 

@@ -4,6 +4,7 @@ import edutrack.authentication.dto.request.RefreshTokenRequest;
 import edutrack.authentication.dto.response.LoginSuccessResponse;
 import edutrack.authentication.dto.response.RefreshTokenResponse;
 import edutrack.authentication.dto.response.SignOutResponse;
+import edutrack.authentication.service.AuthService;
 import edutrack.authentication.service.AuthServiceImpl;
 import edutrack.security.jwt.JwtTokenProvider;
 import edutrack.user.dto.request.UserRegisterRequest;
@@ -45,6 +46,48 @@ public class AuthServiceImpTests {
     String userEmail = "test@mail.com";
     UserRegisterRequest userRegisterRequest = new UserRegisterRequest(userEmail, "Password123!", "John", "Doe", "1234567890", null);
     UserEntity user = new UserEntity(null, userEmail, "Password123", "John", "Doe", "1234567890", null, null, new HashSet<Role>(), null, null, null);
+
+
+//	@Test
+//	public void testRegistration_failure() {
+//		// Set up test mock to exception
+//		when(jwtTokenCreator.createToken(anyString(), anySet())).thenThrow(new RuntimeException("Mocked Exception"));
+//
+//		// Check for sure exception
+//		assertThrows(RuntimeException.class, () -> {
+//			accountingManagementService.registration("invite", userRegisterRequest);
+//		});
+//
+//		try {
+//			accountingManagementService.registration("invite", userRegisterRequest);
+//		} catch (RuntimeException e) {
+//			assertEquals("Mocked Exception", e.getMessage());
+//		}
+//	}
+//
+//	@Test
+//	public void testRegistration_success() {
+//		Set<Role> role = new HashSet<>(List.of(Role.USER));
+//		LoginSuccessResponse expect = new LoginSuccessResponse(null, "John", "Doe", "1234567890", null, LocalDate.now(),
+//				role);
+//
+//		when(jwtTokenCreator.createToken(anyString(), anySet())).thenReturn("mockedToken");
+//
+//		LoginSuccessResponse result = accountingManagementService.registration("invite", userRegisterRequest);
+//
+//		verify(userRepository, times(1)).findByEmail(eq(userEmail));
+//		verify(userRepository, times(1)).save(any(UserEntity.class));
+//		assertEquals(expect.getName(), result.getName());
+//	}
+//
+//	@Test
+//	public void testRegistration_userAlreadyExists() {
+//
+//		when(userRepository.findByEmail(userRegisterRequest.getEmail())).thenReturn(new UserEntity());
+//		assertThrows(ResourceExistsException.class,
+//				() -> accountingManagementService.registration("invite", userRegisterRequest));
+//	}
+
 
     @Test
     public void testRegistration_success() {

@@ -3,6 +3,7 @@ package edutrack.activityLog;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import edutrack.security.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,21 +19,20 @@ import edutrack.user.repository.AccountRepository;
 import edutrack.security.WebSecurityConfig;
 
 @WebMvcTest(ActivityLogController.class)
-@Import({JwtTokenValidator.class, JwtTokenCreator.class, WebSecurityConfig.class})
+@Import({JwtTokenProvider.class, WebSecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class ActivityLogControllerTest {
-	
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private StudentService studentService;
-    
+
     @MockBean
     private ActivityLogService activityLogService;
     @MockBean
     private AccountRepository userRepository;
-    
+
     @Test
     public void testAddStudentComment() throws Exception {
     	mockMvc.perform(post("/api/log_activites/comment")

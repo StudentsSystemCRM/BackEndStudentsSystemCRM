@@ -1,26 +1,20 @@
 package edutrack.account;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.security.Principal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
+import edutrack.security.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,12 +31,10 @@ import edutrack.user.dto.request.PasswordUpdateRequest;
 import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
-import edutrack.authentication.dto.response.LoginSuccessResponse;
 import edutrack.user.dto.response.Role;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.entity.UserEntity;
 import edutrack.user.exception.AccessException;
-import edutrack.user.exception.ResourceExistsException;
 import edutrack.user.repository.AccountRepository;
 import edutrack.user.service.AccountServiceImp;
 import lombok.AccessLevel;
@@ -50,8 +42,7 @@ import lombok.experimental.FieldDefaults;
 
 @ExtendWith(MockitoExtension.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AccountServicempTest {
-
+public class AccountServiceImpTest {
 	@InjectMocks
 	AccountServiceImp accountingManagementService;
 
@@ -67,17 +58,12 @@ public class AccountServicempTest {
 	@Mock
 	SecurityContext securityContext;
 
-	@Mock
-	JwtTokenCreator jwtTokenCreator;
+	final String userEmail = "test@mail.com";
+	final String adminEmail = "admin@mail.com";
+	final UserUpdateRequest userUpdateRequest = new UserUpdateRequest(userEmail, "John", "Doe", "1234567890", null);
+	final UserEntity user = new UserEntity (null, userEmail, "Password123", "John", "Doe", "1234567890", null, null, new HashSet<Role>(), null, null, null);
+    final UserRoleRequest roleRequest = new UserRoleRequest("ADMIN");
 
-	String userEmail = "test@mail.com";
-	String adminEmail = "admin@mail.com";
-	UserRegisterRequest userRegisterRequest = new UserRegisterRequest(userEmail, "Password123!", "John", "Doe",
-			"1234567890", null);
-	UserUpdateRequest userUpdateRequest = new UserUpdateRequest(userEmail, "John", "Doe", "1234567890", null);
-	UserEntity user = new UserEntity (null, userEmail, "Password123", "John", "Doe", "1234567890", null, null, new HashSet<Role>());
-    UserRoleRequest roleRequest = new UserRoleRequest("ADMIN");
-	
 	private void mockCurrentUserAuthInfo(String username, boolean isAdmin, boolean isCeo) {
 		when(securityContext.getAuthentication()).thenReturn(authentication);
 		when(authentication.getName()).thenReturn(username);
@@ -95,46 +81,6 @@ public class AccountServicempTest {
 	}
 
 	@Test
-	public void testRegistration_failure() {
-		// Set up test mock to exception
-		when(jwtTokenCreator.createToken(anyString(), anySet())).thenThrow(new RuntimeException("Mocked Exception"));
-
-		// Check for sure exception
-		assertThrows(RuntimeException.class, () -> {
-			accountingManagementService.registration("invite", userRegisterRequest);
-		});
-
-		try {
-			accountingManagementService.registration("invite", userRegisterRequest);
-		} catch (RuntimeException e) {
-			assertEquals("Mocked Exception", e.getMessage());
-		}
-	}
-
-	@Test
-	public void testRegistration_success() {
-		Set<Role> role = new HashSet<>(List.of(Role.USER));
-		LoginSuccessResponse expect = new LoginSuccessResponse(null, "John", "Doe", "1234567890", null, LocalDate.now(),
-				role);
-
-		when(jwtTokenCreator.createToken(anyString(), anySet())).thenReturn("mockedToken");
-
-		LoginSuccessResponse result = accountingManagementService.registration("invite", userRegisterRequest);
-
-		verify(userRepository, times(1)).findByEmail(eq(userEmail));
-		verify(userRepository, times(1)).save(any(UserEntity.class));
-		assertEquals(expect.getName(), result.getName());
-	}
-
-	@Test
-	public void testRegistration_userAlreadyExists() {
-
-		when(userRepository.findByEmail(userRegisterRequest.getEmail())).thenReturn(new UserEntity());
-		assertThrows(ResourceExistsException.class,
-				() -> accountingManagementService.registration("invite", userRegisterRequest));
-	}
-
-	@Test
 	public void testUpdateUser_success() {
 
 		when(userRepository.findByEmail(userUpdateRequest.getEmail())).thenReturn(user);
@@ -143,7 +89,6 @@ public class AccountServicempTest {
 		assertEquals("John", result.getName());
 		assertEquals("Doe", result.getSurname());
 	}
-	
 
 	@Test
 	public void testUpdateUser_userNotFound() {
@@ -156,11 +101,11 @@ public class AccountServicempTest {
 		user.getRoles().add(Role.CEO);
 		when(userRepository.findByEmail(userUpdateRequest.getEmail())).thenReturn(user);
 		mockCurrentUserAuthInfo(adminEmail, true, false);
-		
+
 		assertThrows(AccessException.class,()-> accountingManagementService.updateUser(userUpdateRequest));
 
 	}
-	
+
 	@Test
 	public void testUpdateUser_NotAccessUser() {
 
@@ -194,7 +139,7 @@ public class AccountServicempTest {
 	public void testRemoveUserAda_throwsAccessExceptionForDefaultUser() {
 		assertThrows(NoSuchElementException.class, () -> accountingManagementService.removeUser("ada@gmail.com"));
 	}
-	
+
 	@Test
 	public void testAddRole_success() {
 	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
@@ -205,7 +150,7 @@ public class AccountServicempTest {
 	    assertTrue(user.getRoles().contains(Role.ADMIN));
 	    assertTrue(result.getRoles().contains(Role.ADMIN));
 	}
-	
+
 	@Test
 	public void testAddRoleCeo_success() {
 		UserRoleRequest seoRole = new UserRoleRequest("CEO");
@@ -229,30 +174,30 @@ public class AccountServicempTest {
 	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
 	    mockCurrentUserAuthInfo(userEmail, true, true);
 	    assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
-	
+
 	    mockCurrentUserAuthInfo(userEmail, false, false);
 	    assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
 	}
-	
+
 	@Test
 	public void testAddRole_NotAccess() {
 		user.getRoles().add(Role.CEO);
 	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
-	    
+
 	    mockCurrentUserAuthInfo(adminEmail, true, false);
 	    assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
 	}
-	
+
 	@Test
 	public void testAddRoleCEO_NotAccessforADMIN() {
 		UserRoleRequest seoRole = new UserRoleRequest("CEO");
-		
+
 	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
-	    
+
 	    mockCurrentUserAuthInfo(adminEmail, true, false);
 	    assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, seoRole));
 	}
-	
+
 	@Test
 	public void testRemoveRole_success() {
 	    user.setRoles(new HashSet<>(List.of(Role.ADMIN)));
