@@ -97,13 +97,11 @@ public class AccountServiceImpTest {
 
 	@Test
 	public void testUpdateUserCEO_NotAccessAdmin() {
-
 		user.getRoles().add(Role.CEO);
 		when(userRepository.findByEmail(userUpdateRequest.getEmail())).thenReturn(user);
 		mockCurrentUserAuthInfo(adminEmail, true, false);
 
 		assertThrows(AccessException.class,()-> accountingManagementService.updateUser(userUpdateRequest));
-
 	}
 
 	@Test
