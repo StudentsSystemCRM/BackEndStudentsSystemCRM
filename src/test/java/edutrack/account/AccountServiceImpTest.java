@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import edutrack.security.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,7 +27,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import edutrack.user.dto.request.PasswordUpdateRequest;
-import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
 import edutrack.user.dto.response.Role;
