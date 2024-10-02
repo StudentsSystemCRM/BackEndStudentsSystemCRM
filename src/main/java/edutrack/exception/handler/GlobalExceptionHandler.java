@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(AccessException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseStatus(HttpStatus.FORBIDDEN)
 	public GeneralErrorResponse handleAccessException(AccessException ex) {
 		logger.error("Access exception.", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
