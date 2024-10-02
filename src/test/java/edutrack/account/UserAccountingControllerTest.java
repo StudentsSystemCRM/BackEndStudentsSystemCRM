@@ -13,6 +13,7 @@ import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.dto.validation.ValidRangeDate;
 import edutrack.user.dto.validation.ValidRole;
 import edutrack.user.exception.AccessException;
+import edutrack.user.repository.AccountRepository;
 import edutrack.user.service.AccountService;
 import lombok.AccessLevel;
 import lombok.SneakyThrows;
@@ -50,7 +51,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @WebMvcTest(AccountController.class)
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @Import({JacksonAutoConfiguration.class})
 public class UserAccountingControllerTest {
     @MockBean
