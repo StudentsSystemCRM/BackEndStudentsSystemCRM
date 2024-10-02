@@ -202,16 +202,19 @@ public class UserAccountingControllerTest {
     void testUpdatePassword_whenValidPasswordUpdateRequestIsProvided_thenReturn200() {
         //Arrange
         String requestDataJson = objectMapper.writeValueAsString(PASSWORD_UPDATE_REQUEST);
-        Principal principal = SecurityContextHolder.getContext().getAuthentication();
+        Principal mockPrincipal = mock(Principal.class);
+
+        when(mockPrincipal.getName()).thenReturn("user1@test.com");
 
         // Act
         ResultActions resultActions = mockMvc.perform(put("/api/users/update-password")
+                .principal(mockPrincipal)
                 .contentType("application/json")
                 .content(requestDataJson));
 
         // Assert
         resultActions.andExpect(status().isOk());
-        verify(accountingManagementService).updatePassword(eq(principal), eq(PASSWORD_UPDATE_REQUEST));
+        verify(accountingManagementService, times(1)).updatePassword(eq(mockPrincipal), eq(PASSWORD_UPDATE_REQUEST));
     }
 
     @Test
