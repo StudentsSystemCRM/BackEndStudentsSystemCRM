@@ -1,7 +1,7 @@
 package edutrack.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edutrack.security.jwt.JwtRequestFilter;
+import edutrack.security.WebSecurityConfig;
 import edutrack.security.jwt.JwtTokenProvider;
 import edutrack.user.constant.ValidationAccountingMessage;
 import edutrack.user.controller.AccountController;
@@ -12,12 +12,9 @@ import edutrack.user.dto.response.Role;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.dto.validation.ValidRangeDate;
 import edutrack.user.dto.validation.ValidRole;
-import edutrack.user.entity.UserEntity;
 import edutrack.user.exception.AccessException;
 import edutrack.user.repository.AccountRepository;
 import edutrack.user.service.AccountService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import lombok.AccessLevel;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
@@ -26,7 +23,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -36,7 +32,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.lang.reflect.Field;
 import java.security.Principal;
@@ -55,31 +50,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @WebMvcTest(AccountController.class)
-@AutoConfigureMockMvc
-@Import({JacksonAutoConfiguration.class})
+@AutoConfigureMockMvc(addFilters = false)
+@Import({WebSecurityConfig.class, JwtTokenProvider.class})
 public class UserAccountingControllerTest {
     @MockBean
     AccountService accountingManagementService;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    @Autowired
-    MockMvc mockMvc;
-
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    @Autowired
-    ObjectMapper objectMapper;
-
-    @MockBean
-    JwtRequestFilter jwtRequestFilter;
-
-    @MockBean
-    JwtTokenProvider jwtTokenProvider;
-
     @MockBean
     AccountRepository accountRepository;
 
-    @MockBean
-    AccountController accountController;
+    @Autowired
+    MockMvc mockMvc;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     // valid userRegisterRequest test data
     final String VALID_USER_EMAIL_1 = "user1@test.com";
@@ -128,33 +112,19 @@ public class UserAccountingControllerTest {
     void testUpdate_whenValidInputIsProvided_thenReturnUserDataResponse() {
         //Arrange
         String requestDataJson = objectMapper.writeValueAsString(USER_UPDATE_REQUEST);
-        UserDataResponse expectedData = USER_DATA_RESPONSE;
-        String expectedDataJson = objectMapper.writeValueAsString(expectedData);
-        when(accountingManagementService.updateUser(any(UserUpdateRequest.class))).thenReturn(expectedData);
+        String expectedDataJson = objectMapper.writeValueAsString(USER_DATA_RESPONSE);
 
-        Claims mockClaims = Jwts.claims().setSubject("user@test.com");
-        mockClaims.put("roles", Set.of("ROLE_USER"));
-        when(jwtTokenProvider.validateAccessToken(anyString())).thenReturn(mockClaims);
-
-        UserEntity mockUser = new UserEntity();
-        mockUser.setEmail("user@test.com");
-        mockUser.setRoles(Set.of(Role.USER));  // Или нужные роли
-        when(accountRepository.findByEmail("user@test.com")).thenReturn(mockUser);
+        when(accountingManagementService.updateUser(any(UserUpdateRequest.class))).thenReturn(USER_DATA_RESPONSE);
 
         //Act
         ResultActions resultActions = mockMvc.perform(put("/api/users/update")
-                .header("Authorization", "Bearer mockedJwtToken")
+                .with(user("user").password("123").roles("USER"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestDataJson));
 
         //Assert
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value(expectedData.getEmail()))
-                .andExpect(jsonPath("$.name").value(expectedData.getName()))
-                .andExpect(jsonPath("$.surname").value(expectedData.getSurname()))
-                .andExpect(jsonPath("$.birthdate").value(expectedData.getBirthdate().toString()))
-                .andExpect(jsonPath("$.phone").value(expectedData.getPhone()))
-                .andExpect(jsonPath("$.roles[0]").value("USER"));
+                .andExpect(result -> assertEquals(expectedDataJson, result.getResponse().getContentAsString()));
     }
 
     @Test
@@ -193,8 +163,7 @@ public class UserAccountingControllerTest {
     @DisplayName("Update, no permission")
     void testUpdate_whenValidInputIsProvided_thenThrowNoPermissionAndReturnBadRequest() {
         //Arrange
-        UserUpdateRequest requestData = USER_UPDATE_REQUEST;
-        String requestDataJson = objectMapper.writeValueAsString(requestData);
+        String requestDataJson = objectMapper.writeValueAsString(USER_UPDATE_REQUEST);
         String expectedErrorMessage1 = "You don't have rules to update this user's profile.";
 
         when(accountingManagementService.updateUser(any(UserUpdateRequest.class))).thenThrow(new AccessException(expectedErrorMessage1));
@@ -218,8 +187,7 @@ public class UserAccountingControllerTest {
     @DisplayName("Update, no such user")
     void testUpdate_whenValidInputIsProvided_thenThrowNoSuchElementExceptionAndReturnBadRequest() {
         //Arrange
-        UserUpdateRequest requestData = USER_UPDATE_REQUEST;
-        String requestDataJson = objectMapper.writeValueAsString(requestData);
+        String requestDataJson = objectMapper.writeValueAsString(USER_UPDATE_REQUEST);
         String expectedErrorMessage1 = "Account with email '%s' not found".formatted(USER_UPDATE_REQUEST.getEmail());
 
         when(accountingManagementService.updateUser(any(UserUpdateRequest.class))).thenThrow(new NoSuchElementException(expectedErrorMessage1));
@@ -374,11 +342,10 @@ public class UserAccountingControllerTest {
     @WithMockUser(username = "user", roles = {"USER"})
     void testAddRole_whenUserIsNotAdmin_thenReturnForbidden() {
         // Arrange
-        String login = VALID_USER_EMAIL_1;
         String requestDataJson = objectMapper.writeValueAsString(USER_ROLE_REQUEST);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(put("/api/users/assign-role/{login}", login)
+        ResultActions resultActions = mockMvc.perform(put("/api/users/assign-role/{login}", VALID_USER_EMAIL_1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestDataJson));
 
@@ -464,11 +431,8 @@ public class UserAccountingControllerTest {
     @DisplayName("removeRole, no permission")
     @WithMockUser(username = "user", roles = {"USER"})
     void testRemoveRole_whenUserIsNotAdmin_thenReturnForbidden() {
-        // Arrange
-        String validLogin = VALID_USER_EMAIL_1;
-
         // Act
-        ResultActions resultActions = mockMvc.perform(delete("/api/users/remove-role/{login}", validLogin)
+        ResultActions resultActions = mockMvc.perform(delete("/api/users/remove-role/{login}", VALID_USER_EMAIL_1)
                 .contentType(MediaType.APPLICATION_JSON));
 
         // Assert
@@ -534,7 +498,7 @@ public class UserAccountingControllerTest {
         // Assert
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("An unexpected error: " + exceptionMessage))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof NoSuchElementException));
+                .andExpect(result -> assertInstanceOf(NoSuchElementException.class, result.getResolvedException()));
         verify(accountingManagementService, times(1)).removeUser(nonExistentLogin);
     }
 }
