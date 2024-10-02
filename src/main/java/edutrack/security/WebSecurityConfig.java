@@ -40,8 +40,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/signup", "api/auth/refreshtoken").permitAll()
 
-                        .requestMatchers("/api/users/assign-role/*", "/api/users/remove-role/*", "api/users/update").hasAnyRole("ADMIN", "CEO")
-                        .requestMatchers(HttpMethod.DELETE, "api/users/*").hasAnyRole("ADMIN", "CEO")
+                        .requestMatchers("/api/users/update", "api/users/assign-role/*", "api/users/remove-role/*").hasAnyRole("ADMIN", "CEO")
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/*").hasAnyRole("ADMIN", "CEO")
 
                         .requestMatchers(HttpMethod.POST, "/api/students").hasAnyRole("ADMIN", "CEO")
                         .requestMatchers(HttpMethod.DELETE, "/api/students/*").hasAnyRole("ADMIN", "CEO")
