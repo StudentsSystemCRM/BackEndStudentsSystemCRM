@@ -77,22 +77,15 @@ public class UserAccountingControllerTest {
     final Set<Role> VALID_ROLE = Collections.singleton(Role.USER);
 
     final UserUpdateRequest USER_UPDATE_REQUEST = UserUpdateRequest.builder()
-            .email(VALID_USER_EMAIL_1)
-            .name(VALID_USER_NAME_1)
-            .surname(VALID_USER_SURNAME_1)
-            .phone(VALID_USER_PHONE_1)
-            .birthdate(VALID_BIRTHDATE)
-            .build();
+            .email(VALID_USER_EMAIL_1).name(VALID_USER_NAME_1)
+            .surname(VALID_USER_SURNAME_1).phone(VALID_USER_PHONE_1)
+            .birthdate(VALID_BIRTHDATE).build();
 
     final UserDataResponse USER_DATA_RESPONSE = UserDataResponse.builder()
-            .email(VALID_USER_EMAIL_1)
-            .name(VALID_USER_NAME_1)
-            .surname(VALID_USER_SURNAME_1)
-            .phone(VALID_USER_PHONE_1)
-            .birthdate(VALID_BIRTHDATE)
-            .createdDate(VALID_CREATED_DATE)
-            .roles(VALID_ROLE)
-            .build();
+            .email(VALID_USER_EMAIL_1).name(VALID_USER_NAME_1)
+            .surname(VALID_USER_SURNAME_1).phone(VALID_USER_PHONE_1)
+            .birthdate(VALID_BIRTHDATE).createdDate(VALID_CREATED_DATE)
+            .roles(VALID_ROLE).build();
 
     final PasswordUpdateRequest PASSWORD_UPDATE_REQUEST = new PasswordUpdateRequest(VALID_USER_PASSWORD_1);
     final UserRoleRequest USER_ROLE_REQUEST = new UserRoleRequest("USER");
@@ -309,7 +302,6 @@ public class UserAccountingControllerTest {
                 .andExpect(jsonPath("$.message", hasSize(2)))
                 .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage1)))
                 .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage2)));
-
     }
 
     @Test
@@ -330,7 +322,6 @@ public class UserAccountingControllerTest {
         verify(accountingManagementService, never()).addRole(any(String.class), any(UserRoleRequest.class));
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedErrorMessage1));
-
     }
 
     @Test
@@ -420,7 +411,6 @@ public class UserAccountingControllerTest {
         verify(accountingManagementService, never()).removeRole(any(String.class), any(UserRoleRequest.class));
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedErrorMessage1));
-
     }
 
     @Test
