@@ -2,7 +2,6 @@ package edutrack.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edutrack.security.jwt.JwtRequestFilter;
-import edutrack.security.jwt.JwtTokenProvider;
 import edutrack.user.constant.ValidationAccountingMessage;
 import edutrack.user.controller.AccountController;
 import edutrack.user.dto.request.PasswordUpdateRequest;
@@ -13,8 +12,7 @@ import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.dto.validation.ValidRangeDate;
 import edutrack.user.dto.validation.ValidRole;
 import edutrack.user.exception.AccessException;
-import edutrack.user.repository.AccountRepository;
-import edutrack.user.service.AccountService;
+import edutrack.user.service.AccountServiceImp;
 import lombok.AccessLevel;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
@@ -55,10 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({JacksonAutoConfiguration.class})
 public class UserAccountingControllerTest {
     @MockBean
-    AccountService accountingManagementService;
-
-    @MockBean
-    JwtTokenProvider jwtTokenProvider;
+    AccountServiceImp accountingManagementService;
 
     @MockBean
     JwtRequestFilter jwtRequestFilter;
@@ -98,6 +93,7 @@ public class UserAccountingControllerTest {
             .createdDate(VALID_CREATED_DATE)
             .roles(VALID_ROLE)
             .build();
+
     final PasswordUpdateRequest PASSWORD_UPDATE_REQUEST = new PasswordUpdateRequest(VALID_USER_PASSWORD_1);
     final UserRoleRequest USER_ROLE_REQUEST = new UserRoleRequest("USER");
 
@@ -162,10 +158,9 @@ public class UserAccountingControllerTest {
     @SneakyThrows
     @WithMockUser
     @DisplayName("Update, no permission")
-    void testUpdate_whenValidInputIsProvided_thenThrowNoPermissionAndReturnBadRequest() {
+    void testUpdate_whenValidInputIsProvided_thenThrowNoPermissionAndReturnForbidden() {
         //Arrange
-        UserUpdateRequest requestData = USER_UPDATE_REQUEST;
-        String requestDataJson = objectMapper.writeValueAsString(requestData);
+        String requestDataJson = objectMapper.writeValueAsString(USER_UPDATE_REQUEST);
         String expectedErrorMessage1 = "You don't have rules to update this user's profile.";
 
         when(accountingManagementService.updateUser(any(UserUpdateRequest.class))).thenThrow(new AccessException(expectedErrorMessage1));
@@ -176,7 +171,7 @@ public class UserAccountingControllerTest {
                 .content(requestDataJson));
 
         //Assert
-        resultActions.andExpect(status().isBadRequest())
+        resultActions.andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").isString())
                 .andExpect(jsonPath("$.message").value(expectedErrorMessage1));
 
@@ -189,8 +184,7 @@ public class UserAccountingControllerTest {
     @DisplayName("Update, no such user")
     void testUpdate_whenValidInputIsProvided_thenThrowNoSuchElementExceptionAndReturnBadRequest() {
         //Arrange
-        UserUpdateRequest requestData = USER_UPDATE_REQUEST;
-        String requestDataJson = objectMapper.writeValueAsString(requestData);
+        String requestDataJson = objectMapper.writeValueAsString(USER_UPDATE_REQUEST);
         String expectedErrorMessage1 = "Account with email '%s' not found".formatted(USER_UPDATE_REQUEST.getEmail());
 
         when(accountingManagementService.updateUser(any(UserUpdateRequest.class))).thenThrow(new NoSuchElementException(expectedErrorMessage1));
@@ -433,16 +427,13 @@ public class UserAccountingControllerTest {
     @SneakyThrows
     @DisplayName("removeRole, no permission")
     @WithMockUser(username = "user", roles = {"USER"})
-    void testRemoveRole_whenUserIsNotAdmin_thenReturnForbidden() {
-        // Arrange
-        String validLogin = VALID_USER_EMAIL_1;
-
+    void testRemoveRole_whenUserIsNotAdmin_thenReturnBadRequest() {
         // Act
-        ResultActions resultActions = mockMvc.perform(delete("/api/users/remove-role/{login}", validLogin)
+        ResultActions resultActions = mockMvc.perform(delete("/api/users/remove-role/{login}", VALID_USER_EMAIL_1)
                 .contentType(MediaType.APPLICATION_JSON));
 
         // Assert
-        resultActions.andExpect(status().isForbidden());
+        resultActions.andExpect(status().isBadRequest());
         verify(accountingManagementService, never()).removeRole(any(String.class), any(UserRoleRequest.class));
     }
 
@@ -504,7 +495,7 @@ public class UserAccountingControllerTest {
         // Assert
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("An unexpected error: " + exceptionMessage))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof NoSuchElementException));
+                .andExpect(result -> assertInstanceOf(NoSuchElementException.class, result.getResolvedException()));
         verify(accountingManagementService, times(1)).removeUser(nonExistentLogin);
     }
 }
