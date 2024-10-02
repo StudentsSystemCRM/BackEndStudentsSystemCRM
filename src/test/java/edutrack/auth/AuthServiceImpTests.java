@@ -4,11 +4,9 @@ import edutrack.authentication.dto.request.RefreshTokenRequest;
 import edutrack.authentication.dto.response.LoginSuccessResponse;
 import edutrack.authentication.dto.response.RefreshTokenResponse;
 import edutrack.authentication.dto.response.SignOutResponse;
-import edutrack.authentication.service.AuthService;
 import edutrack.authentication.service.AuthServiceImpl;
 import edutrack.security.jwt.JwtTokenProvider;
 import edutrack.user.dto.request.UserRegisterRequest;
-import edutrack.user.dto.response.Role;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.entity.UserEntity;
 import edutrack.user.exception.AccessException;
@@ -22,10 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import static com.mongodb.assertions.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,7 +43,7 @@ public class AuthServiceImpTests {
 
     String userEmail = "test@mail.com";
     UserRegisterRequest userRegisterRequest = new UserRegisterRequest(userEmail, "Password123!", "John", "Doe", "1234567890", null);
-    UserEntity user = new UserEntity(null, userEmail, "Password123", "John", "Doe", "1234567890", null, null, new HashSet<Role>(), null, null, null);
+    UserEntity user = new UserEntity(null, userEmail, "Password123", "John", "Doe", "1234567890", null, null, new HashSet<>(), null, null, null);
 
     @Test
     public void testRegistration_success() {
