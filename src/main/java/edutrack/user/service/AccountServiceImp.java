@@ -43,6 +43,7 @@ public class AccountServiceImp implements AccountService {
         user.setName(data.getName());
         user.setSurname(data.getSurname());
         user.setBirthdate(data.getBirthdate());
+        user.setPhone(data.getPhone());
         userRepository.save(user);
 
         return EntityDtoUserMapper.INSTANCE.userToUserDataResponse(user);
