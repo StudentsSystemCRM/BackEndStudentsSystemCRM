@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import edutrack.security.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -34,20 +35,20 @@ import edutrack.user.repository.AccountRepository;
 import edutrack.security.WebSecurityConfig;
 
 @WebMvcTest(PaymentController.class)
-@Import({JwtTokenValidator.class, JwtTokenCreator.class, WebSecurityConfig.class})
+@Import({JwtTokenProvider.class, WebSecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class PaymentControllerTest {
-	
+
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private PaymentService paymentService;
-    
+
     @MockBean
     private AccountRepository accountRepository;
-    
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -55,7 +56,7 @@ public class PaymentControllerTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
     }
-	
+
 	@Test
     public void testAddStudentPayment() throws Exception {
 

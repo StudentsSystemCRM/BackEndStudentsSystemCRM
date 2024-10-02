@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
 import edutrack.activityLog.entity.ActivityLogEntity;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +39,6 @@ import edutrack.student.exception.EmailAlreadyInUseException;
 
 @ExtendWith(MockitoExtension.class)
 public class StudentServiceTest {
-
     @Mock
     StudentRepository studentRepo;
 
@@ -123,14 +121,14 @@ public class StudentServiceTest {
     @Test
     public void testCreateStudent_Success() {
         when(studentRepo.save(any(StudentEntity.class))).thenReturn(student);
-       
+
         StudentDataResponse response = studentService.createStudent(request);
 
         assertNotNull(response);
         verify(studentRepo, times(1)).findByEmail("john.doe@example.com");
         verify(studentRepo, times(1)).save(any(StudentEntity.class));
         verify(activityRepo, times(1)).save(any(ActivityLogEntity.class));
-        
+
         assertEquals(student.getFirstName(), response.getName());
         assertEquals(student.getLastName(), response.getSurname());
         assertEquals(student.getCity(), response.getCity());
@@ -141,7 +139,7 @@ public class StudentServiceTest {
         assertEquals(student.getPhoneNumber(), response.getPhone());
     }
 
-    
+
     @Test
     public void testCreateStudent_EmailAlreadyExists() {
         when(studentRepo.findByEmail("john.doe@example.com")).thenReturn(new StudentEntity());
@@ -154,7 +152,7 @@ public class StudentServiceTest {
         verify(studentRepo, times(0)).save(any(StudentEntity.class));
         verify(activityRepo, times(0)).save(any(ActivityLogEntity.class));
     }
-    
+
     @Test
     public void testUpdateStudent_Success() {
         StudentEntity existingStudent = new StudentEntity(1L, "John", "Doe",
@@ -164,7 +162,7 @@ public class StudentServiceTest {
 
         when(studentRepo.findById(1L)).thenReturn(Optional.of(existingStudent));
         when(studentRepo.save(any(StudentEntity.class))).thenReturn(existingStudent);
-  
+
         StudentDataResponse response = studentService.updateStudent(updateDataRequest);
 
         assertNotNull(response);
@@ -192,7 +190,7 @@ public class StudentServiceTest {
         verify(studentRepo, times(1)).deleteById(1L);
         verify(activityRepo, times(1)).deleteByStudentId(1L);
         verify(paymentRepo, times(1)).deleteByStudentId(1L);
-        
+
     }
 
     @Test

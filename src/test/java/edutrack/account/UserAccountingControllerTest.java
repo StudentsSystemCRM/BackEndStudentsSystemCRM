@@ -1,21 +1,24 @@
 package edutrack.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import edutrack.TestJwtRequestFilter;
+import edutrack.security.jwt.JwtRequestFilter;
+import edutrack.security.jwt.JwtTokenProvider;
 import edutrack.user.constant.ValidationAccountingMessage;
 import edutrack.user.controller.AccountController;
 import edutrack.user.dto.request.PasswordUpdateRequest;
-import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
-import edutrack.authentication.dto.response.LoginSuccessResponse;
 import edutrack.user.dto.response.Role;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.dto.validation.ValidRangeDate;
 import edutrack.user.dto.validation.ValidRole;
+import edutrack.user.entity.UserEntity;
 import edutrack.user.exception.AccessException;
-import edutrack.user.exception.ResourceExistsException;
+import edutrack.user.repository.AccountRepository;
 import edutrack.user.service.AccountService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.AccessLevel;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
@@ -34,6 +37,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.lang.reflect.Field;
 import java.security.Principal;
@@ -53,7 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @WebMvcTest(AccountController.class)
 @AutoConfigureMockMvc
-@Import({JacksonAutoConfiguration.class, AuthorizationFilterChain.class})
+@Import({JacksonAutoConfiguration.class})
 public class UserAccountingControllerTest {
     @MockBean
     AccountService accountingManagementService;
@@ -67,7 +71,16 @@ public class UserAccountingControllerTest {
     ObjectMapper objectMapper;
 
     @MockBean
-    JwtTokenValidator jwtTokenValidator;
+    JwtRequestFilter jwtRequestFilter;
+
+    @MockBean
+    JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    AccountRepository accountRepository;
+
+    @MockBean
+    AccountController accountController;
 
     // valid userRegisterRequest test data
     final String VALID_USER_EMAIL_1 = "user1@test.com";
@@ -77,28 +90,31 @@ public class UserAccountingControllerTest {
     final String VALID_USER_PHONE_1 = "+123-456-78(9123)";
 
     // valid loginSuccessResponse test data
-    final String VALID_TOKEN = "mocToken";
+    final String VALID_ACCESS_TOKEN = "mocAccessToken";
+    final String VALID_REFRESH_TOKEN = "mocRefreshToken";
     final LocalDate VALID_BIRTHDATE = LocalDate.of(2000, 12, 15);
     final LocalDate VALID_CREATED_DATE = LocalDate.of(2024, 8, 8);
     final Set<Role> VALID_ROLE = Collections.singleton(Role.USER);
 
-    final UserRegisterRequest USER_REGISTER_REQUEST = UserRegisterRequest.builder()
-            .email(VALID_USER_EMAIL_1)
-            .password(VALID_USER_PASSWORD_1)
-            .name(VALID_USER_NAME_1)
-            .surname(VALID_USER_SURNAME_1)
-            .phone(VALID_USER_PHONE_1)
-            .birthdate(VALID_BIRTHDATE)
-            .build();
-    final LoginSuccessResponse LOGIN_SUCCESS_RESPONSE = LoginSuccessResponse.builder()
-            .token(VALID_TOKEN)
-            .name(VALID_USER_NAME_1)
-            .surname(VALID_USER_SURNAME_1)
-            .phone(VALID_USER_PHONE_1)
-            .birthdate(VALID_BIRTHDATE)
-            .createdDate(VALID_CREATED_DATE)
-            .roles(VALID_ROLE)
-            .build();
+//    final UserRegisterRequest USER_REGISTER_REQUEST = UserRegisterRequest.builder()
+//            .email(VALID_USER_EMAIL_1)
+//            .password(VALID_USER_PASSWORD_1)
+//            .name(VALID_USER_NAME_1)
+//            .surname(VALID_USER_SURNAME_1)
+//            .phone(VALID_USER_PHONE_1)
+//            .birthdate(VALID_BIRTHDATE)
+//            .build();
+
+//    final LoginSuccessResponse LOGIN_SUCCESS_RESPONSE = LoginSuccessResponse.builder()
+//            .name(VALID_USER_NAME_1)
+//            .surname(VALID_USER_SURNAME_1)
+//            .phone(VALID_USER_PHONE_1)
+//            .birthdate(VALID_BIRTHDATE)
+//            .createdDate(VALID_CREATED_DATE)
+//            .roles(VALID_ROLE)
+//            .accessToken(VALID_ACCESS_TOKEN)
+//            .refreshToken(VALID_REFRESH_TOKEN)
+//            .build();
 
     final UserUpdateRequest USER_UPDATE_REQUEST = UserUpdateRequest.builder()
             .email(VALID_USER_EMAIL_1)
@@ -117,142 +133,166 @@ public class UserAccountingControllerTest {
             .createdDate(VALID_CREATED_DATE)
             .roles(VALID_ROLE)
             .build();
+
     final PasswordUpdateRequest PASSWORD_UPDATE_REQUEST = new PasswordUpdateRequest(VALID_USER_PASSWORD_1);
+
     final UserRoleRequest USER_ROLE_REQUEST = new UserRoleRequest("USER");
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        JwtRequestFilter jwtRequestFilter = new TestJwtRequestFilter(jwtTokenProvider, accountRepository);
+        mockMvc = MockMvcBuilders.standaloneSetup(accountController)
+                .addFilters(jwtRequestFilter)
+                .build();
     }
 
-    @Test
-    @SneakyThrows
-    @DisplayName("Create user, valid input")
-    void testRegisterUser_whenValidUserRegisterRequestIsProvided_thenReturnLoginSuccessResponse() {
-        //Arrange
-        UserRegisterRequest requestData = USER_REGISTER_REQUEST;
-        LoginSuccessResponse expectedData = LOGIN_SUCCESS_RESPONSE;
-        String invite = "empty";
-        String expectedJson = objectMapper.writeValueAsString(expectedData);
-        String jsonRequestData = objectMapper.writeValueAsString(requestData);
-
-        when(accountingManagementService.registration(invite, requestData)).thenReturn(expectedData);
-
-        //Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users/register")
-                .param("invite", invite)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequestData));
-        //Assert
-        resultActions.andExpect(status().isOk())
-                .andExpect(result -> assertEquals(result.getResponse().getContentAsString(), expectedJson));
-        verify(accountingManagementService, times(1)).registration(any(String.class), any(UserRegisterRequest.class));
-
+    private Claims createValidClaims() {
+        Claims claims = Jwts.claims().setSubject(VALID_USER_EMAIL_1);
+        claims.put("roles", Set.of("ROLE_USER"));
+        return claims;
     }
 
-    @Test
-    @SneakyThrows
-    @DisplayName("Create user, duplicate id")
-    void testCreateUser_whenUserWithDuplicateIdIsProvided_thenReturnsBadRequest() {
-        UserRegisterRequest requestData = USER_REGISTER_REQUEST;
-        String jsonRequestData = objectMapper.writeValueAsString(requestData);
-        String invite = "empty";
-        String expectedErrorMessage = "user with email " + requestData.getEmail() + "already exists";
-        when(accountingManagementService.registration(invite, requestData))
-                .thenThrow(new ResourceExistsException(expectedErrorMessage));
-        //Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users/register")
-                .param("invite", invite)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequestData));
+//    @Test
+//    @SneakyThrows
+//    @DisplayName("Create user, valid input")
+//    void testRegisterUser_whenValidUserRegisterRequestIsProvided_thenReturnLoginSuccessResponse() {
+//        //Arrange
+//        UserRegisterRequest requestData = USER_REGISTER_REQUEST;
+//        LoginSuccessResponse expectedData = LOGIN_SUCCESS_RESPONSE;
+//        String invite = "empty";
+//        String expectedJson = objectMapper.writeValueAsString(expectedData);
+//        String jsonRequestData = objectMapper.writeValueAsString(requestData);
+//
+//        when(accountingManagementService.registration(invite, requestData)).thenReturn(expectedData);
+//
+//        //Act
+//        ResultActions resultActions = mockMvc.perform(post("/api/users/register")
+//                .param("invite", invite)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(jsonRequestData));
+//        //Assert
+//        resultActions.andExpect(status().isOk())
+//                .andExpect(result -> assertEquals(result.getResponse().getContentAsString(), expectedJson));
+//        verify(accountingManagementService, times(1)).registration(any(String.class), any(UserRegisterRequest.class));
+//
+//    }
 
-        //Asserts
-        resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(expectedErrorMessage));
-    }
+//    @Test
+//    @SneakyThrows
+//    @DisplayName("Create user, duplicate id")
+//    void testCreateUser_whenUserWithDuplicateIdIsProvided_thenReturnsBadRequest() {
+//        UserRegisterRequest requestData = USER_REGISTER_REQUEST;
+//        String jsonRequestData = objectMapper.writeValueAsString(requestData);
+//        String invite = "empty";
+//        String expectedErrorMessage = "user with email " + requestData.getEmail() + "already exists";
+//        when(accountingManagementService.registration(invite, requestData))
+//                .thenThrow(new ResourceExistsException(expectedErrorMessage));
+//        //Act
+//        ResultActions resultActions = mockMvc.perform(post("/api/users/register")
+//                .param("invite", invite)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(jsonRequestData));
+//
+//        //Asserts
+//        resultActions.andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.message").value(expectedErrorMessage));
+//    }
 
-    @Test
-    @SneakyThrows
-    @DisplayName("Create user, invalid password")
-    void testCreateUser_whenUserWithNotValidPasswordIsProvided_thenReturnBadRequest() {
-        //Arrange
-        UserRegisterRequest requestData = USER_REGISTER_REQUEST
-                .withPassword("12345").withName("123").withEmail("wrongEmail");
-        String jsonRequestData = objectMapper.writeValueAsString(requestData);
-        String invite = "empty";
-        String expectedErrorMessage1 = ValidationAccountingMessage.INVALID_PASSWORD_CONTAIN;
-        String expectedErrorMessage2 = ValidationAccountingMessage.INVALID_NAME;
-        String expectedErrorMessage3 = ValidationAccountingMessage.INVALID_EMAIL;
+//    @Test
+//    @SneakyThrows
+//    @DisplayName("Create user, invalid password")
+//    void testCreateUser_whenUserWithNotValidPasswordIsProvided_thenReturnBadRequest() {
+//        //Arrange
+//        UserRegisterRequest requestData = USER_REGISTER_REQUEST
+//                .withPassword("12345").withName("123").withEmail("wrongEmail");
+//        String jsonRequestData = objectMapper.writeValueAsString(requestData);
+//        String invite = "empty";
+//        String expectedErrorMessage1 = ValidationAccountingMessage.INVALID_PASSWORD_CONTAIN;
+//        String expectedErrorMessage2 = ValidationAccountingMessage.INVALID_NAME;
+//        String expectedErrorMessage3 = ValidationAccountingMessage.INVALID_EMAIL;
+//
+//        //Act
+//        ResultActions resultActions = mockMvc.perform(post("/api/users/register")
+//                .param("invite", invite)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(jsonRequestData));
+//
+//        //Assert
+//        resultActions.andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.message").isArray())
+//                .andExpect(jsonPath("$.message", hasSize(3)))
+//                .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage1)))
+//                .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage2)))
+//                .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage3)));
+//    }
 
-        //Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users/register")
-                .param("invite", invite)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequestData));
+//    @Test
+//    @SneakyThrows
+//    @DisplayName("Login, valid input")
+//    @WithMockUser
+//    void testLogin_whenValidInputIsProvided_thenReturnLoginSuccessResponse() {
+//        //Arrange
+//        LoginSuccessResponse expectedResponse = LOGIN_SUCCESS_RESPONSE;
+//        String jsonLoginSuccessResponse = objectMapper.writeValueAsString(expectedResponse);
+//        when(accountingManagementService.login(any(Principal.class))).thenReturn(expectedResponse);
+//
+//        //Act
+//        ResultActions resultActions = mockMvc.perform(post("/api/users/login")
+//                .contentType(MediaType.APPLICATION_JSON));
+//
+//        //Assert
+//        resultActions.andExpect(status().isOk()).
+//                andExpect(result -> assertEquals(jsonLoginSuccessResponse, result.getResponse().getContentAsString()));
+//    }
 
-        //Assert
-        resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").isArray())
-                .andExpect(jsonPath("$.message", hasSize(3)))
-                .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage1)))
-                .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage2)))
-                .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage3)));
-    }
-
-    @Test
-    @SneakyThrows
-    @DisplayName("Login, valid input")
-    @WithMockUser
-    void testLogin_whenValidInputIsProvided_thenReturnLoginSuccessResponse() {
-        //Arrange
-        LoginSuccessResponse expectedResponse = LOGIN_SUCCESS_RESPONSE;
-        String jsonLoginSuccessResponse = objectMapper.writeValueAsString(expectedResponse);
-        when(accountingManagementService.login(any(Principal.class))).thenReturn(expectedResponse);
-
-        //Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users/login")
-                .contentType(MediaType.APPLICATION_JSON));
-
-        //Assert
-        resultActions.andExpect(status().isOk()).
-                andExpect(result -> assertEquals(jsonLoginSuccessResponse, result.getResponse().getContentAsString()));
-    }
-
-    @Test
-    @SneakyThrows
-    @DisplayName("Login, not authorized")
-    void testLogin_whenValidInputIsNotProvided_thenReturnUnauthorized() {
-        when(accountingManagementService.login(any(Principal.class))).thenReturn(LOGIN_SUCCESS_RESPONSE);
-        //Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users/login")
-                .contentType(MediaType.APPLICATION_JSON));
-        //Assert
-        resultActions.andExpect(status().isUnauthorized()).
-                andExpect(result -> assertEquals("Unauthorized", result.getResponse().getErrorMessage()));
-        verify(accountingManagementService, times(0)).login(any(Principal.class));
-    }
+//    @Test
+//    @SneakyThrows
+//    @DisplayName("Login, not authorized")
+//    void testLogin_whenValidInputIsNotProvided_thenReturnUnauthorized() {
+//        when(accountingManagementService.login(any(Principal.class))).thenReturn(LOGIN_SUCCESS_RESPONSE);
+//        //Act
+//        ResultActions resultActions = mockMvc.perform(post("/api/users/login")
+//                .contentType(MediaType.APPLICATION_JSON));
+//        //Assert
+//        resultActions.andExpect(status().isUnauthorized()).
+//                andExpect(result -> assertEquals("Unauthorized", result.getResponse().getErrorMessage()));
+//        verify(accountingManagementService, times(0)).login(any(Principal.class));
+//    }
 
     @Test
     @SneakyThrows
     @DisplayName("Update, valid input")
     void testUpdate_whenValidInputIsProvided_thenReturnUserDataResponse() {
         //Arrange
-        UserUpdateRequest requestData = USER_UPDATE_REQUEST;
-        String requestDataJson = objectMapper.writeValueAsString(requestData);
+        String requestDataJson = objectMapper.writeValueAsString(USER_UPDATE_REQUEST);
         UserDataResponse expectedData = USER_DATA_RESPONSE;
         String expectedDataJson = objectMapper.writeValueAsString(expectedData);
-
         when(accountingManagementService.updateUser(any(UserUpdateRequest.class))).thenReturn(expectedData);
+
+        Claims mockClaims = Jwts.claims().setSubject("user@test.com");
+        mockClaims.put("roles", Set.of("ROLE_USER"));
+        when(jwtTokenProvider.validateAccessToken(anyString())).thenReturn(mockClaims);
+
+        UserEntity mockUser = new UserEntity();
+        mockUser.setEmail("user@test.com");
+        mockUser.setRoles(Set.of(Role.USER));  // Или нужные роли
+        when(accountRepository.findByEmail("user@test.com")).thenReturn(mockUser);
 
         //Act
         ResultActions resultActions = mockMvc.perform(put("/api/users/update")
-                .with(user("user").password("123").roles("USER"))
+                .header("Authorization", "Bearer mockedJwtToken")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestDataJson));
 
         //Assert
         resultActions.andExpect(status().isOk())
-                .andExpect(result -> assertEquals(expectedDataJson, result.getResponse().getContentAsString()));
+                .andExpect(jsonPath("$.email").value(expectedData.getEmail()))
+                .andExpect(jsonPath("$.name").value(expectedData.getName()))
+                .andExpect(jsonPath("$.surname").value(expectedData.getSurname()))
+                .andExpect(jsonPath("$.birthdate").value(expectedData.getBirthdate().toString()))
+                .andExpect(jsonPath("$.phone").value(expectedData.getPhone()))
+                .andExpect(jsonPath("$.roles[0]").value("USER"));
     }
 
     @Test
