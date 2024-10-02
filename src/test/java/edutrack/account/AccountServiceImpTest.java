@@ -59,7 +59,7 @@ public class AccountServiceImpTest {
 	final String userEmail = "test@mail.com";
 	final String adminEmail = "admin@mail.com";
 	final UserUpdateRequest userUpdateRequest = new UserUpdateRequest(userEmail, "John", "Doe", "1234567890", null);
-	final UserEntity user = new UserEntity (null, userEmail, "Password123", "John", "Doe", "1234567890", null, null, new HashSet<Role>(), null, null, null);
+	final UserEntity user = new UserEntity (null, userEmail, "Password123", "John", "Doe", "1234567890", null, null, new HashSet<>(), null, null, null);
     final UserRoleRequest roleRequest = new UserRoleRequest("ADMIN");
 
 	private void mockCurrentUserAuthInfo(String username, boolean isAdmin, boolean isCeo) {

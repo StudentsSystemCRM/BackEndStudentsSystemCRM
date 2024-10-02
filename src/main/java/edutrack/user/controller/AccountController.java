@@ -2,18 +2,14 @@ package edutrack.user.controller;
 
 import edutrack.user.service.AccountService;
 import edutrack.user.dto.request.PasswordUpdateRequest;
-import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
-import edutrack.authentication.dto.response.LoginSuccessResponse;
 import edutrack.user.dto.response.UserDataResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;

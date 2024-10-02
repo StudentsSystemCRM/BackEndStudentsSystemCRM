@@ -1,7 +1,6 @@
 package edutrack.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edutrack.security.WebSecurityConfig;
 import edutrack.security.jwt.JwtRequestFilter;
 import edutrack.security.jwt.JwtTokenProvider;
 import edutrack.user.constant.ValidationAccountingMessage;
@@ -31,7 +30,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -78,7 +76,6 @@ public class UserAccountingControllerTest {
     final String VALID_USER_PHONE_1 = "+123-456-78(9123)";
 
     // valid loginSuccessResponse test data
-    final String VALID_TOKEN = "mocToken";
     final LocalDate VALID_BIRTHDATE = LocalDate.of(2000, 12, 15);
     final LocalDate VALID_CREATED_DATE = LocalDate.of(2024, 8, 8);
     final Set<Role> VALID_ROLE = Collections.singleton(Role.USER);
@@ -113,8 +110,7 @@ public class UserAccountingControllerTest {
     @DisplayName("Update, valid input")
     void testUpdate_whenValidInputIsProvided_thenReturnUserDataResponse() {
         //Arrange
-        UserUpdateRequest requestData = USER_UPDATE_REQUEST;
-        String requestDataJson = objectMapper.writeValueAsString(requestData);
+        String requestDataJson = objectMapper.writeValueAsString(USER_UPDATE_REQUEST);
         UserDataResponse expectedData = USER_DATA_RESPONSE;
         String expectedDataJson = objectMapper.writeValueAsString(expectedData);
 
@@ -348,11 +344,10 @@ public class UserAccountingControllerTest {
     @WithMockUser(username = "user", roles = {"USER"})
     void testAddRole_whenUserIsNotAdmin_thenReturnForbidden() {
         // Arrange
-        String login = VALID_USER_EMAIL_1;
         String requestDataJson = objectMapper.writeValueAsString(USER_ROLE_REQUEST);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(put("/api/users/assign-role/{login}", login)
+        ResultActions resultActions = mockMvc.perform(put("/api/users/assign-role/{login}", VALID_USER_EMAIL_1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestDataJson));
 
