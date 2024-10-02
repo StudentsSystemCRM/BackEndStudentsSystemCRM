@@ -30,6 +30,7 @@ public class ActivityLogControllerTest {
 
     @MockBean
     private ActivityLogService activityLogService;
+
     @MockBean
     private AccountRepository userRepository;
 

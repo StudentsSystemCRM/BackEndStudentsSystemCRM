@@ -111,9 +111,7 @@ public class StudentServiceTest {
     public void testGetStudentById_NotFound() {
         when(studentRepo.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(StudentNotFoundException.class, () -> {
-            studentService.getStudentById(1L);
-        });
+        assertThrows(StudentNotFoundException.class, () -> studentService.getStudentById(1L));
 
         verify(studentRepo, times(1)).findById(1L);
     }
@@ -144,9 +142,7 @@ public class StudentServiceTest {
     public void testCreateStudent_EmailAlreadyExists() {
         when(studentRepo.findByEmail("john.doe@example.com")).thenReturn(new StudentEntity());
 
-        assertThrows(EmailAlreadyInUseException.class, () -> {
-            studentService.createStudent(request);
-        });
+        assertThrows(EmailAlreadyInUseException.class, () -> studentService.createStudent(request));
 
         verify(studentRepo, times(1)).findByEmail("john.doe@example.com");
         verify(studentRepo, times(0)).save(any(StudentEntity.class));
@@ -172,9 +168,7 @@ public class StudentServiceTest {
 
     @Test
     public void testUpdateStudent_NotFound() {
-       assertThrows(StudentNotFoundException.class, () -> {
-            studentService.updateStudent(updateDataRequest);
-        });
+       assertThrows(StudentNotFoundException.class, () -> studentService.updateStudent(updateDataRequest));
 
         verify(studentRepo, times(1)).findById(1L);
         verify(studentRepo, times(0)).save(any(StudentEntity.class));
@@ -197,9 +191,7 @@ public class StudentServiceTest {
     public void testDeleteStudent_NotFound() {
         when(studentRepo.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(StudentNotFoundException.class, () -> {
-            studentService.deleteStudent(1L);
-        });
+        assertThrows(StudentNotFoundException.class, () -> studentService.deleteStudent(1L));
 
         verify(studentRepo, times(1)).findById(1L);
         verify(studentRepo, times(0)).delete(any(StudentEntity.class));

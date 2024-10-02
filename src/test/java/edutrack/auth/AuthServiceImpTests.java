@@ -82,9 +82,7 @@ public class AuthServiceImpTests {
         when(accountRepository.findByEmail(userEmail)).thenReturn(user);
 
         // Test exception
-        assertThrows(ResourceExistsException.class, () -> {
-            authService.registerUser("invite", userRegisterRequest);
-        });
+        assertThrows(ResourceExistsException.class, () -> authService.registerUser("invite", userRegisterRequest));
     }
 
     @Test
@@ -93,9 +91,7 @@ public class AuthServiceImpTests {
         when(accountRepository.save(any(UserEntity.class))).thenThrow(new RuntimeException("Database error"));
 
         // Test that exception is thrown
-        assertThrows(RuntimeException.class, () -> {
-            authService.registerUser("invite", userRegisterRequest);
-        });
+        assertThrows(RuntimeException.class, () -> authService.registerUser("invite", userRegisterRequest));
     }
 
     @Test
@@ -124,9 +120,7 @@ public class AuthServiceImpTests {
         when(accountRepository.findByEmail(userEmail)).thenReturn(null);
 
         // Test that exception is thrown
-        assertThrows(AccessException.class, () -> {
-            authService.authenticateUser(userEmail);
-        });
+        assertThrows(AccessException.class, () -> authService.authenticateUser(userEmail));
     }
 
     @Test
@@ -166,9 +160,7 @@ public class AuthServiceImpTests {
 
         // Test that exception is thrown
         RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest("invalidToken");
-        assertThrows(AccessException.class, () -> {
-            authService.refreshToken(refreshTokenRequest);
-        });
+        assertThrows(AccessException.class, () -> authService.refreshToken(refreshTokenRequest));
     }
 
     @Test
@@ -196,9 +188,7 @@ public class AuthServiceImpTests {
     public void testSignOutUser_userNotFound() {
         lenient().when(accountRepository.findByEmail(userEmail)).thenReturn(null);
 
-        assertThrows(AccessException.class, () -> {
-            authService.signOutUser("Bearer validAccessToken");
-        });
+        assertThrows(AccessException.class, () -> authService.signOutUser("Bearer validAccessToken"));
     }
 }
 
