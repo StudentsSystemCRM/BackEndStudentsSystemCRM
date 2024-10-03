@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface LecturerRepository extends JpaRepository<LecturerEntity, Long> {
+    LecturerEntity findByEmail(String email);
     List<LecturerEntity> findByStatus(LecturerStatus status);
     List<LecturerEntity> findByCity(String city);
     List<LecturerEntity> findByLastName(String lastName);
