@@ -18,7 +18,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(name = "lecturers")
-@EntityListeners(AuditingEntityListener.class)  // Включаем аудитирование
+@EntityListeners(AuditingEntityListener.class)
 public class LecturerEntity {
 
     @Id
@@ -41,7 +41,7 @@ public class LecturerEntity {
     private String city;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)  // status обязателен
+    @Column(nullable = false)
     private LecturerStatus status;
 
     @ManyToMany

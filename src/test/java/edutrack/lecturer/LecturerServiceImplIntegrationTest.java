@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @Transactional
-class LecturerServiceImplTest {
+class LecturerServiceImplIntegrationTest {
 
     @Autowired
     private LecturerRepository lecturerRepo;
@@ -88,17 +88,29 @@ class LecturerServiceImplTest {
 
     @Test
     void testUpdateLecturer() {
+
         LecturerEntity existingLecturer = new LecturerEntity(null, "John", "Doe", "123456789", "john.doe@example.com", "New York", LecturerStatus.ACTIVE, new HashSet<>(), null, null);
         lecturerRepo.save(existingLecturer);
 
+
         Long lecturerId = existingLecturer.getId();
-        LecturerUpdateRequest updateRequest = new LecturerUpdateRequest(lecturerId, "John", "Doe", "987654321", "john.doe@newmail.com", "Los Angeles", LecturerStatus.ACTIVE, new HashSet<>());
+
+
+        LecturerUpdateRequest updateRequest = new LecturerUpdateRequest(1L,"John", "Doe", "987654321", "john.doe@newmail.com", "Los Angeles", LecturerStatus.ACTIVE, new HashSet<>());
+
 
         LecturerDataResponse response = lecturerService.updateLecturer(updateRequest);
 
+
         assertNotNull(response);
+
+
         assertEquals("john.doe@newmail.com", response.getEmail());
+        assertEquals("987654321", response.getPhoneNumber());
+        assertEquals("Los Angeles", response.getCity());
+        assertEquals(LecturerStatus.ACTIVE, response.getStatus());
     }
+
 
     @Test
     void testDeleteLecturer() {
