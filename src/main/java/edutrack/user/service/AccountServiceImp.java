@@ -1,7 +1,14 @@
 package edutrack.user.service;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.Collection;
+import java.util.NoSuchElementException;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import edutrack.user.dto.request.PasswordUpdateRequest;
 import edutrack.user.dto.request.UserRoleRequest;
@@ -9,17 +16,16 @@ import edutrack.user.dto.request.UserUpdateRequest;
 import edutrack.user.dto.response.Role;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.entity.UserEntity;
-import edutrack.user.exception.AccessException;
-import lombok.*;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
+import edutrack.user.exception.AccessRoleException;
 import edutrack.user.repository.AccountRepository;
 import edutrack.user.util.EntityDtoUserMapper;
 import jakarta.transaction.Transactional;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 @Service
@@ -114,15 +120,15 @@ public class AccountServiceImp implements AccountService {
         if (!username.equals(user.getEmail())) {
             // Prevent changing data of a CEO
             if (user.getRoles().contains(Role.CEO) && !isCeo)
-                throw new AccessException("You don't have rules to update this user's profile.");
+                throw new AccessRoleException("You don't have rules to update this user's profile.");
 
             // Prevent update if the authenticated user is neither an ADMIN nor a CEO
             if (!isAdmin && !isCeo)
-                throw new AccessException("You don't have rules to  update this user's profile.");
+                throw new AccessRoleException("You don't have rules to  update this user's profile.");
 
             // Prevent an ADMIN from updating another ADMIN's profile unless the authenticated user is a CEO
             if (user.getRoles().contains(Role.ADMIN) && !isCeo)
-                throw new AccessException("You don't have rules to  update this user's profile.");
+                throw new AccessRoleException("You don't have rules to  update this user's profile.");
         }
     }
 
@@ -131,17 +137,22 @@ public class AccountServiceImp implements AccountService {
         String username = authInfo.getUsername();
         boolean isAdmin = authInfo.isAdmin;
         boolean isCeo = authInfo.isCeo;
+        boolean isUser = authInfo.isUser;
+        
+        if(isUser && !isAdmin && !isCeo) {
+        	throw new AccessRoleException("You can't change role");
+        }
 
         if (username.equals(user.getEmail()))
-            throw new AccessException("You can't change role for yourself");
+            throw new AccessRoleException("You can't change role for yourself");
         if (!isAdmin && !isCeo)
-            throw new AccessException("You don't have rules to update this user's profile.");
+            throw new AccessRoleException("You don't have rules to update this user's profile.");
         if (user.getRoles().contains(Role.CEO) && !isCeo)
-            throw new AccessException("You don't have rules to update this user's profile.");
+            throw new AccessRoleException("You don't have rules to update this user's profile.");
         if (user.getRoles().contains(Role.ADMIN) && !isCeo)
-            throw new AccessException("You don't have rules to update this user's profile.");
+            throw new AccessRoleException("You don't have rules to update this user's profile.");
         if (role.equalsIgnoreCase("ceo") && !isCeo)
-        	throw new AccessException("add or remove role 'CEO' can only user with CEO role");
+        	throw new AccessRoleException("add or remove role 'CEO' can only user with CEO role");
     }
 
     private UserAuthInfo getCurrentUserAuthInfo() {
@@ -154,7 +165,10 @@ public class AccountServiceImp implements AccountService {
         boolean isCeo = authorities.stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_CEO"));
 
-        return new UserAuthInfo(username, isAdmin, isCeo);
+        boolean isUser = authorities.stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"));
+        
+        return new UserAuthInfo(username, isAdmin, isCeo, isUser);
     }
 
     @Getter
@@ -165,5 +179,6 @@ public class AccountServiceImp implements AccountService {
         private String username;
         private boolean isAdmin;
         private boolean isCeo;
+        private boolean isUser;
     }
 }

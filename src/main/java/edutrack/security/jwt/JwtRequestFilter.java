@@ -1,7 +1,16 @@
 package edutrack.security.jwt;
 
+import java.io.IOException;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
 import edutrack.user.entity.UserEntity;
-import edutrack.user.exception.AccessException;
 import edutrack.user.repository.AccountRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -12,16 +21,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -36,9 +35,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String email = null;
         String jwt = null;
 
-        // to handle the case if the access token has expired and we cannot execute 'signOut'
-        boolean isSignOutRequest = request.getRequestURI().equalsIgnoreCase("/api/auth/signout");
-
         // Checking token availability
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.replace("Bearer ", "");
@@ -48,21 +44,30 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 Claims claims = jwtTokenProvider.validateAccessToken(jwt);
                 email = claims.getSubject();
             } catch (ExpiredJwtException e) {
-                // If the token has expired but the request is for 'signout', continue processing
-                // I know it's not the best solution, but I don't have any more ideas - Zhirov Dmitrii
-                if (isSignOutRequest) {
-                    //Retrieving an email from an expired token
-                    email = e.getClaims().getSubject();
-                } else {
-                    throw new AccessException("Access token expired");
-                }
+            	response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            	response.getWriter().write("Access token expired");
+            	response.getWriter().flush();
+            	return;
+            } catch (Exception e) {
+            	response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            	response.getWriter().write("wrong token");
+            	response.getWriter().flush();
+            	return;
             }
 
             // If the email is received, continue processing the request
             if (email != null) {
                 UserEntity user = accountRepository.findByEmail(email);
                 if (user == null) {
-                    throw new AccessException("User not found in the database.");
+                	response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                	response.getWriter().write("User not found in the database.");
+                	return;
+                }
+                
+                if (!jwt.equals(user.getAccessToken())){
+                	response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                	response.getWriter().write("Invalid access token, user isn't 'singin' or token was changed");
+                	return;
                 }
 
                 // Set up authentication
@@ -75,7 +80,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 }
             }
         } else {
-            throw new IllegalArgumentException("Authorization header is missing or invalid");
+        	response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        	response.getWriter().write("Authorization header is missing or invalid");
+        	response.getWriter().flush();
+        	return;
         }
 
         // Skip filter execution for all requests that require authentication
@@ -87,6 +95,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         return path.equalsIgnoreCase("/api/auth/signin") ||
                 path.equalsIgnoreCase("/api/auth/signup") ||
-                path.equalsIgnoreCase("/api/auth/refreshtoken");
+                path.equalsIgnoreCase("/api/auth/refreshtoken") ||
+                path.equalsIgnoreCase("/api/auth/signout")||
+                path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs") ||
+                path.startsWith("/swagger-resources") ||
+                path.startsWith("/webjars") ||
+                path.equalsIgnoreCase("/swagger-ui.html");
     }
 }

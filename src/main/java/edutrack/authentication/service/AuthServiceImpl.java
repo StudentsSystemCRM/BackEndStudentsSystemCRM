@@ -53,6 +53,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public LoginSuccessResponse authenticateUser(String email) {
         // 1. check user in DB
         UserEntity user = accountRepository.findByEmail(email);
@@ -77,6 +78,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public RefreshTokenResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
         // 1. check the validity of refresh token
         Claims claims;

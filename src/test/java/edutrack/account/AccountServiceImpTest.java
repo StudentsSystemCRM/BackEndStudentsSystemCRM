@@ -32,7 +32,7 @@ import edutrack.user.dto.request.UserUpdateRequest;
 import edutrack.user.dto.response.Role;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.entity.UserEntity;
-import edutrack.user.exception.AccessException;
+import edutrack.user.exception.AccessRoleException;
 import edutrack.user.repository.AccountRepository;
 import edutrack.user.service.AccountServiceImp;
 import lombok.AccessLevel;
@@ -99,7 +99,7 @@ public class AccountServiceImpTest {
 		when(userRepository.findByEmail(userUpdateRequest.getEmail())).thenReturn(user);
 		mockCurrentUserAuthInfo(adminEmail, true, false);
 
-		assertThrows(AccessException.class,()-> accountingManagementService.updateUser(userUpdateRequest));
+		assertThrows(AccessRoleException.class,()-> accountingManagementService.updateUser(userUpdateRequest));
 	}
 
 	@Test
@@ -111,7 +111,7 @@ public class AccountServiceImpTest {
 		notAccessUser.setRoles(new HashSet<>());
 		when(userRepository.findByEmail(userUpdateRequest.getEmail())).thenReturn(user);
 		mockCurrentUserAuthInfo(notAccessUserMail, false, false);
-		assertThrows(AccessException.class,()-> accountingManagementService.updateUser(userUpdateRequest));
+		assertThrows(AccessRoleException.class,()-> accountingManagementService.updateUser(userUpdateRequest));
 
 	}
 
@@ -132,7 +132,7 @@ public class AccountServiceImpTest {
 	}
 
 	@Test
-	public void testRemoveUserAda_throwsAccessExceptionForDefaultUser() {
+	public void testRemoveUserAda_throwsAccessRoleExceptionForDefaultUser() {
 		assertThrows(NoSuchElementException.class, () -> accountingManagementService.removeUser("ada@gmail.com"));
 	}
 
@@ -169,10 +169,10 @@ public class AccountServiceImpTest {
 	public void testAddRoleYourSelf_NotAccess() {
 	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
 	    mockCurrentUserAuthInfo(userEmail, true, true);
-	    assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
+	    assertThrows(AccessRoleException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
 
 	    mockCurrentUserAuthInfo(userEmail, false, false);
-	    assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
+	    assertThrows(AccessRoleException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
 	}
 
 	@Test
@@ -181,7 +181,7 @@ public class AccountServiceImpTest {
 	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
 
 	    mockCurrentUserAuthInfo(adminEmail, true, false);
-	    assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
+	    assertThrows(AccessRoleException.class, () -> accountingManagementService.addRole(userEmail, roleRequest));
 	}
 
 	@Test
@@ -191,7 +191,7 @@ public class AccountServiceImpTest {
 	    when(userRepository.findByEmail(userEmail)).thenReturn(user);
 
 	    mockCurrentUserAuthInfo(adminEmail, true, false);
-	    assertThrows(AccessException.class, () -> accountingManagementService.addRole(userEmail, seoRole));
+	    assertThrows(AccessRoleException.class, () -> accountingManagementService.addRole(userEmail, seoRole));
 	}
 
 	@Test
@@ -221,6 +221,6 @@ public class AccountServiceImpTest {
 
 	    mockCurrentUserAuthInfo(adminEmail, true, false);
 
-	    assertThrows(AccessException.class, () -> accountingManagementService.removeRole(userEmail, roleRequest));
+	    assertThrows(AccessRoleException.class, () -> accountingManagementService.removeRole(userEmail, roleRequest));
 	}
 }
