@@ -10,14 +10,12 @@ import java.util.List;
 import java.util.Set;
 
 public interface LecturerService {
-
-    void addGroupsToLecturer(Long lecturerId, Set<String> groupNames);
-
     LecturerDataResponse getLecturerById(Long id);
+    List<LecturerDataResponse> findLecturersByLastName(String lastName);
     List<LecturerDataResponse> findLecturersByStatus(LecturerStatus status);
     List<LecturerDataResponse> findLecturersByCity(String city);
+    List<LecturerDataResponse> getAllLecturers ();
     LecturerDataResponse createLecturer(LecturerCreateRequest request);
-    List<LecturerDataResponse> getAllLecturers();
     LecturerDataResponse updateLecturer(LecturerUpdateRequest request);
     LecturerDataResponse deleteLecturer(Long id);
 

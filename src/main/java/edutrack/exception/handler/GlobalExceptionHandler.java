@@ -115,5 +115,12 @@ public class GlobalExceptionHandler {
 	public GeneralErrorResponse handleResourceNotFoundException(ResourceNotFoundException ex) {
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
+	@ExceptionHandler(ResourceAlreadyExistsException.class)
+	@ResponseStatus(HttpStatus.CONFLICT)
+	public GeneralErrorResponse handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex) {
+		logger.error("Resource already exists.", ex);
+		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
+	}
+
 
 }

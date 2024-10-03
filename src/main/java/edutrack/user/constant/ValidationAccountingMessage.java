@@ -24,4 +24,10 @@ public interface ValidationAccountingMessage {
 			+ "Optional leading + symbol, "
 			+ "Digits, hyphens, spaces, and parentheses, "
 			+ "Minimum 7 characters and maximum 20 characters";
+	String INVALID_CITY = "City can contain: "
+			+ "- English letters (both uppercase and lowercase), "
+			+ "- Letters with diacritical marks (e.g., accents, umlauts), "
+			+ "- Hyphens (-), apostrophes ('), and spaces ( ), "
+			+ "- Must be between 1 and 100 characters in length";
+
 }
