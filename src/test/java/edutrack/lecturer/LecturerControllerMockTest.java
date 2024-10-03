@@ -9,7 +9,7 @@ import edutrack.lecturer.controller.LecturerController;
 import edutrack.lecturer.dto.request.LecturerCreateRequest;
 import edutrack.lecturer.dto.request.LecturerUpdateRequest;
 import edutrack.lecturer.dto.response.LecturerDataResponse;
-import edutrack.lecturer.entity.LecturerEntity;
+
 import edutrack.lecturer.service.LecturerService;
 import edutrack.security.JwtTokenCreator;
 import edutrack.security.JwtTokenValidator;

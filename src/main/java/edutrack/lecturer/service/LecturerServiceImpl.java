@@ -60,6 +60,7 @@ public class LecturerServiceImpl implements LecturerService {
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
+
     @Override
     @Transactional
     public LecturerDataResponse createLecturer(LecturerCreateRequest request) {
