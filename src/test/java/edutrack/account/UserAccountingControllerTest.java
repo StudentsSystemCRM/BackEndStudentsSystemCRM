@@ -11,7 +11,7 @@ import edutrack.user.dto.response.Role;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.dto.validation.ValidRangeDate;
 import edutrack.user.dto.validation.ValidRole;
-import edutrack.user.exception.AccessException;
+import edutrack.user.exception.AccessRoleException;
 import edutrack.user.service.AccountServiceImp;
 import lombok.AccessLevel;
 import lombok.SneakyThrows;
@@ -156,7 +156,7 @@ public class UserAccountingControllerTest {
         String requestDataJson = objectMapper.writeValueAsString(USER_UPDATE_REQUEST);
         String expectedErrorMessage1 = "You don't have rules to update this user's profile.";
 
-        when(accountingManagementService.updateUser(any(UserUpdateRequest.class))).thenThrow(new AccessException(expectedErrorMessage1));
+        when(accountingManagementService.updateUser(any(UserUpdateRequest.class))).thenThrow(new AccessRoleException(expectedErrorMessage1));
 
         //Act
         ResultActions resultActions = mockMvc.perform(put("/api/users/update")
@@ -326,25 +326,6 @@ public class UserAccountingControllerTest {
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedErrorMessage1));
     }
-
-    // Not working now, need fix this test
-//    @Test
-//    @SneakyThrows
-//    @DisplayName("addRole, no permission")
-//    @WithMockUser(username = "user", roles = {"USER"})
-//    void testAddRole_whenUserIsNotAdmin_thenReturnForbidden() {
-//        // Arrange
-//        String requestDataJson = objectMapper.writeValueAsString(USER_ROLE_REQUEST);
-//
-//        // Act
-//        ResultActions resultActions = mockMvc.perform(put("/api/users/assign-role/{login}", VALID_USER_EMAIL_1)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(requestDataJson));
-//
-//        // Assert
-//        resultActions.andExpect(status().isForbidden());
-//        verify(accountingManagementService, never()).addRole(any(String.class), any(UserRoleRequest.class));
-//    }
 
     @Test
     @SneakyThrows

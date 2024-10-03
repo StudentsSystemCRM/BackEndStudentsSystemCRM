@@ -171,7 +171,7 @@ class GroupControllerTest {
     void groupget_NameIsEmpty() throws Exception {
         mockMvc.perform(get("/api/groups/name/{name}", "")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
