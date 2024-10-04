@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.List;
 
+import edutrack.security.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,43 +25,26 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edutrack.activityLog.repository.ActivityLogRepository;
-import edutrack.group.repository.GroupRepository;
-import edutrack.payment.repository.PaymentRepository;
 import edutrack.student.constant.LeadStatus;
 import edutrack.student.controller.StudentController;
 import edutrack.student.dto.request.StudentCreateRequest;
 import edutrack.student.dto.response.StudentDataResponse;
-import edutrack.student.repository.StudentRepository;
 import edutrack.student.service.StudentService;
 import edutrack.user.repository.AccountRepository;
-import edutrack.security.JwtTokenCreator;
-import edutrack.security.JwtTokenValidator;
-import edutrack.security.SecurityConfig;
+import edutrack.security.WebSecurityConfig;
 
 @WebMvcTest(StudentController.class)
-@Import({JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class})
+@Import({JwtTokenProvider.class,WebSecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class StudentControllerTest {
-
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private StudentService studentService;
+
     @MockBean
     private AccountRepository userRepository;
-
-    @MockBean
-    private GroupRepository groupRepository;
-    @MockBean
-    private StudentRepository studentRepository;
-
-    @MockBean
-    private PaymentRepository paymentRepository;
-
-    @MockBean
-    private ActivityLogRepository activityLogRepository;
 
     @BeforeEach
     public void setup() {
@@ -95,7 +79,6 @@ public class StudentControllerTest {
                 .andExpect(jsonPath("$.name").value("John"))
                 .andExpect(jsonPath("$.surname").value("Doe"));
     }
-
 
     @Test
     public void testCreateStudent() throws Exception {

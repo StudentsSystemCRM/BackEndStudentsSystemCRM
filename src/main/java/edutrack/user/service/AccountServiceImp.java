@@ -1,72 +1,39 @@
 package edutrack.user.service;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.Collection;
+import java.util.NoSuchElementException;
 
-import edutrack.security.JwtTokenCreator;
-import edutrack.user.dto.request.PasswordUpdateRequest;
-import edutrack.user.dto.request.UserRegisterRequest;
-import edutrack.user.dto.request.UserRoleRequest;
-import edutrack.user.dto.request.UserUpdateRequest;
-import edutrack.user.dto.response.LoginSuccessResponse;
-import edutrack.user.dto.response.Role;
-import edutrack.user.dto.response.UserDataResponse;
-import edutrack.user.entity.UserEntity;
-import edutrack.user.exception.AccessException;
-import edutrack.user.exception.ResourceExistsException;
-import lombok.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import edutrack.user.dto.request.PasswordUpdateRequest;
+import edutrack.user.dto.request.UserRoleRequest;
+import edutrack.user.dto.request.UserUpdateRequest;
+import edutrack.user.dto.response.Role;
+import edutrack.user.dto.response.UserDataResponse;
+import edutrack.user.entity.UserEntity;
+import edutrack.user.exception.AccessRoleException;
 import edutrack.user.repository.AccountRepository;
 import edutrack.user.util.EntityDtoUserMapper;
 import jakarta.transaction.Transactional;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class AccountServiceImp implements AccountService {
-
     AccountRepository userRepository;
     PasswordEncoder passwordEncoder;
-    JwtTokenCreator jwtTokenCreator;
-
-    @Override
-    @Transactional
-    public LoginSuccessResponse registration(String invite, UserRegisterRequest data) {
-
-        //TODO  invite check invite
-
-        
-        UserEntity user = userRepository.findByEmail(data.getEmail());
-
-        if (user != null)
-            throw new ResourceExistsException("user with email " + data.getEmail() + "already exists");
-        user = EntityDtoUserMapper.INSTANCE.userRegisterRequestToUser(data);
-        user.setHashedPassword(passwordEncoder.encode(data.getPassword()));
-        user.setRoles(new HashSet<>(List.of(Role.USER)));
-        userRepository.save(user);
-        // token
-        String token = jwtTokenCreator.createToken(user.getEmail(), user.getRoles());
-        LoginSuccessResponse response = EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(user);
-        response.setToken(token);
-
-        return response;
-    }
-
-    @Override
-    public LoginSuccessResponse login(Principal user) {
-        UserEntity userService = userRepository.findByEmail(user.getName());
-        //token
-        String token = jwtTokenCreator.createToken(userService.getEmail(), userService.getRoles());
-        LoginSuccessResponse response = EntityDtoUserMapper.INSTANCE.userToLoginSuccessResponse(userService);
-        response.setToken(token);
-        return response;
-    }
 
     @Override
     @Transactional
@@ -82,6 +49,7 @@ public class AccountServiceImp implements AccountService {
         user.setName(data.getName());
         user.setSurname(data.getSurname());
         user.setBirthdate(data.getBirthdate());
+        user.setPhone(data.getPhone());
         userRepository.save(user);
 
         return EntityDtoUserMapper.INSTANCE.userToUserDataResponse(user);
@@ -151,16 +119,16 @@ public class AccountServiceImp implements AccountService {
         // Check if the user is attempting to update someone else's profile
         if (!username.equals(user.getEmail())) {
             // Prevent changing data of a CEO
-            if (user.getRoles().contains(Role.CEO))
-                throw new AccessException("You don't have rules to update this user's profile.");
+            if (user.getRoles().contains(Role.CEO) && !isCeo)
+                throw new AccessRoleException("You don't have rules to update this user's profile.");
 
             // Prevent update if the authenticated user is neither an ADMIN nor a CEO
             if (!isAdmin && !isCeo)
-                throw new AccessException("You don't have rules to  update this user's profile.");
+                throw new AccessRoleException("You don't have rules to  update this user's profile.");
 
             // Prevent an ADMIN from updating another ADMIN's profile unless the authenticated user is a CEO
             if (user.getRoles().contains(Role.ADMIN) && !isCeo)
-                throw new AccessException("You don't have rules to  update this user's profile.");
+                throw new AccessRoleException("You don't have rules to  update this user's profile.");
         }
     }
 
@@ -169,19 +137,23 @@ public class AccountServiceImp implements AccountService {
         String username = authInfo.getUsername();
         boolean isAdmin = authInfo.isAdmin;
         boolean isCeo = authInfo.isCeo;
+        boolean isUser = authInfo.isUser;
+        
+        if(isUser && !isAdmin && !isCeo) {
+        	throw new AccessRoleException("You can't change role");
+        }
 
         if (username.equals(user.getEmail()))
-            throw new AccessException("You can't change role for yourself");
+            throw new AccessRoleException("You can't change role for yourself");
         if (!isAdmin && !isCeo)
-            throw new AccessException("You don't have rules to update this user's profile.");
+            throw new AccessRoleException("You don't have rules to update this user's profile.");
         if (user.getRoles().contains(Role.CEO) && !isCeo)
-            throw new AccessException("You don't have rules to update this user's profile.");
+            throw new AccessRoleException("You don't have rules to update this user's profile.");
         if (user.getRoles().contains(Role.ADMIN) && !isCeo)
-            throw new AccessException("You don't have rules to update this user's profile.");
+            throw new AccessRoleException("You don't have rules to update this user's profile.");
         if (role.equalsIgnoreCase("ceo") && !isCeo)
-        	throw new AccessException("add or remove role 'CEO' can only user with CEO role");
+        	throw new AccessRoleException("add or remove role 'CEO' can only user with CEO role");
     }
-    
 
     private UserAuthInfo getCurrentUserAuthInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -193,10 +165,12 @@ public class AccountServiceImp implements AccountService {
         boolean isCeo = authorities.stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_CEO"));
 
-        return new UserAuthInfo(username, isAdmin, isCeo);
+        boolean isUser = authorities.stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"));
+        
+        return new UserAuthInfo(username, isAdmin, isCeo, isUser);
     }
 
-    
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
@@ -205,5 +179,6 @@ public class AccountServiceImp implements AccountService {
         private String username;
         private boolean isAdmin;
         private boolean isCeo;
+        private boolean isUser;
     }
 }

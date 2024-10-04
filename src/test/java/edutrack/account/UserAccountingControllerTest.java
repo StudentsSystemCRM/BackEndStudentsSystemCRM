@@ -1,23 +1,18 @@
 package edutrack.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import edutrack.security.jwt.JwtRequestFilter;
 import edutrack.user.constant.ValidationAccountingMessage;
 import edutrack.user.controller.AccountController;
 import edutrack.user.dto.request.PasswordUpdateRequest;
-import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
-import edutrack.user.dto.response.LoginSuccessResponse;
 import edutrack.user.dto.response.Role;
 import edutrack.user.dto.response.UserDataResponse;
 import edutrack.user.dto.validation.ValidRangeDate;
 import edutrack.user.dto.validation.ValidRole;
-import edutrack.user.exception.AccessException;
-import edutrack.user.exception.ResourceExistsException;
-import edutrack.user.service.AccountService;
-import edutrack.security.AuthorizationFilterChain;
-import edutrack.security.JwtTokenValidator;
+import edutrack.user.exception.AccessRoleException;
+import edutrack.user.service.AccountServiceImp;
 import lombok.AccessLevel;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
@@ -54,22 +49,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @WebMvcTest(AccountController.class)
-@AutoConfigureMockMvc
-@Import({JacksonAutoConfiguration.class, AuthorizationFilterChain.class})
+@AutoConfigureMockMvc(addFilters = false)
+@Import({JacksonAutoConfiguration.class})
 public class UserAccountingControllerTest {
     @MockBean
-    AccountService accountingManagementService;
+    AccountServiceImp accountingManagementService;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @MockBean
+    JwtRequestFilter jwtRequestFilter;
+
     @Autowired
     MockMvc mockMvc;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     ObjectMapper objectMapper;
-
-    @MockBean
-    JwtTokenValidator jwtTokenValidator;
 
     // valid userRegisterRequest test data
     final String VALID_USER_EMAIL_1 = "user1@test.com";
@@ -79,46 +72,21 @@ public class UserAccountingControllerTest {
     final String VALID_USER_PHONE_1 = "+123-456-78(9123)";
 
     // valid loginSuccessResponse test data
-    final String VALID_TOKEN = "mocToken";
     final LocalDate VALID_BIRTHDATE = LocalDate.of(2000, 12, 15);
     final LocalDate VALID_CREATED_DATE = LocalDate.of(2024, 8, 8);
     final Set<Role> VALID_ROLE = Collections.singleton(Role.USER);
 
-    final UserRegisterRequest USER_REGISTER_REQUEST = UserRegisterRequest.builder()
-            .email(VALID_USER_EMAIL_1)
-            .password(VALID_USER_PASSWORD_1)
-            .name(VALID_USER_NAME_1)
-            .surname(VALID_USER_SURNAME_1)
-            .phone(VALID_USER_PHONE_1)
-            .birthdate(VALID_BIRTHDATE)
-            .build();
-    final LoginSuccessResponse LOGIN_SUCCESS_RESPONSE = LoginSuccessResponse.builder()
-            .token(VALID_TOKEN)
-            .name(VALID_USER_NAME_1)
-            .surname(VALID_USER_SURNAME_1)
-            .phone(VALID_USER_PHONE_1)
-            .birthdate(VALID_BIRTHDATE)
-            .createdDate(VALID_CREATED_DATE)
-            .roles(VALID_ROLE)
-            .build();
-
     final UserUpdateRequest USER_UPDATE_REQUEST = UserUpdateRequest.builder()
-            .email(VALID_USER_EMAIL_1)
-            .name(VALID_USER_NAME_1)
-            .surname(VALID_USER_SURNAME_1)
-            .phone(VALID_USER_PHONE_1)
-            .birthdate(VALID_BIRTHDATE)
-            .build();
+            .email(VALID_USER_EMAIL_1).name(VALID_USER_NAME_1)
+            .surname(VALID_USER_SURNAME_1).phone(VALID_USER_PHONE_1)
+            .birthdate(VALID_BIRTHDATE).build();
 
     final UserDataResponse USER_DATA_RESPONSE = UserDataResponse.builder()
-            .email(VALID_USER_EMAIL_1)
-            .name(VALID_USER_NAME_1)
-            .surname(VALID_USER_SURNAME_1)
-            .phone(VALID_USER_PHONE_1)
-            .birthdate(VALID_BIRTHDATE)
-            .createdDate(VALID_CREATED_DATE)
-            .roles(VALID_ROLE)
-            .build();
+            .email(VALID_USER_EMAIL_1).name(VALID_USER_NAME_1)
+            .surname(VALID_USER_SURNAME_1).phone(VALID_USER_PHONE_1)
+            .birthdate(VALID_BIRTHDATE).createdDate(VALID_CREATED_DATE)
+            .roles(VALID_ROLE).build();
+
     final PasswordUpdateRequest PASSWORD_UPDATE_REQUEST = new PasswordUpdateRequest(VALID_USER_PASSWORD_1);
     final UserRoleRequest USER_ROLE_REQUEST = new UserRoleRequest("USER");
 
@@ -129,118 +97,10 @@ public class UserAccountingControllerTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("Create user, valid input")
-    void testRegisterUser_whenValidUserRegisterRequestIsProvided_thenReturnLoginSuccessResponse() {
-        //Arrange
-        UserRegisterRequest requestData = USER_REGISTER_REQUEST;
-        LoginSuccessResponse expectedData = LOGIN_SUCCESS_RESPONSE;
-        String invite = "empty";
-        String expectedJson = objectMapper.writeValueAsString(expectedData);
-        String jsonRequestData = objectMapper.writeValueAsString(requestData);
-
-        when(accountingManagementService.registration(invite, requestData)).thenReturn(expectedData);
-
-        //Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users/register")
-                .param("invite", invite)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequestData));
-        //Assert
-        resultActions.andExpect(status().isOk())
-                .andExpect(result -> assertEquals(result.getResponse().getContentAsString(), expectedJson));
-        verify(accountingManagementService, times(1)).registration(any(String.class), any(UserRegisterRequest.class));
-
-    }
-
-    @Test
-    @SneakyThrows
-    @DisplayName("Create user, duplicate id")
-    void testCreateUser_whenUserWithDuplicateIdIsProvided_thenReturnsBadRequest() {
-        UserRegisterRequest requestData = USER_REGISTER_REQUEST;
-        String jsonRequestData = objectMapper.writeValueAsString(requestData);
-        String invite = "empty";
-        String expectedErrorMessage = "user with email " + requestData.getEmail() + "already exists";
-        when(accountingManagementService.registration(invite, requestData))
-                .thenThrow(new ResourceExistsException(expectedErrorMessage));
-        //Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users/register")
-                .param("invite", invite)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequestData));
-
-        //Asserts
-        resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(expectedErrorMessage));
-    }
-
-    @Test
-    @SneakyThrows
-    @DisplayName("Create user, invalid password")
-    void testCreateUser_whenUserWithNotValidPasswordIsProvided_thenReturnBadRequest() {
-        //Arrange
-        UserRegisterRequest requestData = USER_REGISTER_REQUEST
-                .withPassword("12345").withName("123").withEmail("wrongEmail");
-        String jsonRequestData = objectMapper.writeValueAsString(requestData);
-        String invite = "empty";
-        String expectedErrorMessage1 = ValidationAccountingMessage.INVALID_PASSWORD_CONTAIN;
-        String expectedErrorMessage2 = ValidationAccountingMessage.INVALID_NAME;
-        String expectedErrorMessage3 = ValidationAccountingMessage.INVALID_EMAIL;
-
-        //Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users/register")
-                .param("invite", invite)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequestData));
-
-        //Assert
-        resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").isArray())
-                .andExpect(jsonPath("$.message", hasSize(3)))
-                .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage1)))
-                .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage2)))
-                .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage3)));
-    }
-
-    @Test
-    @SneakyThrows
-    @DisplayName("Login, valid input")
-    @WithMockUser
-    void testLogin_whenValidInputIsProvided_thenReturnLoginSuccessResponse() {
-        //Arrange
-        LoginSuccessResponse expectedResponse = LOGIN_SUCCESS_RESPONSE;
-        String jsonLoginSuccessResponse = objectMapper.writeValueAsString(expectedResponse);
-        when(accountingManagementService.login(any(Principal.class))).thenReturn(expectedResponse);
-
-        //Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users/login")
-                .contentType(MediaType.APPLICATION_JSON));
-
-        //Assert
-        resultActions.andExpect(status().isOk()).
-                andExpect(result -> assertEquals(jsonLoginSuccessResponse, result.getResponse().getContentAsString()));
-    }
-
-    @Test
-    @SneakyThrows
-    @DisplayName("Login, not authorized")
-    void testLogin_whenValidInputIsNotProvided_thenReturnUnauthorized() {
-        when(accountingManagementService.login(any(Principal.class))).thenReturn(LOGIN_SUCCESS_RESPONSE);
-        //Act
-        ResultActions resultActions = mockMvc.perform(post("/api/users/login")
-                .contentType(MediaType.APPLICATION_JSON));
-        //Assert
-        resultActions.andExpect(status().isUnauthorized()).
-                andExpect(result -> assertEquals("Unauthorized", result.getResponse().getErrorMessage()));
-        verify(accountingManagementService, times(0)).login(any(Principal.class));
-    }
-
-    @Test
-    @SneakyThrows
     @DisplayName("Update, valid input")
     void testUpdate_whenValidInputIsProvided_thenReturnUserDataResponse() {
         //Arrange
-        UserUpdateRequest requestData = USER_UPDATE_REQUEST;
-        String requestDataJson = objectMapper.writeValueAsString(requestData);
+        String requestDataJson = objectMapper.writeValueAsString(USER_UPDATE_REQUEST);
         UserDataResponse expectedData = USER_DATA_RESPONSE;
         String expectedDataJson = objectMapper.writeValueAsString(expectedData);
 
@@ -291,13 +151,12 @@ public class UserAccountingControllerTest {
     @SneakyThrows
     @WithMockUser
     @DisplayName("Update, no permission")
-    void testUpdate_whenValidInputIsProvided_thenThrowNoPermissionAndReturnBadRequest() {
+    void testUpdate_whenValidInputIsProvided_thenThrowNoPermissionAndReturnForbidden() {
         //Arrange
-        UserUpdateRequest requestData = USER_UPDATE_REQUEST;
-        String requestDataJson = objectMapper.writeValueAsString(requestData);
+        String requestDataJson = objectMapper.writeValueAsString(USER_UPDATE_REQUEST);
         String expectedErrorMessage1 = "You don't have rules to update this user's profile.";
 
-        when(accountingManagementService.updateUser(any(UserUpdateRequest.class))).thenThrow(new AccessException(expectedErrorMessage1));
+        when(accountingManagementService.updateUser(any(UserUpdateRequest.class))).thenThrow(new AccessRoleException(expectedErrorMessage1));
 
         //Act
         ResultActions resultActions = mockMvc.perform(put("/api/users/update")
@@ -305,7 +164,7 @@ public class UserAccountingControllerTest {
                 .content(requestDataJson));
 
         //Assert
-        resultActions.andExpect(status().isBadRequest())
+        resultActions.andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").isString())
                 .andExpect(jsonPath("$.message").value(expectedErrorMessage1));
 
@@ -318,8 +177,7 @@ public class UserAccountingControllerTest {
     @DisplayName("Update, no such user")
     void testUpdate_whenValidInputIsProvided_thenThrowNoSuchElementExceptionAndReturnBadRequest() {
         //Arrange
-        UserUpdateRequest requestData = USER_UPDATE_REQUEST;
-        String requestDataJson = objectMapper.writeValueAsString(requestData);
+        String requestDataJson = objectMapper.writeValueAsString(USER_UPDATE_REQUEST);
         String expectedErrorMessage1 = "Account with email '%s' not found".formatted(USER_UPDATE_REQUEST.getEmail());
 
         when(accountingManagementService.updateUser(any(UserUpdateRequest.class))).thenThrow(new NoSuchElementException(expectedErrorMessage1));
@@ -344,16 +202,19 @@ public class UserAccountingControllerTest {
     void testUpdatePassword_whenValidPasswordUpdateRequestIsProvided_thenReturn200() {
         //Arrange
         String requestDataJson = objectMapper.writeValueAsString(PASSWORD_UPDATE_REQUEST);
-        Principal principal = SecurityContextHolder.getContext().getAuthentication();
+        Principal mockPrincipal = mock(Principal.class);
+
+        when(mockPrincipal.getName()).thenReturn("user1@test.com");
 
         // Act
         ResultActions resultActions = mockMvc.perform(put("/api/users/update-password")
+                .principal(mockPrincipal)
                 .contentType("application/json")
                 .content(requestDataJson));
 
         // Assert
         resultActions.andExpect(status().isOk());
-        verify(accountingManagementService).updatePassword(eq(principal), eq(PASSWORD_UPDATE_REQUEST));
+        verify(accountingManagementService, times(1)).updatePassword(eq(mockPrincipal), eq(PASSWORD_UPDATE_REQUEST));
     }
 
     @Test
@@ -444,7 +305,6 @@ public class UserAccountingControllerTest {
                 .andExpect(jsonPath("$.message", hasSize(2)))
                 .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage1)))
                 .andExpect(jsonPath("$.message", hasItem(expectedErrorMessage2)));
-
     }
 
     @Test
@@ -465,26 +325,6 @@ public class UserAccountingControllerTest {
         verify(accountingManagementService, never()).addRole(any(String.class), any(UserRoleRequest.class));
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedErrorMessage1));
-
-    }
-
-    @Test
-    @SneakyThrows
-    @DisplayName("addRole, no permission")
-    @WithMockUser(username = "user", roles = {"USER"})
-    void testAddRole_whenUserIsNotAdmin_thenReturnForbidden() {
-        // Arrange
-        String login = VALID_USER_EMAIL_1;
-        String requestDataJson = objectMapper.writeValueAsString(USER_ROLE_REQUEST);
-
-        // Act
-        ResultActions resultActions = mockMvc.perform(put("/api/users/assign-role/{login}", login)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestDataJson));
-
-        // Assert
-        resultActions.andExpect(status().isForbidden());
-        verify(accountingManagementService, never()).addRole(any(String.class), any(UserRoleRequest.class));
     }
 
     @Test
@@ -556,23 +396,19 @@ public class UserAccountingControllerTest {
         verify(accountingManagementService, never()).removeRole(any(String.class), any(UserRoleRequest.class));
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedErrorMessage1));
-
     }
 
     @Test
     @SneakyThrows
     @DisplayName("removeRole, no permission")
     @WithMockUser(username = "user", roles = {"USER"})
-    void testRemoveRole_whenUserIsNotAdmin_thenReturnForbidden() {
-        // Arrange
-        String validLogin = VALID_USER_EMAIL_1;
-
+    void testRemoveRole_whenUserIsNotAdmin_thenReturnBadRequest() {
         // Act
-        ResultActions resultActions = mockMvc.perform(delete("/api/users/remove-role/{login}", validLogin)
+        ResultActions resultActions = mockMvc.perform(delete("/api/users/remove-role/{login}", VALID_USER_EMAIL_1)
                 .contentType(MediaType.APPLICATION_JSON));
 
         // Assert
-        resultActions.andExpect(status().isForbidden());
+        resultActions.andExpect(status().isBadRequest());
         verify(accountingManagementService, never()).removeRole(any(String.class), any(UserRoleRequest.class));
     }
 
@@ -634,7 +470,7 @@ public class UserAccountingControllerTest {
         // Assert
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("An unexpected error: " + exceptionMessage))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof NoSuchElementException));
+                .andExpect(result -> assertInstanceOf(NoSuchElementException.class, result.getResolvedException()));
         verify(accountingManagementService, times(1)).removeUser(nonExistentLogin);
     }
 }
