@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import edutrack.schedule.dto.request.AddStudentScheduleRequest;
-import edutrack.schedule.dto.response.ScheduleResponse;
+import edutrack.schedule.dto.response.StudentScheduleResponse;
 import edutrack.schedule.dto.response.SingleScheduleResponse;
 import edutrack.schedule.entity.StudentScheduleEntity;
 import edutrack.schedule.repository.StudentScheduleRepository;
@@ -30,7 +30,7 @@ public class StudentScheduleImp implements StudentScheduleService {
 
 	@Override
 	@Transactional
-	public ScheduleResponse getStudentReminders(Long id) {
+	public StudentScheduleResponse getStudentReminders(Long id) {
         StudentEntity student = studentRepository.findById(id)
         			.orElseThrow(() -> new StudentNotFoundException("Student with id " + id + " not found"));
         List<StudentScheduleEntity> studentReminders = studentRemindersRepository.findByStudentId(id);
@@ -42,7 +42,7 @@ public class StudentScheduleImp implements StudentScheduleService {
 
 	@Override
 	@Transactional
-	public ScheduleResponse addStudentReminder(AddStudentScheduleRequest studentReminder) {
+	public StudentScheduleResponse addStudentReminder(AddStudentScheduleRequest studentReminder) {
         StudentEntity student = studentRepository.findById(studentReminder.getStudentId())
         		.orElseThrow(() -> new StudentNotFoundException("Student with id " + studentReminder.getStudentId() + " not found"));
         LocalDateTime dateTime = studentReminder.getDateTime()==null?LocalDateTime.now():studentReminder.getDateTime();

@@ -24,7 +24,10 @@ import edutrack.student.entity.StudentEntity;
 @Table(name = "groups")
 public class GroupEntity {
     @Id
-    @Column(name = "name",unique=true)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(name = "name")
     private String name;
 
     @Column(name = "whats_app")
@@ -43,19 +46,22 @@ public class GroupEntity {
     @ManyToMany
     @JoinTable(
         name = "groups_students",
-        joinColumns = @JoinColumn(name = "group_name"),
+        joinColumns = @JoinColumn(name = "group_id"),
         inverseJoinColumns = @JoinColumn(name = "students_id")
     )
     private List<StudentEntity> students  = new ArrayList<>();
     
     @OneToMany(mappedBy = "group")
+    @CollectionTable(name = "group_reminders")
     private List<GroupScheduleEntity> groupReminders = new ArrayList<>();
     
     @ElementCollection
+    @CollectionTable(name = "group_lessons_days")
     @Enumerated(EnumType.STRING)
     private List<WeekDay> lessonsDays = new ArrayList<>();
     
     @ElementCollection
+    @CollectionTable(name = "group_webinars_days")
     @Enumerated(EnumType.STRING)
     private List<WeekDay> webinarsDays = new ArrayList<>();
     

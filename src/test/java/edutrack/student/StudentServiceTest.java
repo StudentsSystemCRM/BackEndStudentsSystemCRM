@@ -61,7 +61,7 @@ public class StudentServiceTest {
 
     @BeforeEach
     public void setUp() {
-        groupStudent = new GroupEntity(
+        groupStudent = new GroupEntity(1L,
                 "Example Group",
                 "example-whatsapp",
                 "example-skype",
