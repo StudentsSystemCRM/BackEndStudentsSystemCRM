@@ -3,10 +3,8 @@ package edutrack.user.service;
 import java.security.Principal;
 
 import edutrack.user.dto.request.PasswordUpdateRequest;
-import edutrack.user.dto.request.UserRegisterRequest;
 import edutrack.user.dto.request.UserRoleRequest;
 import edutrack.user.dto.request.UserUpdateRequest;
-import edutrack.authentication.dto.response.LoginSuccessResponse;
 import edutrack.user.dto.response.UserDataResponse;
 
 /*

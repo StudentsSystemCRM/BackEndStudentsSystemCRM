@@ -7,72 +7,76 @@
 	<module name="RegexpMultiline">
 		<property name="format" value="(\r?\n\s*){3,}" />
 		<property name="message" value="More than one consecutive empty line." />
-		<property name="severity" value="warning"/>
+		<property name="severity" value="warning" />
 	</module>
 
 	<module name="TreeWalker">
 		<!-- Ensures that whitespace is placed around operators and keywords
 		like 'if', 'for', etc. -->
 		<module name="WhitespaceAround">
-			<property name="severity" value="warning"/>
-		</module> 
-		 
+			<property name="severity" value="warning" />
+		</module>
+
 		<!-- Ensures that control statements (like 'if', 'for', 'while') are
 		enclosed in braces, even for single statements. -->
 		<module name="NeedBraces">
-			<property name="severity" value="warning"/>
-		</module> 
+			<property name="severity" value="warning" />
+		</module>
 
 		<!-- Ensures that code blocks are not empty. Warns if a block does not
 		contain any code. -->
 		<module name="EmptyBlock">
-			<property name="severity" value="warning"/>
-		</module> 
+			<property name="severity" value="warning" />
+		</module>
 
 		<!-- Ensures that constants (static final variables) are named in upper
 		case with underscores. -->
 		<module name="ConstantName">
-			<property name="severity" value="warning"/>
-		</module> 
+			<property name="severity" value="warning" />
+		</module>
 
 		<!-- Ensures that local variable names follow camelCase naming
 		convention. -->
 		<module name="LocalVariableName">
-			<property name="severity" value="warning"/>
-		</module> 
+			<property name="severity" value="warning" />
+		</module>
 
 		<!-- Ensures that method names follow camelCase naming convention. -->
+
 		<module name="MethodName">
-			<property name="severity" value="warning"/>
-		</module> 
+			<property name="format" value="^[a-z][a-zA-Z0-9_]*$" />
+			<property name="severity" value="warning" />
+		</module>
 
 		<!-- Ensures that method parameter names follow camelCase naming
 		convention. -->
 		<module name="ParameterName">
-			<property name="severity" value="warning"/>
-		</module> 
+			<property name="format" value="^[a-z][a-zA-Z0-9_]*$" />
+			<property name="severity" value="warning" />
+		</module>
 
 		<!-- Ensures that class and interface names follow PascalCase naming
 		convention (capitalized first letter). -->
 		<module name="TypeName">
-			<property name="severity" value="warning"/>
-		</module> 
+			<property name="severity" value="warning" />
+		</module>
 
 		<!-- Ensures that there are no unused imports in the code. -->
 		<module name="UnusedImports">
-			<property name="severity" value="warning"/>
-		</module> 
+			<property name="severity" value="warning" />
+		</module>
 
 		<!-- Ensures that there are no redundant imports (duplicate or
 		unnecessary imports). -->
 		<module name="RedundantImport">
-			<property name="severity" value="warning"/>
-		</module> 
+			<property name="severity" value="warning" />
+		</module>
 
 		<!-- Ensures that long lines are not wrapped and that lines exceed a
 		specified character limit, if configured. -->
 		<module name="NoLineWrap">
-			<property name="severity" value="warning"/>
-		</module> 	</module>
+			<property name="severity" value="warning" />
+		</module>
+	</module>
 </module>
 

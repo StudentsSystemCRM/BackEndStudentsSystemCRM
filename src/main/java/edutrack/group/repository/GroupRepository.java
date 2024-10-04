@@ -24,7 +24,8 @@ public interface GroupRepository extends JpaRepository<GroupEntity, Long> {
 	
 	@Modifying
 	@Query(value = UPDATE_STUDENT_GROUP, nativeQuery = true)
-	public int updateStudentGroups(@Param("student_id") long student_id, @Param("id") Long id,@Param("old_id") Long old_id);
+	public int updateStudentGroups(@Param("student_id") long student_id, @Param("id") Long id,
+			@Param("old_id") Long old_id);
 	
 	@Query(value = GROUP_LESSONS_DAYS, nativeQuery = true)
 	public List<WeekDay> getLessonsDays(@Param("group_id") Long group_id);

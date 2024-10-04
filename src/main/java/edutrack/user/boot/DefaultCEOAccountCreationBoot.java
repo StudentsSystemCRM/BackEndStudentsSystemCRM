@@ -22,7 +22,7 @@ import lombok.experimental.FieldDefaults;
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class DefaultCEOAccountCreationBoot implements ApplicationRunner{
+public class DefaultCEOAccountCreationBoot implements ApplicationRunner {
 	PasswordEncoder passwordEncoder;
 	AccountRepository repository;
 	JwtTokenProvider jwtTokenProvider;
@@ -31,7 +31,7 @@ public class DefaultCEOAccountCreationBoot implements ApplicationRunner{
 	public void run(ApplicationArguments args) {
 		try {
 			UserEntity user = repository.findByEmail("ada@gmail.com");
-			if(user == null) {
+			if (user == null) {
 				Set<Role> roles = new HashSet<>();
 				roles.add(Role.CEO);
 				String password = passwordEncoder.encode("12345");
