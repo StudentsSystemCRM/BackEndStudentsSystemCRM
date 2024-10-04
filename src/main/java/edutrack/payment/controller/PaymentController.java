@@ -24,6 +24,7 @@ public class PaymentController {
 	
 	PaymentService paymentService;
 	
+	
     @GetMapping("/{id}/payments")
     @Operation(summary = "Get a student's payments by ID", description = "Provide an ID to lookup a specific student's payments.")
     public PaymentInfoResponse getStudentPaymentInfo(@PathVariable Long id) {

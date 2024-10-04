@@ -1,19 +1,16 @@
-package edutrack.schedule.dto.response;
-
-import java.util.List;
+package edutrack.authentication.dto.response;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Data
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
-public class ScheduleResponse {
-	
-	Long id;
-	List<SingleScheduleResponse> reminders;
+@NoArgsConstructor
+public class RefreshTokenResponse {
+    String accessToken;
+    String refreshToken;
 }

@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import edutrack.user.dto.response.Role;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -27,4 +28,8 @@ public class UserEntity {
     private LocalDate birthdate;
     private LocalDate createdDate;
     private Set<Role> roles;
+
+    private String accessToken;
+    private String refreshToken;
+    private Instant tokenCreationTime;
 }

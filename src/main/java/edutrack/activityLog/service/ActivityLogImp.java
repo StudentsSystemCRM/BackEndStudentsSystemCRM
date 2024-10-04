@@ -25,30 +25,30 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class ActivityLogImp implements ActivityLogService {
-
+	
 	ActivityLogRepository logRepository;
 	StudentRepository studentRepository;
 
 	@Override
 	@Transactional
 	public ActivityLogResponse getStudentActivityLog(Long id) {
-		StudentEntity student = studentRepository.findById(id)
-				.orElseThrow(() -> new StudentNotFoundException("Student with id " + id + " not found"));
-		List<ActivityLogEntity> activityLogs = logRepository.findByStudentId(id);
-		List<SingleActivityLog> studentActivityLog = activityLogs.stream()
-				.map(log -> new SingleActivityLog(log.getId(), log.getDate(), log.getInformation()))
-				.collect(Collectors.toList());
-		return EntityDtoActivityLogMapper.INSTANCE.studentToActivityLogResponse(student, studentActivityLog);
+        StudentEntity student = studentRepository.findById(id)
+        			.orElseThrow(() -> new StudentNotFoundException("Student with id " + id + " not found"));
+        List<ActivityLogEntity> activityLogs = logRepository.findByStudentId(id);
+        List<SingleActivityLog> studentActivityLog = activityLogs.stream()
+        	    .map(log -> new SingleActivityLog(log.getId(), log.getDate(), log.getInformation()))
+        	    .collect(Collectors.toList());
+        return EntityDtoActivityLogMapper.INSTANCE.studentToActivityLogResponse(student, studentActivityLog);
 	}
 
 	@Override
 	@Transactional
 	public ActivityLogResponse addActivityLog(AddActivityLogRequest studentComment) {
-		StudentEntity student = studentRepository.findById(studentComment.getStudentId()).orElseThrow(
-				() -> new StudentNotFoundException("Student with id " + studentComment.getStudentId() + " not found"));
-		LocalDate date = studentComment.getDate() == null ? LocalDate.now() : studentComment.getDate();
-		ActivityLogEntity activityLog = new ActivityLogEntity(null, date, studentComment.getMessage(), student);
-		activityLog = logRepository.save(activityLog);
-		return getStudentActivityLog(studentComment.getStudentId());
+        StudentEntity student = studentRepository.findById(studentComment.getStudentId())
+        		.orElseThrow(() -> new StudentNotFoundException("Student with id " + studentComment.getStudentId() + " not found"));
+        LocalDate date = studentComment.getDate()==null?LocalDate.now():studentComment.getDate();
+        ActivityLogEntity activityLog = new ActivityLogEntity(null, date, studentComment.getMessage(), student);
+        activityLog = logRepository.save(activityLog);
+        return getStudentActivityLog(studentComment.getStudentId());
 	}
 }

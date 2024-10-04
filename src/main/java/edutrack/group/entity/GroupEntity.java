@@ -23,42 +23,52 @@ import edutrack.student.entity.StudentEntity;
 @Entity
 @Table(name = "groups")
 public class GroupEntity {
-	@Id
-	@Column(name = "name", unique = true)
-	private String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(name = "name")
+    private String name;
 
-	@Column(name = "whats_app")
-	private String whatsApp;
-	private String skype;
-	private String slack;
-	@Enumerated(EnumType.STRING)
-	private GroupStatus status;
-	private LocalDate startDate;
-
-	private LocalDate expFinishDate;
-
-	@Column(name = "deactivate_after_30_days")
-	private LocalDate deactivateAfter30Days;
-
-	@ManyToMany
-	@JoinTable(name = "groups_students", joinColumns = @JoinColumn(name = "group_name"), inverseJoinColumns = @JoinColumn(name = "students_id"))
-	private List<StudentEntity> students = new ArrayList<>();
-
-	@OneToMany(mappedBy = "group")
-	private List<GroupScheduleEntity> groupReminders = new ArrayList<>();
-
-	@ElementCollection
-	@Enumerated(EnumType.STRING)
-	private List<WeekDay> lessonsDays = new ArrayList<>();
-
-	@ElementCollection
-	@Enumerated(EnumType.STRING)
-	private List<WeekDay> webinarsDays = new ArrayList<>();
-
-	@CreatedBy
-	@Column(name = "created_by")
-	String createdBy;
-	@LastModifiedBy
-	@Column(name = "updated_by")
-	String lastModifiedBy;
+    @Column(name = "whats_app")
+    private String whatsApp;
+    private String skype;
+    private String slack;
+    @Enumerated(EnumType.STRING)
+    private GroupStatus status;
+    private LocalDate startDate;
+    
+    private LocalDate expFinishDate;
+    
+    @Column(name = "deactivate_after_30_days")
+    private LocalDate deactivateAfter30Days;
+    
+    @ManyToMany
+    @JoinTable(
+        name = "groups_students",
+        joinColumns = @JoinColumn(name = "group_id"),
+        inverseJoinColumns = @JoinColumn(name = "students_id")
+    )
+    private List<StudentEntity> students  = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "group")
+    @CollectionTable(name = "group_reminders")
+    private List<GroupScheduleEntity> groupReminders = new ArrayList<>();
+    
+    @ElementCollection
+    @CollectionTable(name = "group_lessons_days")
+    @Enumerated(EnumType.STRING)
+    private List<WeekDay> lessonsDays = new ArrayList<>();
+    
+    @ElementCollection
+    @CollectionTable(name = "group_webinars_days")
+    @Enumerated(EnumType.STRING)
+    private List<WeekDay> webinarsDays = new ArrayList<>();
+    
+    @CreatedBy
+    @Column(name = "created_by") 
+    String createdBy; 
+    @LastModifiedBy 
+    @Column(name = "updated_by")
+    String lastModifiedBy;
 }
