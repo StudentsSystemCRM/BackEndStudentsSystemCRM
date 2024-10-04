@@ -39,7 +39,7 @@ public class StudentServiceIntegrationTest {
 
     @Autowired
     private PaymentRepository paymentRepo;
-    
+
     static final Long STUDENT_ID_DB_H2 = 2L;
 
     @Test
@@ -94,5 +94,5 @@ public class StudentServiceIntegrationTest {
         assertTrue(payments.isEmpty());
     }
 
-  
+
 }
