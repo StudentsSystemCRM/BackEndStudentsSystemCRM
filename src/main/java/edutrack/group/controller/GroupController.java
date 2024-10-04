@@ -40,11 +40,16 @@ public class GroupController {
     public GroupDataResponse createGroup(@Valid @RequestBody GroupCreateRequest group) {
         return groupService.createGroup(group);
     }
+
+//    @GetMapping
+//    @Operation(summary = "Get all groups", description = "Returns a list of all groups.")
+//    public List<GroupDataResponse> getAllGroups() {
+//        return groupService.getAllGroups();
+//    }
     
     @GetMapping
     @Operation(summary = "Get all groups", description = "Returns a list of all groups with params.")
-    public List<GroupDataResponse> getAllGroups(
-    		@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size,
+    public List<GroupDataResponse> getAllGroups(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size,
     		@RequestParam(required = false, defaultValue = "name") String sortBy, @RequestParam(required = false, defaultValue = "true") boolean ascending) {
     	Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
     	Pageable pageable = PageRequest.of(page, size, sort);
