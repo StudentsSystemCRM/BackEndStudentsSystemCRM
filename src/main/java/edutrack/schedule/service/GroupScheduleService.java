@@ -1,12 +1,12 @@
 package edutrack.schedule.service;
 
 import edutrack.schedule.dto.request.AddGroupScheduleRequest;
-import edutrack.schedule.dto.response.ScheduleResponse;
+import edutrack.schedule.dto.response.GroupScheduleResponse;
 
 public interface GroupScheduleService {
 
-	ScheduleResponse getGroupReminders(String name);
+	GroupScheduleResponse getGroupReminders(String name);
 
-	ScheduleResponse addGroupReminder(AddGroupScheduleRequest groupReminder);
+	GroupScheduleResponse addGroupReminder(AddGroupScheduleRequest groupReminder);
 
 }
