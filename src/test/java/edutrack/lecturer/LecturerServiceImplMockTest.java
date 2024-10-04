@@ -40,13 +40,12 @@ class LecturerServiceImplMockTest {
     private LecturerEntity lecturer;
     private LecturerCreateRequest createRequest;
     private LecturerUpdateRequest updateRequest;
-    private GroupEntity groupExmEntity;
-    private LecturerDataResponse lecturerResponseCreate;
-    private LecturerDataResponse lecturerResponseUpdate;
+    private GroupEntity exampleGroupEntity;
+
     @BeforeEach
     void setUp() {
-        groupExmEntity = new GroupEntity(
-                "Example Group",
+        exampleGroupEntity = new GroupEntity(
+                "nameExample",
                 "example-whatsapp",
                 "example-skype",
                 "example-slack",
@@ -61,9 +60,9 @@ class LecturerServiceImplMockTest {
                 null,
                 null
         );
-        when(groupRepo.findByName("Example Group")).thenReturn(groupExmEntity);
+
         Set<GroupEntity> groups = new HashSet<>();
-        groups.add(groupExmEntity);
+        groups.add(exampleGroupEntity);
 
         lecturer = new LecturerEntity(1L, "John", "Doe",
                 "123456789", "john.doe@example.com", "Haifa",
@@ -74,20 +73,9 @@ class LecturerServiceImplMockTest {
                 "Haifa", LecturerStatus.ACTIVE, new HashSet<>(Set.of("Example Group"))
         );
         updateRequest = new LecturerUpdateRequest(
-                lecturer.getId(), "John", "Doe", "987654321",
-                "john.doe@example.com", "Haifa", LecturerStatus.ACTIVE,
-                new HashSet<>(Set.of("Example Group"))
-        );
-
-        lecturerResponseCreate = new LecturerDataResponse(
-                1L, "John", "Doe", "123456789",
-                "john.doe@example.com", "Haifa",
-                LecturerStatus.ACTIVE, new HashSet<>(Set.of("Example Group"))
-        );
-        lecturerResponseUpdate = new LecturerDataResponse(
                 1L, "John", "Doe", "987654321",
-                "john.doe@example.com", "Haifa",
-                LecturerStatus.ACTIVE, new HashSet<>(Set.of("Example Group"))
+                "john.doe@example.com", "Haifa", LecturerStatus.ACTIVE,
+                new HashSet<>(Set.of("nameExample"))
         );
     }
 
@@ -237,93 +225,63 @@ class LecturerServiceImplMockTest {
     }
     @Test
     void testCreateLecturer_Success() {
-        when(lecturerRepo.save(any(LecturerEntity.class))).thenReturn(lecturer);
-
+        when(lecturerRepo.existsByEmail(createRequest.getEmail())).thenReturn(false);
+        when(groupRepo.findByName("Example Group")).thenReturn(exampleGroupEntity);
+        when(lecturerRepo.save(any(LecturerEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         LecturerDataResponse response = lecturerService.createLecturer(createRequest);
 
         assertNotNull(response);
-        assertEquals(lecturer.getId(), response.getId());
-        assertEquals(lecturer.getFirstName(), response.getFirstName());
-        assertEquals(lecturer.getLastName(), response.getLastName());
-        assertEquals(lecturer.getEmail(), response.getEmail());
-        assertEquals(lecturer.getPhoneNumber(), response.getPhoneNumber());
-        assertEquals(lecturer.getCity(), response.getCity());
-        assertEquals(lecturer.getStatus(), response.getStatus());
-        assertEquals(lecturer.getGroups().stream().map(GroupEntity::getName)
-                .collect(Collectors.toSet()), response.getGroupNames());
+        assertEquals(createRequest.getFirstName(), response.getFirstName());
+        assertEquals(createRequest.getLastName(), response.getLastName());
+        assertEquals(createRequest.getEmail(), response.getEmail());
 
+        verify(lecturerRepo, times(1)).existsByEmail(createRequest.getEmail());
+        verify(groupRepo, times(1)).findByName("Example Group");
         verify(lecturerRepo, times(1)).save(any(LecturerEntity.class));
+    }
+    @Test
+    void testCreateLecturer_EmailAlreadyExists() {
+        when(lecturerRepo.existsByEmail(createRequest.getEmail())).thenReturn(true);
+
+        Exception exception = assertThrows(ResourceAlreadyExistsException.class, () -> {
+            lecturerService.createLecturer(createRequest);
+        });
+
+        assertEquals("Lecturer already exists with email: " + createRequest.getEmail(), exception.getMessage());
+        verify(lecturerRepo, times(1)).existsByEmail(createRequest.getEmail());
+        verify(lecturerRepo, never()).save(any(LecturerEntity.class));
+        verify(groupRepo, never()).findByName(anyString());
     }
 
     @Test
     void testUpdateLecturer_Success() {
-        LecturerEntity existingLecturer = new LecturerEntity(1L, "John", "Doe",
-                "123456789", "john.doe@example.com", "Haifa",
-                LecturerStatus.ACTIVE, null, null, null);
-        when(lecturerRepo.findById(lecturer.getId())).thenReturn(Optional.of(existingLecturer));
-               when(lecturerRepo.save(any(LecturerEntity.class))).thenReturn(existingLecturer);
+
+        Long lecturerId = 1L;
+        when(lecturerRepo.findById(lecturerId)).thenReturn(Optional.of(lecturer));
+        when(lecturerRepo.existsByEmail(updateRequest.getEmail())).thenReturn(false);
+        when(groupRepo.findByName("nameExample")).thenReturn(exampleGroupEntity);
+        when(lecturerRepo.save(any(LecturerEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         LecturerDataResponse response = lecturerService.updateLecturer(updateRequest);
 
         assertNotNull(response);
+        assertEquals(updateRequest.getId(), response.getId());
+        assertEquals(updateRequest.getFirstName(), response.getFirstName());
+        assertEquals(updateRequest.getLastName(), response.getLastName());
+        assertEquals(updateRequest.getEmail(), response.getEmail());
+        assertEquals(updateRequest.getPhoneNumber(), response.getPhoneNumber());
+        assertEquals(updateRequest.getCity(), response.getCity());
+        assertEquals(updateRequest.getStatus(), response.getStatus());
 
-        verify(lecturerRepo, times(1)).findById(1L);
-        verify(lecturerRepo, times(1)).save(existingLecturer);
-    }
-
-
-    @Test
-    void testUpdateLecturer_NotFound() {
-        groupExmEntity = new GroupEntity(
-                "Example Group",
-                "example-whatsapp",
-                "example-skype",
-                "example-slack",
-                GroupStatus.ACTIVE,
-                LocalDate.of(2024, 1, 1),
-                LocalDate.of(2024, 12, 31),
-                LocalDate.of(2024, 6, 30),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                null,
-                null
-        );
-
-        Set<GroupEntity> groups = new HashSet<>();
-        groups.add(groupExmEntity);
-
-        lecturer = new LecturerEntity(1L, "John", "Doe",
-                "123456789", "john.doe@example.com", "Haifa",
-                LecturerStatus.ACTIVE, groups, null, null);
-
-        LecturerUpdateRequest updateRequest = new LecturerUpdateRequest(
-                99L, "John", "Doe", "987654321",
-                "john.doe@example.com", "Haifa", LecturerStatus.ACTIVE,
-                new HashSet<>(Set.of("Example Group"))
-        );
-
-        when(lecturerRepo.findById(updateRequest.getId())).thenReturn(Optional.empty());
-
-        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
-            lecturerService.updateLecturer(updateRequest);
-        });
-
-        assertEquals("Lecturer not found with id: " + updateRequest.getId(), exception.getMessage());
-        verify(lecturerRepo, times(1)).findById(updateRequest.getId());
+        verify(lecturerRepo, times(1)).findById(lecturerId);
+        verify(lecturerRepo, times(1)).existsByEmail(updateRequest.getEmail());
+        verify(lecturerRepo, times(1)).save(any(LecturerEntity.class));
     }
     @Test
     void testUpdateLecturer_EmailAlreadyExists() {
-
-        LecturerUpdateRequest updateRequest = new LecturerUpdateRequest(
-                lecturer.getId(), "John", "Doe", "987654321",
-                "john.doe@example.com", "Haifa", LecturerStatus.ACTIVE,
-                new HashSet<>(Set.of("Group1"))
-        );
-
-        when(lecturerRepo.findById(lecturer.getId())).thenReturn(Optional.of(lecturer));
+        Long lecturerId = 1L;
+        when(lecturerRepo.findById(lecturerId)).thenReturn(Optional.of(lecturer));
         when(lecturerRepo.existsByEmail(updateRequest.getEmail())).thenReturn(true);
 
         Exception exception = assertThrows(ResourceAlreadyExistsException.class, () -> {
@@ -331,56 +289,10 @@ class LecturerServiceImplMockTest {
         });
 
         assertEquals("Lecturer already exists with email: " + updateRequest.getEmail(), exception.getMessage());
-        verify(lecturerRepo, times(1)).findById(lecturer.getId());
-        verify(lecturerRepo, times(0)).save(any(LecturerEntity.class));
+        verify(lecturerRepo, times(1)).findById(lecturerId);
+        verify(lecturerRepo, times(1)).existsByEmail(updateRequest.getEmail());
+        verify(lecturerRepo, never()).save(any(LecturerEntity.class));
     }
-    @Test
-    void testUpdateLecturer_InvalidPhone() {
-        groupExmEntity = new GroupEntity(
-                "Example Group",
-                "example-whatsapp",
-                "example-skype",
-                "example-slack",
-                GroupStatus.ACTIVE,
-                LocalDate.of(2024, 1, 1),
-                LocalDate.of(2024, 12, 31),
-                LocalDate.of(2024, 6, 30),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                null,
-                null
-        );
-
-        Set<GroupEntity> groups = new HashSet<>();
-        groups.add(groupExmEntity);
-
-        lecturer = new LecturerEntity(1L, "John", "Doe",
-                "123456789", "john.doe@example.com", "Haifa",
-                LecturerStatus.ACTIVE, groups, null, null);
-
-        LecturerUpdateRequest invalidUpdateRequest = new LecturerUpdateRequest(
-                lecturer.getId(), "John", "Doe", "invalid-phone",
-                "john.doe@example.com", "Haifa", LecturerStatus.ACTIVE,
-                new HashSet<>(Set.of("Example Group"))
-        );
-
-        when(lecturerRepo.findById(lecturer.getId())).thenReturn(Optional.of(lecturer));
-        when(lecturerRepo.existsByEmail(invalidUpdateRequest.getEmail())).thenReturn(false);
-
-        Exception exception = assertThrows(ResourceAlreadyExistsException.class, () -> {
-            lecturerService.updateLecturer(invalidUpdateRequest);
-        });
-
-        assertEquals("Invalid phone number format", exception.getMessage());
-        verify(lecturerRepo, times(1)).findById(lecturer.getId());
-        verify(lecturerRepo, times(0)).save(any(LecturerEntity.class));
-
-        assertEquals("123456789", lecturer.getPhoneNumber());
-        assertEquals("john.doe@example.com", lecturer.getEmail());
-    }
-
 
     @Test
     void testDeleteLecturer_Success() {

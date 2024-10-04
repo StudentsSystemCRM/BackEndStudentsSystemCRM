@@ -2,8 +2,7 @@ package edutrack.lecturer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edutrack.exception.ResourceNotFoundException;
-import edutrack.group.constant.GroupStatus;
-import edutrack.group.entity.GroupEntity;
+
 import edutrack.lecturer.constant.LecturerStatus;
 import edutrack.lecturer.controller.LecturerController;
 import edutrack.lecturer.dto.request.LecturerCreateRequest;
@@ -25,7 +24,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
