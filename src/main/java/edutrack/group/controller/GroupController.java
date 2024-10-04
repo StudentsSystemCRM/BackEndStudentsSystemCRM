@@ -33,79 +33,78 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class GroupController {
 
-    GroupService groupService;
+	GroupService groupService;
 
-    @PostMapping("/create")
-    @Operation(summary = "Create a new group", description = "Creates a new group with the provided details.")
-    public GroupDataResponse createGroup(@Valid @RequestBody GroupCreateRequest group) {
-        return groupService.createGroup(group);
-    }
+	@PostMapping("/create")
+	@Operation(summary = "Create a new group", description = "Creates a new group with the provided details.")
+	public GroupDataResponse createGroup(@Valid @RequestBody GroupCreateRequest group) {
+		return groupService.createGroup(group);
+	}
 
 //    @GetMapping
 //    @Operation(summary = "Get all groups", description = "Returns a list of all groups.")
 //    public List<GroupDataResponse> getAllGroups() {
 //        return groupService.getAllGroups();
 //    }
-    
-    @GetMapping
-    @Operation(summary = "Get all groups", description = "Returns a list of all groups with params.")
-    public List<GroupDataResponse> getAllGroups(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size,
-    		@RequestParam(required = false, defaultValue = "name") String sortBy, @RequestParam(required = false, defaultValue = "true") boolean ascending) {
-    	Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-    	Pageable pageable = PageRequest.of(page, size, sort);
-        return groupService.getAllGroups(pageable);
-    }
 
-    @GetMapping("/status")
-    @Operation(summary = "Get groups by status", description = "Returns a list of groups filtered by their status.")
-    public List<GroupDataResponse> getGroupsByStatus(@RequestParam GroupStatus status) {
-        return groupService.getGroupsByStatus(status);
-    }
+	@GetMapping
+	@Operation(summary = "Get all groups", description = "Returns a list of all groups with params.")
+	public List<GroupDataResponse> getAllGroups(@RequestParam(required = false, defaultValue = "0") int page,
+			@RequestParam(required = false, defaultValue = "10") int size,
+			@RequestParam(required = false, defaultValue = "name") String sortBy,
+			@RequestParam(required = false, defaultValue = "true") boolean ascending) {
+		Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+		Pageable pageable = PageRequest.of(page, size, sort);
+		return groupService.getAllGroups(pageable);
+	}
 
-    @GetMapping("/name/{name}")
-    @Operation(summary = "Get group by name", description = "Returns the group that matches the given name.")
-    public GroupDataResponse getGroupByName(@PathVariable String name) {
-        return groupService.getGroupByName(name);
-    }
+	@GetMapping("/status")
+	@Operation(summary = "Get groups by status", description = "Returns a list of groups filtered by their status.")
+	public List<GroupDataResponse> getGroupsByStatus(@RequestParam GroupStatus status) {
+		return groupService.getGroupsByStatus(status);
+	}
 
-    @GetMapping("/student/{id}")
-    @Operation(summary = "Get groups of a student", description = "Returns a list of groups that a student belongs to.")
-    public List<GroupDataResponse> getStudentGroups(@PathVariable  @Min(0) Long id) {
-        return groupService.getStudentGroups(id);
-    }
+	@GetMapping("/name/{name}")
+	@Operation(summary = "Get group by name", description = "Returns the group that matches the given name.")
+	public GroupDataResponse getGroupByName(@PathVariable String name) {
+		return groupService.getGroupByName(name);
+	}
 
-    @PostMapping("/add-student")
-    @Operation(summary = "Add a student to a group", description = "Adds a student to the specified group by student ID and group name.")
-    public GroupDataResponse addStudentToGroup(@RequestParam @Min(0) Long id, @RequestParam String name) {
-        return groupService.addStudentToGroup(id, name);
-    }
+	@GetMapping("/student/{id}")
+	@Operation(summary = "Get groups of a student", description = "Returns a list of groups that a student belongs to.")
+	public List<GroupDataResponse> getStudentGroups(@PathVariable @Min(0) Long id) {
+		return groupService.getStudentGroups(id);
+	}
 
-    @PutMapping("/update")
-    @Operation(summary = "Update group details", description = "Updates the details of an existing group. you cannot update name")
-    public GroupDataResponse updateGroup(@RequestBody @Valid GroupUpdateDataRequest group) {
-        return groupService.updateGroup(group);
-    }
+	@PostMapping("/add-student")
+	@Operation(summary = "Add a student to a group", description = "Adds a student to the specified group by student ID and group name.")
+	public GroupDataResponse addStudentToGroup(@RequestParam @Min(0) Long id, @RequestParam String name) {
+		return groupService.addStudentToGroup(id, name);
+	}
 
-    @DeleteMapping("/remove-student")
-    @Operation(summary = "Remove a student from a group", description = "Removes a student from the specified group by student ID and group name.")
-    public Boolean deleteStudentFromGroup(@RequestParam @Min(0) Long id, @RequestParam String name) {
-        return groupService.deleteStudentFromGroup(id, name);
-    }
+	@PutMapping("/update")
+	@Operation(summary = "Update group details", description = "Updates the details of an existing group. you cannot update name")
+	public GroupDataResponse updateGroup(@RequestBody @Valid GroupUpdateDataRequest group) {
+		return groupService.updateGroup(group);
+	}
 
-    @DeleteMapping("/delete/{name}")
-    @Operation(summary = "Delete a group", description = "Deletes the group with the given name.")
-    public GroupDataResponse deleteGroup(@PathVariable String name) {
-        return groupService.deleteGroup(name);
-    }
-    
-    
-    @PutMapping("/{studentId}/{groupName}/{oldGroupName}")
-    @Operation(summary = "Change student's group", description = "Updates the group of a student to a new one.")
-    public void changeStudentGroup(
-            @PathVariable Long studentId, 
-            @PathVariable String groupName,
-            @PathVariable String oldGroupName) {
-        groupService.changeStudentGroup(studentId, groupName, oldGroupName);
-    }
+	@DeleteMapping("/remove-student")
+	@Operation(summary = "Remove a student from a group", description = "Removes a student from the specified group by student ID and group name.")
+	public Boolean deleteStudentFromGroup(@RequestParam @Min(0) Long id, @RequestParam String name) {
+		return groupService.deleteStudentFromGroup(id, name);
+	}
+
+	@DeleteMapping("/delete/{name}")
+	@Operation(summary = "Delete a group", description = "Deletes the group with the given name.")
+	public GroupDataResponse deleteGroup(@PathVariable String name) {
+		return groupService.deleteGroup(name);
+	}
+
+	@PutMapping("/{studentId}/{groupName}/{oldGroupName}")
+	@Operation(summary = "Change student's group", description = "Updates the group of a student to a new one.")
+	public void changeStudentGroup(@PathVariable Long studentId, @PathVariable String groupName,
+			@PathVariable String oldGroupName) {
+		groupService.changeStudentGroup(studentId, groupName, oldGroupName);
+	}
 
 }

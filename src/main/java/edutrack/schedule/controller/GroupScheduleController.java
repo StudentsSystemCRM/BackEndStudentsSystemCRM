@@ -22,19 +22,18 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class GroupScheduleController {
-	
+
 	GroupScheduleService groupSchedule;
 
-	
-    @GetMapping("/{name}")
-    @Operation(summary = "Get a student's schedules by name", description = "Provide a name to lookup a specific group's schedules.")
-    public GroupScheduleResponse getGroupReminders(@PathVariable String name) {
-        return groupSchedule.getGroupReminders(name);
-    }
-    
-    @PostMapping("/schedule")
-    @Operation(summary = "Add a schedule to a group.", description = "Provide the necessary data to create a new schedule to a specific group.")
-    public GroupScheduleResponse addGroupReminder(@RequestBody @Valid AddGroupScheduleRequest groupReminder) {
-        return groupSchedule.addGroupReminder(groupReminder);
-    }
+	@GetMapping("/{name}")
+	@Operation(summary = "Get a student's schedules by name", description = "Provide a name to lookup a specific group's schedules.")
+	public GroupScheduleResponse getGroupReminders(@PathVariable String name) {
+		return groupSchedule.getGroupReminders(name);
+	}
+
+	@PostMapping("/schedule")
+	@Operation(summary = "Add a schedule to a group.", description = "Provide the necessary data to create a new schedule to a specific group.")
+	public GroupScheduleResponse addGroupReminder(@RequestBody @Valid AddGroupScheduleRequest groupReminder) {
+		return groupSchedule.addGroupReminder(groupReminder);
+	}
 }

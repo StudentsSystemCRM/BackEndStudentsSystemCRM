@@ -20,7 +20,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/students")
-public class StudentController{
+public class StudentController {
     private final StudentService service;
     public StudentController(StudentService service) {
         this.service = service;
