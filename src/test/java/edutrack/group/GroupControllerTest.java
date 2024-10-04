@@ -7,18 +7,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import edutrack.security.WebSecurityConfig;
-import edutrack.security.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +25,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -43,6 +40,8 @@ import edutrack.group.dto.request.GroupUpdateDataRequest;
 import edutrack.group.dto.response.GroupDataResponse;
 import edutrack.group.exception.GroupNotFoundException;
 import edutrack.group.service.GroupService;
+import edutrack.security.WebSecurityConfig;
+import edutrack.security.jwt.JwtTokenProvider;
 import edutrack.user.constant.ValidationAccountingMessage;
 import edutrack.user.repository.AccountRepository;
 
@@ -83,17 +82,19 @@ class GroupControllerTest {
                 Arrays.asList(WeekDay.TUESDAY, WeekDay.THURSDAY));
 
         responseGroup = new GroupDataResponse(
-                "java-24",
-                "whatsApp",
-                "skype",
-                "slack",
-                GroupStatus.ACTIVE,
-                LocalDate.of(2024, 1, 1),
-                LocalDate.of(2024, 6, 1),
-                Arrays.asList(WeekDay.MONDAY, WeekDay.WEDNESDAY),
-                Arrays.asList(WeekDay.TUESDAY, WeekDay.THURSDAY),
-                false, Collections.emptyList(),
-                Collections.emptyList());
+        	    1L,
+        	    "java-24",
+        	    "whatsApp",
+        	    "skype",
+        	    "slack",
+        	    GroupStatus.ACTIVE,
+        	    LocalDate.of(2024, 1, 1),
+        	    LocalDate.of(2024, 6, 1),
+        	    Arrays.asList(WeekDay.MONDAY, WeekDay.WEDNESDAY),
+        	    Arrays.asList(WeekDay.TUESDAY, WeekDay.THURSDAY),
+        	    false
+        	);
+
 
     }
 
@@ -124,16 +125,34 @@ class GroupControllerTest {
 
     @Test
     void shouldGetAllGroups() throws Exception {
-        GroupDataResponse group2 = new GroupDataResponse("java-20", "whatsApp", "skype", "slack", GroupStatus.INACTIVE,
-                LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1), Arrays.asList(WeekDay.FRIDAY),
-                Arrays.asList(WeekDay.SATURDAY), false, Collections.emptyList(),
-                Collections.emptyList());
+        GroupDataResponse group2 = new GroupDataResponse(
+            1L,                              // id
+            "java-20",                        // name
+            "whatsApp",                       // whatsApp
+            "skype",                          // skype
+            "slack",                          // slack
+            GroupStatus.INACTIVE,             // status
+            LocalDate.of(2024, 2, 1),         // startDate
+            LocalDate.of(2024, 7, 1),         // expFinishDate
+            Arrays.asList(WeekDay.FRIDAY),     // lessons
+            Arrays.asList(WeekDay.SATURDAY),   // webinars
+            false                             // DeactivateAfter30Days
+        );
 
         List<GroupDataResponse> groups = Arrays.asList(responseGroup, group2);
 
-        when(groupService.getAllGroups()).thenReturn(groups);
+        // Создаем Pageable для теста
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-        mockMvc.perform(get("/api/groups").contentType(MediaType.APPLICATION_JSON))
+        // Мокаем вызов сервиса
+        when(groupService.getAllGroups(pageable)).thenReturn(groups);
+
+        mockMvc.perform(get("/api/groups")
+                .param("page", "0")
+                .param("size", "10")
+                .param("sortBy", "name")
+                .param("ascending", "true")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("java-24"))
                 .andExpect(jsonPath("$[1].name").value("java-20"));
@@ -254,18 +273,20 @@ class GroupControllerTest {
 
     @Test
     void shouldUpdateGroup_whenValidRequest() throws Exception {
-        GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(
-                "java-24",
-                "newWhatsApp",
-                "newSkype",
-                "newSlack",
-                GroupStatus.ACTIVE,
-                LocalDate.of(2024, 2, 1),
-                LocalDate.of(2024, 7, 1),
-                Arrays.asList(WeekDay.FRIDAY),
-                Arrays.asList(WeekDay.SATURDAY),
-                false
-        );
+    	GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(
+    		    1L,                             // id (нужно передать значение типа Long)
+    		    "java-24",                      // name
+    		    "newWhatsApp",                  // whatsApp
+    		    "newSkype",                     // skype
+    		    "newSlack",                     // slack
+    		    GroupStatus.ACTIVE,             // status
+    		    LocalDate.of(2024, 2, 1),       // startDate
+    		    LocalDate.of(2024, 7, 1),       // expFinishDate
+    		    Arrays.asList(WeekDay.FRIDAY),  // lessonsDays
+    		    Arrays.asList(WeekDay.SATURDAY),// webinarsDays
+    		    false                           // DeactivateAfter30Days
+    		);
+
         responseGroup.setWhatsApp("newWhatsApp");
 
         when(groupService.updateGroup(any(GroupUpdateDataRequest.class))).thenReturn(responseGroup);
@@ -280,18 +301,20 @@ class GroupControllerTest {
 
     @Test
     void shouldReturnBadRequest_whenNameIsEmpty() throws Exception {
-        GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(
-                "",
-                "newWhatsApp",
-                "newSkype",
-                "newSlack",
-                GroupStatus.ACTIVE,
-                LocalDate.of(2024, 2, 1),
-                LocalDate.of(2024, 7, 1),
-                Arrays.asList(WeekDay.FRIDAY),
-                Arrays.asList(WeekDay.SATURDAY),
-                false
-        );
+    	GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(
+    		    1L,                             
+    		    "",                     
+    		    "newWhatsApp",                  // whatsApp
+    		    "newSkype",                     // skype
+    		    "newSlack",                     // slack
+    		    GroupStatus.ACTIVE,             // status
+    		    LocalDate.of(2024, 2, 1),       // startDate
+    		    LocalDate.of(2024, 7, 1),       // expFinishDate
+    		    Arrays.asList(WeekDay.FRIDAY),  // lessonsDays
+    		    Arrays.asList(WeekDay.SATURDAY),// webinarsDays
+    		    false                           // DeactivateAfter30Days
+    		);
+
 
         mockMvc.perform(put("/api/groups/update")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -304,6 +327,7 @@ class GroupControllerTest {
     void shouldReturnNotFound_whenGroupNotFound() throws Exception {
         // Arrange
         GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(
+        		1L,
                 "non-existent-group",
                 "newWhatsApp",
                 "newSkype",
@@ -328,13 +352,12 @@ class GroupControllerTest {
 
     @Test
     void shouldRemoveStudentFromGroup_whenValidRequest() throws Exception {
-        when(groupService.deleteStudentFromGroup(1L, "java-24")).thenReturn(responseGroup);
+        when(groupService.deleteStudentFromGroup(1L, "java-24")).thenReturn(true);
         mockMvc.perform(delete("/api/groups/remove-student")
                         .param("id", "1")
                         .param("name", "java-24")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("java-24"));
+                .andExpect(status().isOk());
     }
 
     @Test
