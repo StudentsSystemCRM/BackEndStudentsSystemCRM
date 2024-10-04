@@ -23,6 +23,7 @@ import lombok.experimental.FieldDefaults;
 public class ActivityLogController {
 	
 	ActivityLogService activityLog;
+
 	
     @GetMapping("/{id}/activity")
     @Operation(summary = "Get a student's activities by ID", description = "Provide an ID to lookup a specific student's activities.")

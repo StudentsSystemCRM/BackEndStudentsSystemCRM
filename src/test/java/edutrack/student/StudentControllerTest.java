@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.List;
 
+import edutrack.security.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,152 +25,168 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edutrack.activityLog.repository.ActivityLogRepository;
-import edutrack.group.repository.GroupRepository;
-import edutrack.payment.repository.PaymentRepository;
 import edutrack.student.constant.LeadStatus;
 import edutrack.student.controller.StudentController;
 import edutrack.student.dto.request.StudentCreateRequest;
 import edutrack.student.dto.response.StudentDataResponse;
-import edutrack.student.repository.StudentRepository;
 import edutrack.student.service.StudentService;
 import edutrack.user.repository.AccountRepository;
-import edutrack.security.JwtTokenCreator;
-import edutrack.security.JwtTokenValidator;
-import edutrack.security.SecurityConfig;
+import edutrack.security.WebSecurityConfig;
 
 @WebMvcTest(StudentController.class)
-@Import({ JwtTokenValidator.class, JwtTokenCreator.class, SecurityConfig.class })
+@Import({JwtTokenProvider.class,WebSecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class StudentControllerTest {
+    @Autowired
+    private MockMvc mockMvc;
 
-	@Autowired
-	private MockMvc mockMvc;
+    @MockBean
+    private StudentService studentService;
 
-	@MockBean
-	private StudentService studentService;
-	@MockBean
-	private AccountRepository userRepository;
+    @MockBean
+    private AccountRepository userRepository;
 
-	@MockBean
-	private GroupRepository groupRepository;
-	@MockBean
-	private StudentRepository studentRepository;
+    @BeforeEach
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
 
-	@MockBean
-	private PaymentRepository paymentRepository;
+    @Test
+    public void testGetAllStudents() throws Exception {
+        mockMvc.perform(get("/api/students"))
+                .andExpect(status().isOk());
+    }
 
-	@MockBean
-	private ActivityLogRepository activityLogRepository;
+    @Test
+    public void testGetStudentById() throws Exception {
+        Long studentId = 1L;
+        StudentDataResponse mockResponse = new StudentDataResponse(
+                studentId,
+                "John",
+                "Doe",
+                "1234567890",
+                "john.doe@example.com",
+                "City",
+                "Course",
+                "Source",
+                LeadStatus.IN_WORK
+        );
+        Mockito.when(studentService.getStudentById(studentId)).thenReturn(mockResponse);
 
-	@BeforeEach
-	public void setup() {
-		MockitoAnnotations.openMocks(this);
-	}
+        mockMvc.perform(get("/api/students/{id}", studentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(studentId))
+                .andExpect(jsonPath("$.name").value("John"))
+                .andExpect(jsonPath("$.surname").value("Doe"));
+    }
 
-	@Test
-	public void testGetAllStudents() throws Exception {
-		mockMvc.perform(get("/api/students")).andExpect(status().isOk());
-	}
+    @Test
+    public void testCreateStudent() throws Exception {
+        StudentCreateRequest request = new StudentCreateRequest(
+                "John", "Doe", "1234567890", "john.doe@example.com",
+                "City", "Course", "Source", LeadStatus.STUDENT,
+                "Comment" );
+        StudentDataResponse response = new StudentDataResponse();
+        response.setId(1L);
 
-	@Test
-	public void testGetStudentById() throws Exception {
-		Long studentId = 1L;
-		StudentDataResponse mockResponse = new StudentDataResponse(studentId, "John", "Doe", "1234567890",
-				"john.doe@example.com", "City", "Course", "Source", LeadStatus.IN_WORK);
-		Mockito.when(studentService.getStudentById(studentId)).thenReturn(mockResponse);
+        Mockito.when(studentService.createStudent(any(StudentCreateRequest.class))).thenReturn(response);
 
-		mockMvc.perform(get("/api/students/{id}", studentId)).andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value(studentId)).andExpect(jsonPath("$.name").value("John"))
-				.andExpect(jsonPath("$.surname").value("Doe"));
-	}
+        mockMvc.perform(post("/api/students/create_student")
+                        .contentType("application/json")
+                        .content(asJsonString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.getId()));
+    }
 
-	@Test
-	public void testCreateStudent() throws Exception {
-		StudentCreateRequest request = new StudentCreateRequest("John", "Doe", "1234567890", "john.doe@example.com",
-				"City", "Course", "Source", LeadStatus.STUDENT, "Comment");
-		StudentDataResponse response = new StudentDataResponse();
-		response.setId(1L);
+    @Test
+    public void testGetStudentsByName() throws Exception {
+        String name = "John";
+        List<StudentDataResponse> mockResponse = new ArrayList<>();
+        mockResponse.add(new StudentDataResponse(1L, name, "Doe", "1234567890", "john.doe@example.com", "New York", "Engineering", "Website", LeadStatus.STUDENT));
+        mockResponse.add(new StudentDataResponse(2L, name, "Smith", "0987654321", "john.smith@example.com", "Los Angeles", "Mathematics", "Referral", LeadStatus.IN_WORK));
 
-		Mockito.when(studentService.createStudent(any(StudentCreateRequest.class))).thenReturn(response);
+        Mockito.when(studentService.getStudentsByName(eq(name))).thenReturn(mockResponse);
 
-		mockMvc.perform(
-				post("/api/students/create_student").contentType("application/json").content(asJsonString(request)))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.id").value(response.getId()));
-	}
+        mockMvc.perform(get("/api/students/name")
+                        .param("name", name))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value(name))
+                .andExpect(jsonPath("$[1].name").value(name))
+                .andExpect(jsonPath("$[0].surname").value("Doe"))
+                .andExpect(jsonPath("$[1].surname").value("Smith"));
+    }
 
-	@Test
-	public void testGetStudentsByName() throws Exception {
-		String name = "John";
-		List<StudentDataResponse> mockResponse = new ArrayList<>();
-		mockResponse.add(new StudentDataResponse(1L, name, "Doe", "1234567890", "john.doe@example.com", "New York",
-				"Engineering", "Website", LeadStatus.STUDENT));
-		mockResponse.add(new StudentDataResponse(2L, name, "Smith", "0987654321", "john.smith@example.com",
-				"Los Angeles", "Mathematics", "Referral", LeadStatus.IN_WORK));
+    @Test
+    public void testGetStudentsByName_NoMatches() throws Exception {
+        String name = "NonexistentName";
+        List<StudentDataResponse> mockResponse = new ArrayList<>();
 
-		Mockito.when(studentService.getStudentsByName(eq(name))).thenReturn(mockResponse);
+        Mockito.when(studentService.getStudentsByName(eq(name))).thenReturn(mockResponse);
 
-		mockMvc.perform(get("/api/students/name").param("name", name)).andExpect(status().isOk())
-				.andExpect(jsonPath("$[0].name").value(name)).andExpect(jsonPath("$[1].name").value(name))
-				.andExpect(jsonPath("$[0].surname").value("Doe")).andExpect(jsonPath("$[1].surname").value("Smith"));
-	}
+        mockMvc.perform(get("/api/students/name")
+                        .param("name", name))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+    }
 
-	@Test
-	public void testGetStudentsByNameNoMatches() throws Exception {
-		String name = "NonexistentName";
-		List<StudentDataResponse> mockResponse = new ArrayList<>();
+    @Test
+    public void testGetStudentsBySurname() throws Exception {
+        String surname = "Doe";
+        List<StudentDataResponse> mockResponse = new ArrayList<>();
+        mockResponse.add(new StudentDataResponse(1L, "John", surname, "1234567890",
+                "john.doe@example.com", "New York", "Engineering",
+                "Website", LeadStatus.STUDENT));
+        mockResponse.add(new StudentDataResponse(2L, "Jane", surname, "0987654321",
+                "jane.doe@example.com", "New York", "Engineering",
+                "Website", LeadStatus.CONSULTATION));
 
-		Mockito.when(studentService.getStudentsByName(eq(name))).thenReturn(mockResponse);
+        Mockito.when(studentService.getStudentsBySurname(eq(surname))).thenReturn(mockResponse);
 
-		mockMvc.perform(get("/api/students/name").param("name", name)).andExpect(status().isOk())
-				.andExpect(jsonPath("$").isEmpty());
-	}
+        mockMvc.perform(get("/api/students/surname")
+                        .param("surname", surname))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].surname").value(surname))
+                .andExpect(jsonPath("$[1].surname").value(surname));
+    }
 
-	@Test
-	public void testGetStudentsBySurname() throws Exception {
-		String surname = "Doe";
-		List<StudentDataResponse> mockResponse = new ArrayList<>();
-		mockResponse.add(new StudentDataResponse(1L, "John", surname, "1234567890", "john.doe@example.com", "New York",
-				"Engineering", "Website", LeadStatus.STUDENT));
-		mockResponse.add(new StudentDataResponse(2L, "Jane", surname, "0987654321", "jane.doe@example.com", "New York",
-				"Engineering", "Website", LeadStatus.CONSULTATION));
+    @Test
+    public void testGetStudentsByNameAndSurname() throws Exception {
+        String name = "John";
+        String surname = "Doe";
+        List<StudentDataResponse> mockResponse = new ArrayList<>();
+        mockResponse.add(new StudentDataResponse(1L, name, surname, "1234567890",
+                "john.doe@example.com", "New York", "Engineering",
+                "Website", LeadStatus.CONSULTATION));
+        mockResponse.add(new StudentDataResponse(2L, name, surname, "0987654321",
+                "john.doe@example.com", "New York", "Engineering",
+                "Website", LeadStatus.SAVE_FOR_LATER));
 
-		Mockito.when(studentService.getStudentsBySurname(eq(surname))).thenReturn(mockResponse);
+        Mockito.when(studentService.getStudentsByNameAndSurname(eq(name), eq(surname))).thenReturn(mockResponse);
 
-		mockMvc.perform(get("/api/students/surname").param("surname", surname)).andExpect(status().isOk())
-				.andExpect(jsonPath("$[0].surname").value(surname)).andExpect(jsonPath("$[1].surname").value(surname));
-	}
+        mockMvc.perform(get("/api/students/name_and_surname")
+                        .param("name", name)
+                        .param("surname", surname))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value(name))
+                .andExpect(jsonPath("$[0].surname").value(surname))
+                .andExpect(jsonPath("$[1].name").value(name))
+                .andExpect(jsonPath("$[1].surname").value(surname));
+    }
 
-	@Test
-	public void testGetStudentsByNameAndSurname() throws Exception {
-		String name = "John";
-		String surname = "Doe";
-		List<StudentDataResponse> mockResponse = new ArrayList<>();
-		mockResponse.add(new StudentDataResponse(1L, name, surname, "1234567890", "john.doe@example.com", "New York",
-				"Engineering", "Website", LeadStatus.CONSULTATION));
-		mockResponse.add(new StudentDataResponse(2L, name, surname, "0987654321", "john.doe@example.com", "New York",
-				"Engineering", "Website", LeadStatus.SAVE_FOR_LATER));
+    @Test
+    public void testUpdateStudent() throws Exception {
+        mockMvc.perform(put("/api/students/update_student_information")
+                        .contentType("application/json")
+                        .content("{\"id\":1,\"name\":\"John\",\"surname\":\"Doe\"}"))
+                .andExpect(status().isOk());
+    }
 
-		Mockito.when(studentService.getStudentsByNameAndSurname(eq(name), eq(surname))).thenReturn(mockResponse);
-
-		mockMvc.perform(get("/api/students/name_and_surname").param("name", name).param("surname", surname))
-				.andExpect(status().isOk()).andExpect(jsonPath("$[0].name").value(name))
-				.andExpect(jsonPath("$[0].surname").value(surname)).andExpect(jsonPath("$[1].name").value(name))
-				.andExpect(jsonPath("$[1].surname").value(surname));
-	}
-
-	@Test
-	public void testUpdateStudent() throws Exception {
-		mockMvc.perform(put("/api/students/update_student_information").contentType("application/json")
-				.content("{\"id\":1,\"name\":\"John\",\"surname\":\"Doe\"}")).andExpect(status().isOk());
-	}
-
-	private static String asJsonString(Object obj) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			return mapper.writeValueAsString(obj);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    private static String asJsonString(Object obj) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

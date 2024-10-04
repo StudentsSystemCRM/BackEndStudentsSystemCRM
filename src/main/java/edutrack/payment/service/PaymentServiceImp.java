@@ -28,6 +28,7 @@ public class PaymentServiceImp implements PaymentService {
 	StudentRepository studentRepo;
 	PaymentRepository paymentRepo;
 	
+
 	@Override
 	@Transactional
 	public PaymentInfoResponse getStudentPaymentInfo(Long id) {
@@ -35,6 +36,7 @@ public class PaymentServiceImp implements PaymentService {
 				.orElseThrow(() -> new StudentNotFoundException("Student with id " + id + " not found"));
 		return 	EntityDtoPaymentMapper.INSTANCE.studentToPaymentInfoResponse(student, getListOfSinglePaymentsById(id));
 	}
+
 
 	@Override
 	@Transactional
@@ -46,6 +48,7 @@ public class PaymentServiceImp implements PaymentService {
         return EntityDtoPaymentMapper.INSTANCE.studentToPaymentInfoResponse(student,  getListOfSinglePaymentsById(studentPayment.getStudentId()));
 	}
 	
+
 	private List<SinglePayment> getListOfSinglePaymentsById(Long id) {
 		List<PaymentEntity> payments = paymentRepo.findByStudentId(id);
 		List<SinglePayment> paymentsResp = (payments != null) 

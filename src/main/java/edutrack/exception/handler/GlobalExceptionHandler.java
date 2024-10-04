@@ -9,6 +9,7 @@ import edutrack.exception.response.GeneralErrorResponseValidationDto;
 import edutrack.group.exception.GroupNotFoundException;
 import edutrack.student.exception.EmailAlreadyInUseException;
 import edutrack.user.exception.AccessException;
+import edutrack.user.exception.AccessRoleException;
 import edutrack.user.exception.InvalidDateFormatException;
 import edutrack.user.exception.ResourceExistsException;
 
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -31,7 +33,9 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public GeneralErrorResponseValidationDto handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-		List<String> messages = ex.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage)
+		List<String> messages = ex.getAllErrors()
+				.stream()
+				.map(DefaultMessageSourceResolvable::getDefaultMessage)
 				.toList();
 		return new GeneralErrorResponseValidationDto(UUID.randomUUID().toString(), messages);
 	}
@@ -39,7 +43,10 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(HandlerMethodValidationException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public GeneralErrorResponseValidationDto handleConstraintViolationException(HandlerMethodValidationException ex) {
-		List<String> messages = ex.getAllErrors().stream().map(MessageSourceResolvable::getDefaultMessage).toList();
+		List<String> messages = ex.getAllErrors()
+				.stream()
+				.map(MessageSourceResolvable::getDefaultMessage)
+				.toList();
 		return new GeneralErrorResponseValidationDto(UUID.randomUUID().toString(), messages);
 	}
 
@@ -57,8 +64,15 @@ public class GlobalExceptionHandler {
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
 
+	@ExceptionHandler(AccessRoleException.class)
+	@ResponseStatus(HttpStatus.FORBIDDEN)
+	public GeneralErrorResponse handleAccessException(AccessRoleException ex) {
+		logger.error("Access exception.", ex);
+		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
+	}
+	
 	@ExceptionHandler(AccessException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
 	public GeneralErrorResponse handleAccessException(AccessException ex) {
 		logger.error("Access exception.", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
@@ -77,32 +91,18 @@ public class GlobalExceptionHandler {
 		logger.error("Email already in use.", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
-
+	
 	@ExceptionHandler(GroupNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public GeneralErrorResponse handleJwtTokenExpiredException(GroupNotFoundException ex) {
 		logger.error("GroupNotFoundException", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
-
-	@ExceptionHandler(JwtTokenMalformedException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public GeneralErrorResponse handleJwtTokenMalformedException(JwtTokenMalformedException ex) {
-		logger.error("JWT token is malformed.", ex);
-		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
-	}
-
-	@ExceptionHandler(JwtTokenExpiredException.class)
-	@ResponseStatus(HttpStatus.UNAUTHORIZED)
-	public GeneralErrorResponse handleJwtTokenExpiredException(JwtTokenExpiredException ex) {
-		logger.error("JWT token has expired.", ex);
-		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
-	}
-
-	@ExceptionHandler(JwtTokenMissingException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public GeneralErrorResponse handleJwtTokenMissingException(JwtTokenMissingException ex) {
-		logger.error("JWT token is missing.", ex);
+	
+	@ExceptionHandler(NoResourceFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public GeneralErrorResponse handleJwtTokenExpiredException(NoResourceFoundException ex) {
+		logger.error("Edpoints doesn't exists", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
 
