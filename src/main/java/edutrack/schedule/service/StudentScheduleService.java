@@ -1,12 +1,12 @@
 package edutrack.schedule.service;
 
 import edutrack.schedule.dto.request.AddStudentScheduleRequest;
-import edutrack.schedule.dto.response.ScheduleResponse;
+import edutrack.schedule.dto.response.StudentScheduleResponse;
 
 public interface StudentScheduleService {
 
-	ScheduleResponse getStudentReminders(Long id);
+	StudentScheduleResponse getStudentReminders(Long id);
 
-	ScheduleResponse addStudentReminder(AddStudentScheduleRequest studentReminder);
+	StudentScheduleResponse addStudentReminder(AddStudentScheduleRequest studentReminder);
 
 }

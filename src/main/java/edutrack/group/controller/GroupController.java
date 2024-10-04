@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,10 +41,19 @@ public class GroupController {
         return groupService.createGroup(group);
     }
 
+//    @GetMapping
+//    @Operation(summary = "Get all groups", description = "Returns a list of all groups.")
+//    public List<GroupDataResponse> getAllGroups() {
+//        return groupService.getAllGroups();
+//    }
+    
     @GetMapping
-    @Operation(summary = "Get all groups", description = "Returns a list of all groups.")
-    public List<GroupDataResponse> getAllGroups() {
-        return groupService.getAllGroups();
+    @Operation(summary = "Get all groups", description = "Returns a list of all groups with params.")
+    public List<GroupDataResponse> getAllGroups(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size,
+    		@RequestParam(required = false, defaultValue = "name") String sortBy, @RequestParam(required = false, defaultValue = "true") boolean ascending) {
+    	Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+    	Pageable pageable = PageRequest.of(page, size, sort);
+        return groupService.getAllGroups(pageable);
     }
 
     @GetMapping("/status")
@@ -76,7 +88,7 @@ public class GroupController {
 
     @DeleteMapping("/remove-student")
     @Operation(summary = "Remove a student from a group", description = "Removes a student from the specified group by student ID and group name.")
-    public GroupDataResponse deleteStudentFromGroup(@RequestParam @Min(0) Long id, @RequestParam String name) {
+    public Boolean deleteStudentFromGroup(@RequestParam @Min(0) Long id, @RequestParam String name) {
         return groupService.deleteStudentFromGroup(id, name);
     }
 
@@ -87,12 +99,13 @@ public class GroupController {
     }
     
     
-    @PutMapping("/{studentId}/{groupName}")
+    @PutMapping("/{studentId}/{groupName}/{oldGroupName}")
     @Operation(summary = "Change student's group", description = "Updates the group of a student to a new one.")
     public void changeStudentGroup(
             @PathVariable Long studentId, 
-            @PathVariable String groupName) {
-        groupService.changeStudentGroup(studentId, groupName);
+            @PathVariable String groupName,
+            @PathVariable String oldGroupName) {
+        groupService.changeStudentGroup(studentId, groupName, oldGroupName);
     }
 
 }
