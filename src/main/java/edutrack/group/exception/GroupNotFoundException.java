@@ -1,6 +1,5 @@
 package edutrack.group.exception;
 
-
 @SuppressWarnings("serial")
 public class GroupNotFoundException extends RuntimeException {
 

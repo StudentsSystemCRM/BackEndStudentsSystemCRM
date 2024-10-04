@@ -26,44 +26,44 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-    JwtRequestFilter jwtRequestFilter;
+	JwtRequestFilter jwtRequestFilter;
 
-    @Bean
-    SecurityFilterChain configure(HttpSecurity http) throws Exception {
-        return http
-                .httpBasic(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/signup", "api/auth/refreshtoken", "/api/auth/signout").permitAll()
-                        .requestMatchers("/api/users/update", "api/users/assign-role/*", "api/users/remove-role/*").hasAnyRole("ADMIN", "CEO", "USER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/*").hasAnyRole("ADMIN", "CEO", "USER")
+	@Bean
+	SecurityFilterChain configure(HttpSecurity http) throws Exception {
+		return http.httpBasic(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable)
+				.sessionManagement(
+						sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authorizeHttpRequests(authorize -> authorize
+						.requestMatchers("/api/auth/signup", "api/auth/refreshtoken", "/api/auth/signout").permitAll()
+						.requestMatchers("/api/users/update", "api/users/assign-role/*", "api/users/remove-role/*")
+						.hasAnyRole("ADMIN", "CEO", "USER").requestMatchers(HttpMethod.DELETE, "/api/users/*")
+						.hasAnyRole("ADMIN", "CEO", "USER")
 
-                        .requestMatchers(HttpMethod.POST, "/api/students").hasAnyRole("ADMIN", "CEO")
-                        .requestMatchers(HttpMethod.DELETE, "/api/students/*").hasAnyRole("ADMIN", "CEO")
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
+						.requestMatchers(HttpMethod.POST, "/api/students").hasAnyRole("ADMIN", "CEO")
+						.requestMatchers(HttpMethod.DELETE, "/api/students/*").hasAnyRole("ADMIN", "CEO").anyRequest()
+						.authenticated())
+				.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class).build();
+	}
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Bean
-    UserDetailsService userDetailsService(AccountRepository repository) {
-        return (userData) -> {
-            UserEntity account = repository.findByEmail(userData);
-            if (account == null)
-                throw new UsernameNotFoundException("Account with email '%s' not found".formatted(userData));
-            String password = account.getHashedPassword();
-            String[] roles = account.getRoles().stream().map(r -> "ROLE_" + r).toArray(String[]::new);
-            return new User(userData, password, AuthorityUtils.createAuthorityList(roles));
-        };
-    }
+	@Bean
+	UserDetailsService userDetailsService(AccountRepository repository) {
+		return (userData) -> {
+			UserEntity account = repository.findByEmail(userData);
+			if (account == null) {
+				throw new UsernameNotFoundException("Account with email '%s' not found".formatted(userData));
+			}
+			String password = account.getHashedPassword();
+			String[] roles = account.getRoles().stream().map(r -> "ROLE_" + r).toArray(String[]::new);
+			return new User(userData, password, AuthorityUtils.createAuthorityList(roles));
+		};
+	}
+
 }

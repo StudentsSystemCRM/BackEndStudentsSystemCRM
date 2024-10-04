@@ -20,5 +20,5 @@ public interface ValidAccountConstant {
 	// - Optional leading + symbol
 	// - Digits, hyphens, spaces, and parentheses
 	// - Minimum 7 characters and maximum 20 characters
-	String PHONE_NUMBER_PATTERN ="^\\+?[0-9\\-\\s()]{7,20}$";
+	String PHONE_NUMBER_PATTERN = "^\\+?[0-9\\-\\s()]{7,20}$";
 }
