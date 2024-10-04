@@ -15,21 +15,22 @@ import edutrack.activityLog.dto.response.ActivityLogResponse;
 import edutrack.activityLog.service.ActivityLogService;
 
 @SpringBootTest
-@Sql(scripts = {"classpath:testdata.sql"})
+@Sql(scripts = { "classpath:testdata.sql" })
 public class ActivityLogIntegrationDBTest {
-    @Autowired
-    private ActivityLogService activityLogService;
+	@Autowired
+	private ActivityLogService activityLogService;
 
-    static final Long STUDENT_ID_DB_H2 = 2L;
+	static final Long STUDENT_ID_DB_H2 = 2L;
 
-    @Test
-    public void testAddStudentComment() {
-        AddActivityLogRequest commentRequest = new AddActivityLogRequest(STUDENT_ID_DB_H2, LocalDate.now(), "Second comment");
-        ActivityLogResponse activityLogResponse = activityLogService.addActivityLog(commentRequest);
+	@Test
+	public void testAddStudentComment() {
+		AddActivityLogRequest commentRequest = new AddActivityLogRequest(STUDENT_ID_DB_H2, LocalDate.now(),
+				"Second comment");
+		ActivityLogResponse activityLogResponse = activityLogService.addActivityLog(commentRequest);
 
-        assertNotNull(activityLogResponse);
-        assertEquals(1, activityLogResponse.getActivityLogs().size());
-        assertEquals("Second comment", activityLogResponse.getActivityLogs().get(0).getMessage());
-    }
+		assertNotNull(activityLogResponse);
+		assertEquals(1, activityLogResponse.getActivityLogs().size());
+		assertEquals("Second comment", activityLogResponse.getActivityLogs().get(0).getMessage());
+	}
 
 }

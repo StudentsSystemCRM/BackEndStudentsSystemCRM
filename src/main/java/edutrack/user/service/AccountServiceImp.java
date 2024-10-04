@@ -32,153 +32,169 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class AccountServiceImp implements AccountService {
-    AccountRepository userRepository;
-    PasswordEncoder passwordEncoder;
+	AccountRepository userRepository;
+	PasswordEncoder passwordEncoder;
 
-    @Override
-    @Transactional
-    public UserDataResponse updateUser(UserUpdateRequest data) {
-        UserEntity user = userRepository.findByEmail(data.getEmail());
-        if (user == null)
-            throw new NoSuchElementException("Account with email '%s' not found".formatted(data.getEmail()));
-        if (user.getName().equals("ada@gmail.com"))
-            throw new NoSuchElementException("you can't change default user Ada Lovelace, create new one");
+	@Override
+	@Transactional
+	public UserDataResponse updateUser(UserUpdateRequest data) {
+		UserEntity user = userRepository.findByEmail(data.getEmail());
+		if (user == null) {
+			throw new NoSuchElementException("Account with email '%s' not found".formatted(data.getEmail()));
+		}
+		if (user.getName().equals("ada@gmail.com")) {
+			throw new NoSuchElementException("you can't change default user Ada Lovelace, create new one");
+		}
 
-        checkAccessCurrentAccountChangeUser(user);
+		checkAccessCurrentAccountChangeUser(user);
 
-        user.setName(data.getName());
-        user.setSurname(data.getSurname());
-        user.setBirthdate(data.getBirthdate());
-        user.setPhone(data.getPhone());
-        userRepository.save(user);
+		user.setName(data.getName());
+		user.setSurname(data.getSurname());
+		user.setBirthdate(data.getBirthdate());
+		user.setPhone(data.getPhone());
+		userRepository.save(user);
 
-        return EntityDtoUserMapper.INSTANCE.userToUserDataResponse(user);
-    }
+		return EntityDtoUserMapper.INSTANCE.userToUserDataResponse(user);
+	}
 
-    @Override
-    @Transactional
-    public void updatePassword(Principal user, PasswordUpdateRequest data) {
-        if (user.getName().equals("ada@gmail.com"))
-            throw new NoSuchElementException("you can't change default user Ada Lovelace, create new one");
-        UserEntity account = userRepository.findByEmail(user.getName());
-        account.setHashedPassword(passwordEncoder.encode(data.getPassword()));
-        userRepository.save(account);
-    }
+	@Override
+	@Transactional
+	public void updatePassword(Principal user, PasswordUpdateRequest data) {
+		if (user.getName().equals("ada@gmail.com")) {
+			throw new NoSuchElementException("you can't change default user Ada Lovelace, create new one");
+		}
+		UserEntity account = userRepository.findByEmail(user.getName());
+		account.setHashedPassword(passwordEncoder.encode(data.getPassword()));
+		userRepository.save(account);
+	}
 
-    @Override
-    @Transactional
-    public UserDataResponse removeUser(String login) {
-        if (login.equals("ada@gmail.com"))
-            throw new NoSuchElementException("you can't change default user Ada Lovelace, create new one");
+	@Override
+	@Transactional
+	public UserDataResponse removeUser(String login) {
+		if (login.equals("ada@gmail.com")) {
+			throw new NoSuchElementException("you can't change default user Ada Lovelace, create new one");
+		}
 
-        UserEntity user = userRepository.findByEmail(login);
-        if (user == null)
-            throw new NoSuchElementException("Account with login '%s' not found".formatted(login));
+		UserEntity user = userRepository.findByEmail(login);
+		if (user == null) {
+			throw new NoSuchElementException("Account with login '%s' not found".formatted(login));
+		}
 
-        checkAccessCurrentAccountChangeUser(user);
+		checkAccessCurrentAccountChangeUser(user);
 
-        userRepository.delete(user);
-        return EntityDtoUserMapper.INSTANCE.userToUserDataResponse(user);
-    }
+		userRepository.delete(user);
+		return EntityDtoUserMapper.INSTANCE.userToUserDataResponse(user);
+	}
 
-    @Override
-    @Transactional
-    public UserDataResponse addRole(String login, UserRoleRequest data) {
-        UserEntity user = userRepository.findByEmail(login);
-        if (user == null)
-            throw new NoSuchElementException("Account with login '%s' not found".formatted(login));
+	@Override
+	@Transactional
+	public UserDataResponse addRole(String login, UserRoleRequest data) {
+		UserEntity user = userRepository.findByEmail(login);
+		if (user == null) {
+			throw new NoSuchElementException("Account with login '%s' not found".formatted(login));
+		}
 
-        checkAccessChangeRoleUser(user, data.getRole());
+		checkAccessChangeRoleUser(user, data.getRole());
 
-        user.getRoles().add(Role.fromValue(data.getRole()));
-        userRepository.save(user);
+		user.getRoles().add(Role.fromValue(data.getRole()));
+		userRepository.save(user);
 
-        return EntityDtoUserMapper.INSTANCE.userToUserDataResponse(user);
-    }
+		return EntityDtoUserMapper.INSTANCE.userToUserDataResponse(user);
+	}
 
-    @Override
-    @Transactional
-    public UserDataResponse removeRole(String login, UserRoleRequest data) {
-        UserEntity user = userRepository.findByEmail(login);
-        if (user == null)
-            throw new NoSuchElementException("Account with login '%s' not found".formatted(login));
+	@Override
+	@Transactional
+	public UserDataResponse removeRole(String login, UserRoleRequest data) {
+		UserEntity user = userRepository.findByEmail(login);
+		if (user == null) {
+			throw new NoSuchElementException("Account with login '%s' not found".formatted(login));
+		}
 
-        checkAccessChangeRoleUser(user, data.getRole());
+		checkAccessChangeRoleUser(user, data.getRole());
 
-        user.getRoles().remove(Role.fromValue(data.getRole()));
-        userRepository.save(user);
-        return EntityDtoUserMapper.INSTANCE.userToUserDataResponse(user);
-    }
+		user.getRoles().remove(Role.fromValue(data.getRole()));
+		userRepository.save(user);
+		return EntityDtoUserMapper.INSTANCE.userToUserDataResponse(user);
+	}
 
-    private void checkAccessCurrentAccountChangeUser(UserEntity user) {
-        UserAuthInfo authInfo = getCurrentUserAuthInfo();
-        String username = authInfo.getUsername();
-        boolean isAdmin = authInfo.isAdmin;
-        boolean isCeo = authInfo.isCeo;
+	private void checkAccessCurrentAccountChangeUser(UserEntity user) {
+		UserAuthInfo authInfo = getCurrentUserAuthInfo();
+		String username = authInfo.getUsername();
+		boolean isAdmin = authInfo.isAdmin;
+		boolean isCeo = authInfo.isCeo;
 
-        // Check if the user is attempting to update someone else's profile
-        if (!username.equals(user.getEmail())) {
-            // Prevent changing data of a CEO
-            if (user.getRoles().contains(Role.CEO) && !isCeo)
-                throw new AccessRoleException("You don't have rules to update this user's profile.");
+		// Check if the user is attempting to update someone else's profile
+		if (!username.equals(user.getEmail())) {
+			// Prevent changing data of a CEO
+			if (user.getRoles().contains(Role.CEO) && !isCeo) {
+				throw new AccessRoleException("You don't have rules to update this user's profile.");
+			}
 
-            // Prevent update if the authenticated user is neither an ADMIN nor a CEO
-            if (!isAdmin && !isCeo)
-                throw new AccessRoleException("You don't have rules to  update this user's profile.");
+			// Prevent update if the authenticated user is neither an ADMIN nor a CEO
+			if (!isAdmin && !isCeo) {
+				throw new AccessRoleException("You don't have rules to  update this user's profile.");
+			}
 
-            // Prevent an ADMIN from updating another ADMIN's profile unless the authenticated user is a CEO
-            if (user.getRoles().contains(Role.ADMIN) && !isCeo)
-                throw new AccessRoleException("You don't have rules to  update this user's profile.");
-        }
-    }
+			// Prevent an ADMIN from updating another ADMIN's profile unless the
+			// authenticated user is a CEO
+			if (user.getRoles().contains(Role.ADMIN) && !isCeo) {
+				throw new AccessRoleException("You don't have rules to  update this user's profile.");
+			}
+		}
+	}
 
-    private void checkAccessChangeRoleUser(UserEntity user, String role) {
-        UserAuthInfo authInfo = getCurrentUserAuthInfo();
-        String username = authInfo.getUsername();
-        boolean isAdmin = authInfo.isAdmin;
-        boolean isCeo = authInfo.isCeo;
-        boolean isUser = authInfo.isUser;
-        
-        if(isUser && !isAdmin && !isCeo) {
-        	throw new AccessRoleException("You can't change role");
-        }
+	private void checkAccessChangeRoleUser(UserEntity user, String role) {
+		UserAuthInfo authInfo = getCurrentUserAuthInfo();
+		String username = authInfo.getUsername();
+		boolean isAdmin = authInfo.isAdmin;
+		boolean isCeo = authInfo.isCeo;
+		boolean isUser = authInfo.isUser;
 
-        if (username.equals(user.getEmail()))
-            throw new AccessRoleException("You can't change role for yourself");
-        if (!isAdmin && !isCeo)
-            throw new AccessRoleException("You don't have rules to update this user's profile.");
-        if (user.getRoles().contains(Role.CEO) && !isCeo)
-            throw new AccessRoleException("You don't have rules to update this user's profile.");
-        if (user.getRoles().contains(Role.ADMIN) && !isCeo)
-            throw new AccessRoleException("You don't have rules to update this user's profile.");
-        if (role.equalsIgnoreCase("ceo") && !isCeo)
-        	throw new AccessRoleException("add or remove role 'CEO' can only user with CEO role");
-    }
+		if (isUser && !isAdmin && !isCeo) {
+			throw new AccessRoleException("You can't change role");
+		}
 
-    private UserAuthInfo getCurrentUserAuthInfo() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+		if (username.equals(user.getEmail())) {
+			throw new AccessRoleException("You can't change role for yourself");
+		}
+		if (!isAdmin && !isCeo) {
+			throw new AccessRoleException("You don't have rules to update this user's profile.");
+		}
+		if (user.getRoles().contains(Role.CEO) && !isCeo) {
+			throw new AccessRoleException("You don't have rules to update this user's profile.");
+		}
+		if (user.getRoles().contains(Role.ADMIN) && !isCeo) {
+			throw new AccessRoleException("You don't have rules to update this user's profile.");
+		}
+		if (role.equalsIgnoreCase("ceo") && !isCeo) {
+			throw new AccessRoleException("add or remove role 'CEO' can only user with CEO role");
+		}
+	}
 
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        boolean isAdmin = authorities.stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
-        boolean isCeo = authorities.stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_CEO"));
+	private UserAuthInfo getCurrentUserAuthInfo() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
 
-        boolean isUser = authorities.stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"));
-        
-        return new UserAuthInfo(username, isAdmin, isCeo, isUser);
-    }
+		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+		boolean isAdmin = authorities.stream()
+				.anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+		boolean isCeo = authorities.stream()
+				.anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_CEO"));
 
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @ToString
-    private static class UserAuthInfo {
-        private String username;
-        private boolean isAdmin;
-        private boolean isCeo;
-        private boolean isUser;
-    }
+		boolean isUser = authorities.stream()
+				.anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"));
+
+		return new UserAuthInfo(username, isAdmin, isCeo, isUser);
+	}
+
+	@Getter
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@ToString
+	private static class UserAuthInfo {
+		private String username;
+		private boolean isAdmin;
+		private boolean isCeo;
+		private boolean isUser;
+	}
 }

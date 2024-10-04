@@ -48,7 +48,7 @@ public class StudentServiceImp implements StudentService {
 
         StudentEntity studentEntity = EntityDtoStudentMapper.INSTANCE.studentCreateRequestToStudent(student);
         studentEntity = studentRepo.save(studentEntity);
-        String comment = student.getComment() == null? "Create student data" : student.getComment();
+        String comment = student.getComment() == null ? "Create student data" : student.getComment();
         createActivityLogByStudent(studentEntity, comment);
         return EntityDtoStudentMapper.INSTANCE.studentToStudentDataResponse(studentEntity);
     }
@@ -56,32 +56,36 @@ public class StudentServiceImp implements StudentService {
     @Override
     public List<StudentDataResponse> getAllStudents() {
         List<StudentEntity> studentResponse = studentRepo.findAll();
-        if (studentResponse.isEmpty())
-            return new ArrayList<>();
+        if (studentResponse.isEmpty()) {
+        	return new ArrayList<>();
+        }
         return studentResponse.stream().map(EntityDtoStudentMapper.INSTANCE::studentToStudentDataResponse).collect(Collectors.toList());
     }
 
     @Override
     public List<StudentDataResponse> getStudentsByName(String name) {
         List<StudentEntity> studentResponse = studentRepo.findByFirstName(name);
-        if (studentResponse == null || studentResponse.isEmpty())
-            return new ArrayList<>();
+        if (studentResponse == null || studentResponse.isEmpty()) {
+        	return new ArrayList<>();
+        }
         return studentResponse.stream().map(EntityDtoStudentMapper.INSTANCE::studentToStudentDataResponse).collect(Collectors.toList());
     }
 
     @Override
     public List<StudentDataResponse> getStudentsBySurname(String surname) {
         List<StudentEntity> studentResponse = studentRepo.findByLastName(surname);
-        if (studentResponse == null || studentResponse.isEmpty())
-            return new ArrayList<>();
+        if (studentResponse == null || studentResponse.isEmpty()) {
+        	return new ArrayList<>();
+        }
         return studentResponse.stream().map(EntityDtoStudentMapper.INSTANCE::studentToStudentDataResponse).collect(Collectors.toList());
     }
 
     @Override
     public List<StudentDataResponse> getStudentsByNameAndSurname(String name, String surname) {
         List<StudentEntity> studentResponse = studentRepo.findByFirstNameAndLastName(name, surname);
-        if (studentResponse == null || studentResponse.isEmpty())
-            return new ArrayList<>();
+        if (studentResponse == null || studentResponse.isEmpty()) {
+        	return new ArrayList<>();
+        }
         return studentResponse.stream().map(EntityDtoStudentMapper.INSTANCE::studentToStudentDataResponse).collect(Collectors.toList());
     }
 
@@ -93,22 +97,27 @@ public class StudentServiceImp implements StudentService {
 
         if (!student.getEmail().equals(studentEntity.getEmail())) {
             StudentEntity existingStudent = studentRepo.findByEmail(student.getEmail());
-            if (existingStudent != null)
-                throw new EmailAlreadyInUseException("Email " + student.getEmail() + " is already in use by another student.");
+            if (existingStudent != null) {
+            	throw new EmailAlreadyInUseException("Email " + student.getEmail() + " is already in use by another student.");
+            }
         }
 
         studentEntity.setFirstName(student.getName());
         studentEntity.setLastName(student.getSurname());
         studentEntity.setPhoneNumber(student.getPhone());
         studentEntity.setEmail(student.getEmail());
-        if(student.getCity() != null)
+        if (student.getCity() != null) {
         	studentEntity.setCity(student.getCity());
-        if(student.getCourse() != null)
+        }
+        if (student.getCourse() != null) {
         	studentEntity.setCourse(student.getCourse());
-        if(student.getSource() != null)
+        }
+        if (student.getSource() != null) {
         	studentEntity.setSource(student.getSource());
-        if(student.getLeadStatus() != null)
-        	studentEntity.setLeadStatus(student.getLeadStatus());
+        }
+		if (student.getLeadStatus() != null) {
+			studentEntity.setLeadStatus(student.getLeadStatus());
+		}
         studentEntity = studentRepo.save(studentEntity);
         return EntityDtoStudentMapper.INSTANCE.studentToStudentDataResponse(studentEntity);
     }
@@ -140,8 +149,9 @@ public class StudentServiceImp implements StudentService {
 	public List<StudentDataResponse> getStudentsByGroup(String name) {
 		GroupEntity group = groupRepo.findByName(name);
 		List<StudentEntity> students = group.getStudents();
-		if (students == null || students.isEmpty())
-            return new ArrayList<>();
+		if (students == null || students.isEmpty()) {
+			return new ArrayList<>();
+		}
         return students.stream().map(EntityDtoStudentMapper.INSTANCE::studentToStudentDataResponse).collect(Collectors.toList());
 	}
 }
