@@ -75,6 +75,7 @@ public class GroupServiceImp implements GroupService {
 					"Group with name " + groupRequest.getName() + " is already exists");
 		}
 		GroupEntity groupEntity = EntityDtoGroupMapper.INSTANCE.groupCreateRequestToGroup(groupRequest);
+		groupEntity.setStatus(GroupStatus.ACTIVE);
 		groupRepo.save(groupEntity);
 		return toGroupDataResponse(groupEntity);
 	}
