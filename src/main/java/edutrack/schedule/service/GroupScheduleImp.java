@@ -1,7 +1,19 @@
 package edutrack.schedule.service;
 
+import edutrack.group.entity.GroupEntity;
+import edutrack.group.exception.GroupNotFoundException;
+import edutrack.group.repository.GroupRepository;
 import edutrack.schedule.dto.request.AddGroupScheduleRequest;
-import edutrack.schedule.dto.response.ScheduleResponse;
+import edutrack.schedule.dto.response.GroupScheduleResponse;
+import edutrack.schedule.dto.response.SingleScheduleResponse;
+import edutrack.schedule.entity.GroupScheduleEntity;
+import edutrack.schedule.repository.GroupScheduleRepository;
+import edutrack.schedule.util.EntityDtoScheduleMapper;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -14,17 +26,34 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 public class GroupScheduleImp implements GroupScheduleService {
 
+	GroupScheduleRepository groupRemindersRepository;
+	GroupRepository groupRepository;
+
 	@Override
 	@Transactional
-	public ScheduleResponse getGroupReminders(String name) {
-		// TODO Auto-generated method stub
-		return null;
+	public GroupScheduleResponse getGroupReminders(String name) {
+		GroupEntity groupEntity = groupRepository.findByName(name);
+		if (groupEntity == null) {
+			throw new GroupNotFoundException("Group with name " + name + "  not found");
+		}
+		List<GroupScheduleEntity> groupReminders = groupRemindersRepository.findByGroupName(name);
+		List<SingleScheduleResponse> reminders = groupReminders.stream().map(
+				reminder -> new SingleScheduleResponse(reminder.getId(), reminder.getDateTime(), reminder.getComment()))
+				.collect(Collectors.toList());
+		return EntityDtoScheduleMapper.INSTANCE.groupToReminderResponse(groupEntity, reminders);
 	}
 
 	@Override
 	@Transactional
-	public ScheduleResponse addGroupReminder(AddGroupScheduleRequest groupReminder) {
-		// TODO Auto-generated method stub
-		return null;
+	public GroupScheduleResponse addGroupReminder(AddGroupScheduleRequest groupReminder) {
+		GroupEntity group = groupRepository.findByName(groupReminder.getName());
+		if (group == null) {
+			throw new GroupNotFoundException("Group with name " + groupReminder.getName() + "  not found");
+		}
+		LocalDateTime dateTime = groupReminder.getDateTime() == null ? LocalDateTime.now()
+				: groupReminder.getDateTime();
+		GroupScheduleEntity groupReminders = new GroupScheduleEntity(null, dateTime, groupReminder.getComment(), group);
+		groupReminders = groupRemindersRepository.save(groupReminders);
+		return getGroupReminders(groupReminder.getName());
 	}
 }

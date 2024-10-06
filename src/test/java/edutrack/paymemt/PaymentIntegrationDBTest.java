@@ -25,14 +25,14 @@ import edutrack.student.service.StudentService;
 
 @SpringBootTest
 @Sql(scripts = { "classpath:testdata.sql" })
-public class PaymentIntegretionDBTest {
+public class PaymentIntegrationDBTest {
 
 	@Autowired
 	private PaymentService paymentService;
-	
+
 	@Autowired
 	private StudentRepository studentRepo;
-	
+
 	@Autowired
     private StudentService studentService;
 
@@ -54,7 +54,7 @@ public class PaymentIntegretionDBTest {
 		assertEquals(BigDecimal.valueOf(1500.00).floatValue(), paymentResponse.getAmount().floatValue());
 		assertEquals("Course Fee", paymentResponse.getDetails());
 		assertEquals(resp.getPaymentInfo().size(), 1);
-		assertTrue(resp.getPaymentInfo().get(0).getAmount().compareTo(BigDecimal.valueOf(1500.00)) == 0);
+        assertEquals(0, resp.getPaymentInfo().get(0).getAmount().compareTo(BigDecimal.valueOf(1500.00)));
 	}
 
 	@Test

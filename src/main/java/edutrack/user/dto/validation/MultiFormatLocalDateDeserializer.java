@@ -28,7 +28,9 @@ public class MultiFormatLocalDateDeserializer extends JsonDeserializer<LocalDate
         for (DateTimeFormatter formatter : DATE_FORMATTERS) {
             try {
                 return LocalDate.parse(date, formatter);
-            } catch (DateTimeParseException ignored) {}
+            } catch (DateTimeParseException ignored) {
+            	
+            }
         }
 
         throw new InvalidDateFormatException
