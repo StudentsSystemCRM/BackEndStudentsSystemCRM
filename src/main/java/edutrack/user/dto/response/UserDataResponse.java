@@ -18,8 +18,9 @@ public class UserDataResponse {
 	String email; //login
 	String name;
 	String surname;
-	String phone;
 	LocalDate birthdate;
+	String phone;
+
 	LocalDate createdDate;
 	Set<Role> roles;
 }

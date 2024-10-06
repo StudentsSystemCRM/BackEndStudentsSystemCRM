@@ -19,8 +19,9 @@ public class BirthdateValidator implements ConstraintValidator<ValidRangeDate, L
 
     @Override
     public boolean isValid(LocalDate value, ConstraintValidatorContext context) {
-        if (value == null)
-            return false;
+        if (value == null) {
+        	return false;
+        }
         LocalDate today = LocalDate.now();
         int year = (int) ChronoUnit.YEARS.between(value, today);
         return year >= min && year <= max;
