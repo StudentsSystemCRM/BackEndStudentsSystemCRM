@@ -15,7 +15,7 @@ public class ElasticsearchConfig {
 
     private static final String BONSAI_URL = "https://no-search-3715571296.eu-central-1.bonsaisearch.net:443";
     private static final String BONSAI_USERNAME = "qq894pgf6y";
-    private static final String BONSAI_PASSWORD = "qq894pgf6y";
+    private static final String BONSAI_PASSWORD = "kwf0hcln1m";
 
     @Bean
     RestHighLevelClient client() {
