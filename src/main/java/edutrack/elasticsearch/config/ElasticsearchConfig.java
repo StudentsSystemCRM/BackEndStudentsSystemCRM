@@ -7,15 +7,23 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 @Configuration
+@PropertySource("classpath:elastic.properties")
 public class ElasticsearchConfig {
 
-    private static final String BONSAI_URL = "https://no-search-3715571296.eu-central-1.bonsaisearch.net:443";
-    private static final String BONSAI_USERNAME = "qq894pgf6y";
-    private static final String BONSAI_PASSWORD = "kwf0hcln1m";
+	@Value("${elasticsearch.url}")
+    private String BONSAI_URL;
+	
+	@Value("${elasticsearch.username}")
+    private String BONSAI_USERNAME;
+	
+	@Value("${elasticsearch.password}")
+    private String BONSAI_PASSWORD;
 
     @Bean
     RestHighLevelClient client() {
