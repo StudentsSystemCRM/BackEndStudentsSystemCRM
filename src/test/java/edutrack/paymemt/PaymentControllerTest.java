@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edutrack.elasticsearch.service.ElasticsearchLogging;
 import edutrack.payment.controller.PaymentController;
 import edutrack.payment.dto.request.AddPaymentRequest;
 import edutrack.payment.dto.response.PaymentInfoResponse;
@@ -38,6 +39,10 @@ import edutrack.security.WebSecurityConfig;
 @Import({ JwtTokenProvider.class, WebSecurityConfig.class })
 @AutoConfigureMockMvc(addFilters = false)
 public class PaymentControllerTest {
+	
+	@MockBean
+	private ElasticsearchLogging elasticsearchLoggingService;
+	
 	@Autowired
 	private MockMvc mockMvc;
 
