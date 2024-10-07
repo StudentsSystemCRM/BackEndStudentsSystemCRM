@@ -65,12 +65,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			if (email != null) {
 				UserEntity user = accountRepository.findByEmail(email);
 				if (user == null) {
+					elasticsearchLogging.saveLog("User not found in the database", null, request.getRequestURI(), request.getMethod(),email);
 					response.setStatus(HttpStatus.UNAUTHORIZED.value());
 					response.getWriter().write("User not found in the database.");
 					return;
 				}
 
 				if (!jwt.equals(user.getAccessToken())) {
+					elasticsearchLogging.saveLog("Invalid access token, user isn't 'singin' or token was changed", null, request.getRequestURI(), request.getMethod(),email);
 					response.setStatus(HttpStatus.UNAUTHORIZED.value());
 					response.getWriter().write("Invalid access token, user isn't 'singin' or token was changed");
 					return;
