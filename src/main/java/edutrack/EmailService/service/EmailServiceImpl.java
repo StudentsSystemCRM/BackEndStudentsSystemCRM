@@ -2,6 +2,7 @@ package edutrack.EmailService.service;
 
 import edutrack.EmailService.dto.EmailDetails;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -46,11 +47,15 @@ public class EmailImp implements EmailService{
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth("api", apiKey);
 
-        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+        MultiValueMap<String, Object> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("from", fromEmail);
         requestBody.add("to", emailDetails.getRecipient());
         requestBody.add("subject", emailDetails.getSubject());
         requestBody.add("text", emailDetails.getBody());
+
+        if (emailDetails.getBase64Attachments() != null) {
+            emailDetails.getBase64Attachments().forEach(base64Attachment -> requestBody.add("attachment", base64Attachment));
+        }
 
         HttpEntity<MultiValueMap> request = new HttpEntity<>(requestBody, headers);
 
