@@ -1,8 +1,9 @@
 package edutrack.EmailService.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edutrack.EmailService.dto.EmailDetails;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -14,10 +15,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
-public class EmailImp implements EmailService{
+public class EmailServiceImpl implements EmailService{
 
     @Value("${mailgun.api.key}")
     String apiKey;
@@ -33,16 +36,23 @@ public class EmailImp implements EmailService{
 
     final RestTemplate restTemplate;
 
-    public EmailImp(RestTemplate restTemplate) {
+    public EmailServiceImpl(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     @Override
-    public void sendEmails(List<EmailDetails> emailDetailsList) {
-        emailDetailsList.forEach(this::sendEmail);
+    public Map<String, String> sendEmails(List<EmailDetails> emailDetailsList) {
+        Map<String,String> messageIds = new HashMap<>();
+        emailDetailsList.forEach(emailDetails -> {
+            String messageId = sendEmail(emailDetails);
+            messageIds.put(emailDetails.getRecipient(), messageId);
+        });
+        return messageIds;
     }
 
-    private void sendEmail(EmailDetails emailDetails) {
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private String sendEmail(EmailDetails emailDetails) {
         String apiUrl = baseUrl + "/" + domain + "/messages";
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth("api", apiKey);
@@ -66,8 +76,21 @@ public class EmailImp implements EmailService{
                     request,
                     String.class
             );
+            return extractMessageIdFromResponse(response.getBody());
         } catch (URISyntaxException e) {
             e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String extractMessageIdFromResponse(String responseBody) {
+        try {
+            JsonNode root = objectMapper.readTree(responseBody);
+            String messageId = root.path("id").asText();
+            return messageId.replace("<","").replace(">","");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

@@ -6,15 +6,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class EmailDetails {
+public class TemplateEmailDetails implements Serializable {
     String recipient;
     String subject;
-    String body;
     List<String> base64Attachments;
+    String template;
+    Map<String, String> placeholders;
 }
