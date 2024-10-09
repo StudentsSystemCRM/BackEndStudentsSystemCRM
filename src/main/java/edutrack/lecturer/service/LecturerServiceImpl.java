@@ -10,12 +10,14 @@ import edutrack.lecturer.dto.request.LecturerUpdateRequest;
 import edutrack.lecturer.dto.response.LecturerDataResponse;
 import edutrack.lecturer.entity.LecturerEntity;
 import edutrack.lecturer.repository.LecturerRepository;
+import edutrack.lecturer.util.EntityDtoLecturerMapper;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,36 +30,57 @@ public class LecturerServiceImpl implements LecturerService {
     LecturerRepository lecturerRepo;
     GroupRepository groupRepo;
 
+
+    private LecturerDataResponse lecturerToLecturerDataResponse(LecturerEntity lecturer) {
+        Set<Long> groupIds = lecturer.getGroups().stream()
+                .map(GroupEntity::getId)
+                .collect(Collectors.toSet());
+
+        return new LecturerDataResponse(
+                lecturer.getId(),
+                lecturer.getFirstName(),
+                lecturer.getLastName(),
+                lecturer.getPhoneNumber(),
+                lecturer.getEmail(),
+                lecturer.getCity(),
+                lecturer.getStatus(),
+                groupIds
+        );
+    }
+
     @Override
     public LecturerDataResponse getLecturerById(Long id) {
         LecturerEntity lecturer = lecturerRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found with id: " + id));
-        return convertToResponse(lecturer);
+        return lecturerToLecturerDataResponse(lecturer);
     }
+
     @Override
     public List<LecturerDataResponse> findLecturersByLastName(String lastName) {
         return lecturerRepo.findByLastName(lastName).stream()
-                .map(this::convertToResponse)
+                .map(this::lecturerToLecturerDataResponse)
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<LecturerDataResponse> findLecturersByStatus(LecturerStatus status) {
         return lecturerRepo.findByStatus(status).stream()
-                .map(this::convertToResponse)
+                .map(this::lecturerToLecturerDataResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<LecturerDataResponse> findLecturersByCity(String city) {
         return lecturerRepo.findByCity(city).stream()
-                .map(this::convertToResponse)
+                .map(this::lecturerToLecturerDataResponse)
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<LecturerDataResponse> getAllLecturers() {
         List<LecturerEntity> lecturers = lecturerRepo.findAll();
         return lecturers.stream()
-                .map(this::convertToResponse)
+                .map(this::lecturerToLecturerDataResponse)
                 .collect(Collectors.toList());
     }
 
@@ -68,68 +91,44 @@ public class LecturerServiceImpl implements LecturerService {
             throw new ResourceAlreadyExistsException("Lecturer already exists with email: " + request.getEmail());
         }
 
-        LecturerEntity lecturer = new LecturerEntity();
-        lecturer.setFirstName(request.getFirstName());
-        lecturer.setLastName(request.getLastName());
-        lecturer.setPhoneNumber(request.getPhoneNumber());
-        lecturer.setEmail(request.getEmail());
-        lecturer.setCity(request.getCity());
-        lecturer.setStatus(request.getStatus());
-
-        Set<GroupEntity> groups = mapGroupNamesToEntities(request.getGroups());
-        lecturer.setGroups(groups);
+        LecturerEntity lecturer = EntityDtoLecturerMapper.INSTANCE.toLecturerEntity(request);
+        setGroupsForLecturer(lecturer, request.getGroupIds());
 
         LecturerEntity savedLecturer = lecturerRepo.save(lecturer);
-        return convertToResponse(savedLecturer);
-    }
-
-
-    private Set<GroupEntity> mapGroupNamesToEntities(Set<String> groupNames) {
-        return groupNames.stream()
-                .map(this::findGroupByNameOrThrow)
-                .collect(Collectors.toSet());
+        return lecturerToLecturerDataResponse(savedLecturer);
     }
 
     @Override
     @Transactional
     public LecturerDataResponse updateLecturer(LecturerUpdateRequest updateRequest) {
-
         LecturerEntity lecturer = lecturerRepo.findById(updateRequest.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found with id: " + updateRequest.getId()));
 
-        if (updateRequest.getEmail() != null && lecturerRepo.existsByEmail(updateRequest.getEmail())) {
-            throw new ResourceAlreadyExistsException("Lecturer already exists with email: " + updateRequest.getEmail());
+        // Проверка на уникальность email
+        if (updateRequest.getEmail() != null && !updateRequest.getEmail().equals(lecturer.getEmail())) {
+            if (lecturerRepo.existsByEmail(updateRequest.getEmail())) {
+                throw new ResourceAlreadyExistsException("Lecturer already exists with email: " + updateRequest.getEmail());
+            }
         }
 
-        if (updateRequest.getFirstName() != null) {
-            lecturer.setFirstName(updateRequest.getFirstName());
-        }
-        if (updateRequest.getLastName() != null) {
-            lecturer.setLastName(updateRequest.getLastName());
-        }
-        if (updateRequest.getPhoneNumber() != null) {
-            lecturer.setPhoneNumber(updateRequest.getPhoneNumber());
-        }
-        if (updateRequest.getEmail() != null) {
-            lecturer.setEmail(updateRequest.getEmail());
-        }
-        if (updateRequest.getCity() != null) {
-            lecturer.setCity(updateRequest.getCity());
-        }
-        if (updateRequest.getStatus() != null) {
-            lecturer.setStatus(updateRequest.getStatus());
-        }
-
-        if (updateRequest.getGroups() != null) {
-            Set<GroupEntity> groups = mapGroupNamesToEntities(updateRequest.getGroups());
-            lecturer.setGroups(groups);
-        }
+        EntityDtoLecturerMapper.INSTANCE.updateLecturerFromRequest(updateRequest, lecturer);
+        setGroupsForLecturer(lecturer, updateRequest.getGroupIds());
 
         lecturerRepo.save(lecturer);
-
-        return convertToResponse(lecturer);
+        return lecturerToLecturerDataResponse(lecturer);
     }
 
+    private void setGroupsForLecturer(LecturerEntity lecturer, Set<Long> groupIds) {
+        if (groupIds != null && !groupIds.isEmpty()) {
+            Set<GroupEntity> groups = new HashSet<>(groupRepo.findAllById(groupIds));
+            if (groups.size() != groupIds.size()) {
+                throw new ResourceNotFoundException("One or more groups not found");
+            }
+            lecturer.setGroups(groups);
+        } else {
+            lecturer.setGroups(Set.of()); // Если groupIds пустой, устанавливаем пустой набор
+        }
+    }
 
     @Override
     @Transactional
@@ -137,31 +136,8 @@ public class LecturerServiceImpl implements LecturerService {
         LecturerEntity lecturer = lecturerRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found with id: " + id));
 
-        LecturerDataResponse response = convertToResponse(lecturer);
+        LecturerDataResponse response = lecturerToLecturerDataResponse(lecturer);
         lecturerRepo.deleteById(id);
-        return response;
-    }
-
-
-    private GroupEntity findGroupByNameOrThrow(String groupName) {
-        GroupEntity group = groupRepo.findByName(groupName);
-        if (group == null) {
-            throw new ResourceNotFoundException("Group not found with name: " + groupName);
-        }
-        return group;
-    }
-    private LecturerDataResponse convertToResponse(LecturerEntity lecturer) {
-        LecturerDataResponse response = new LecturerDataResponse();
-        response.setId(lecturer.getId());
-        response.setFirstName(lecturer.getFirstName());
-        response.setLastName(lecturer.getLastName());
-        response.setPhoneNumber(lecturer.getPhoneNumber());
-        response.setEmail(lecturer.getEmail());
-        response.setCity(lecturer.getCity());
-        response.setStatus(lecturer.getStatus());
-        response.setGroupNames(lecturer.getGroups().stream()
-                .map(GroupEntity::getName)
-                .collect(Collectors.toSet()));
         return response;
     }
 }
