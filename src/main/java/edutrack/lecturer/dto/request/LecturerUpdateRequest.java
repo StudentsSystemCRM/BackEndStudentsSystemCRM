@@ -44,7 +44,7 @@ public class LecturerUpdateRequest {
     @NotNull(message = "Status is mandatory")
     private LecturerStatus status;
 
-    private Set<String> groups = new HashSet<>();
+    private Set<Long> groupIds;
 }
 
 

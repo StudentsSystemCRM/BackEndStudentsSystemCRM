@@ -20,5 +20,5 @@ public class LecturerDataResponse {
     private String email;
     private String city;
     private LecturerStatus status;
-    private Set<String> groupNames;
+    private Set<Long> groupIds;
 }
