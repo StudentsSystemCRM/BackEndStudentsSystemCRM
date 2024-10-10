@@ -72,7 +72,6 @@ class LecturerServiceImplMockTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> lecturerService.getLecturerById(lecturerId));
         assertEquals("Lecturer not found with id: " + lecturerId, exception.getMessage());
     }
-
     @Test
     void testFindLecturersByLastName_Success() {
         String lastName = "Doe";
@@ -111,7 +110,6 @@ class LecturerServiceImplMockTest {
         assertNotNull(responses);
         assertTrue(responses.isEmpty());
     }
-
     @Test
     void testFindLecturersByStatus_Success() {
         LecturerStatus status = LecturerStatus.ACTIVE;

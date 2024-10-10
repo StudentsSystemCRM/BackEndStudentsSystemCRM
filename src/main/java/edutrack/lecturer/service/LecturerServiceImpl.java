@@ -15,9 +15,7 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
 import org.springframework.stereotype.Service;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,12 +26,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LecturerServiceImpl implements LecturerService {
 
-
     private LecturerRepository lecturerRepository;
-
-
     private GroupRepository groupRepository;
-
 
     @Override
     public LecturerDataResponse getLecturerById(Long id) {
@@ -46,7 +40,6 @@ public class LecturerServiceImpl implements LecturerService {
     @Override
     public List<LecturerDataResponse> findLecturersByLastName(String lastName) {
         List<LecturerEntity> lecturers = lecturerRepository.findByLastName(lastName);
-
         return lecturers.stream()
                 .map(lecturer -> {
                     Set<GroupEntity> groups = lecturer.getGroups();
@@ -58,7 +51,6 @@ public class LecturerServiceImpl implements LecturerService {
     @Override
     public List<LecturerDataResponse> findLecturersByStatus(LecturerStatus status) {
         List<LecturerEntity> lecturers = lecturerRepository.findByStatus(status);
-
         return lecturers.stream()
                 .map(lecturer -> {
                     Set<GroupEntity> groups = lecturer.getGroups();
@@ -78,11 +70,9 @@ public class LecturerServiceImpl implements LecturerService {
                 })
                 .collect(Collectors.toList());
     }
-
     @Override
     public List<LecturerDataResponse> getAllLecturers() {
         List<LecturerEntity> lecturers = lecturerRepository.findAll();
-
         return lecturers.stream()
                 .map(lecturer -> {
                     Set<GroupEntity> groups = lecturer.getGroups();
@@ -108,8 +98,6 @@ public class LecturerServiceImpl implements LecturerService {
     public LecturerDataResponse updateLecturer(LecturerUpdateRequest request) {
         LecturerEntity lecturer = lecturerRepository.findById(request.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found"));
-
-
         EntityDtoLecturerMapper.INSTANCE.updateLecturerFromRequest(request, lecturer);
 
         if (request.getEmail() != null && !request.getEmail().equals(lecturer.getEmail())) {
@@ -134,12 +122,10 @@ public class LecturerServiceImpl implements LecturerService {
         if (request.getStatus() != null) {
             lecturer.setStatus(request.getStatus());
         }
-
         if (request.getGroupIds() != null && !request.getGroupIds().isEmpty()) {
             Set<GroupEntity> groups = validateAndGetGroups(request.getGroupIds());
             lecturer.setGroups(groups);
         }
-
         lecturer = lecturerRepository.save(lecturer);
         return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer, lecturer.getGroups());
     }
@@ -148,7 +134,6 @@ public class LecturerServiceImpl implements LecturerService {
         if (groupIds == null || groupIds.isEmpty()) {
             throw new ResourceNotFoundException("No groups provided.");
         }
-
         Set<GroupEntity> groups = new HashSet<>(groupRepository.findAllById(groupIds));
         if (groups.size() != groupIds.size()) {
             Set<Long> existingGroupIds = groups.stream()
@@ -162,7 +147,6 @@ public class LecturerServiceImpl implements LecturerService {
         }
         return groups;
     }
-
 
     @Override
     @Transactional
@@ -179,6 +163,4 @@ public class LecturerServiceImpl implements LecturerService {
         lecturerRepository.deleteById(id);
         return response;
     }
-
-
 }

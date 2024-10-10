@@ -9,7 +9,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
-
 import java.util.Set;
 import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
@@ -30,7 +29,6 @@ public interface EntityDtoLecturerMapper {
 		Set<Long> groupIds = groups.stream()
 				.map(GroupEntity::getId)
 				.collect(Collectors.toSet());
-
 		return new LecturerDataResponse(
 				lecturer.getId(),
 				lecturer.getFirstName(),
