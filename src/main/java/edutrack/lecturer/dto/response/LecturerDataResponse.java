@@ -1,14 +1,10 @@
 package edutrack.lecturer.dto.response;
 
 import edutrack.lecturer.constant.LecturerStatus;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-
 import java.util.Set;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

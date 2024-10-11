@@ -18,8 +18,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.time.LocalDate;
 import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -72,6 +74,7 @@ class LecturerServiceImplMockTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> lecturerService.getLecturerById(lecturerId));
         assertEquals("Lecturer not found with id: " + lecturerId, exception.getMessage());
     }
+
     @Test
     void testFindLecturersByLastName_Success() {
         String lastName = "Doe";
@@ -110,6 +113,7 @@ class LecturerServiceImplMockTest {
         assertNotNull(responses);
         assertTrue(responses.isEmpty());
     }
+
     @Test
     void testFindLecturersByStatus_Success() {
         LecturerStatus status = LecturerStatus.ACTIVE;
@@ -226,6 +230,7 @@ class LecturerServiceImplMockTest {
         assertNotNull(responses);
         assertTrue(responses.isEmpty());
     }
+
     @Test
     void testCreateLecturer_Success() {
 

@@ -6,11 +6,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import java.util.Set;
 
 @Data
@@ -50,7 +48,6 @@ public class LecturerEntity {
             joinColumns = @JoinColumn(name = "lecturer_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id"))
     private Set<GroupEntity> groups;
-
 
     @CreatedBy
     @Column(name = "created_by", updatable = false)

@@ -5,16 +5,17 @@ import edutrack.lecturer.dto.request.LecturerCreateRequest;
 import edutrack.lecturer.dto.request.LecturerUpdateRequest;
 import edutrack.lecturer.dto.response.LecturerDataResponse;
 import edutrack.lecturer.service.LecturerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
+
 import java.util.List;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
 @RequestMapping("/api/lecturers")
@@ -63,7 +64,7 @@ public class LecturerController {
     @Parameter(name = "city", description = "City of lecturers to retrieve", required = true)
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/city")
-    public List<LecturerDataResponse> getLecturersByCity(@RequestParam @NotBlank  String city) {
+    public List<LecturerDataResponse> getLecturersByCity(@RequestParam @NotBlank String city) {
         return lecturerService.findLecturersByCity(city);
     }
 

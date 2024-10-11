@@ -1,4 +1,5 @@
 package edutrack.lecturer;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edutrack.exception.ResourceNotFoundException;
 import edutrack.group.constant.GroupStatus;
@@ -22,16 +23,19 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 @WebMvcTest(LecturerController.class)
-@Import({ JwtTokenProvider.class, WebSecurityConfig.class })
+@Import({JwtTokenProvider.class, WebSecurityConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class LecturerControllerMockTest {
     @Autowired
@@ -49,6 +53,7 @@ public class LecturerControllerMockTest {
     private LecturerUpdateRequest updateRequest;
     private LecturerDataResponse lecturerResponse;
     private LecturerDataResponse lecturerUpdateResponse;
+
     @BeforeEach
     public void setup() {
         exampleGroupEntity = new GroupEntity(
@@ -102,9 +107,9 @@ public class LecturerControllerMockTest {
                 .andExpect(jsonPath("$.groupIds").isArray())
                 .andExpect(jsonPath("$.groupIds[0]").value(1L));
 
-
         verify(lecturerService, times(1)).createLecturer(any(LecturerCreateRequest.class));
     }
+
     @Test
     public void createLecturer_ShouldReturnBadRequest_WhenInvalidInput() throws Exception {
         LecturerCreateRequest invalidRequest = new LecturerCreateRequest(
@@ -138,6 +143,7 @@ public class LecturerControllerMockTest {
                 .andExpect(jsonPath("$.groupIds[0]").value(1L));
         verify(lecturerService, times(1)).getLecturerById(1L);
     }
+
     @Test
     public void getLecturerById_ShouldReturnNotFound_WhenLecturerDoesNotExist() throws Exception {
         when(lecturerService.getLecturerById(99L)).thenThrow(new ResourceNotFoundException("Lecturer not found"));
@@ -146,6 +152,7 @@ public class LecturerControllerMockTest {
                 .andExpect(status().isNotFound());
         verify(lecturerService, times(1)).getLecturerById(99L);
     }
+
     @Test
     public void getLecturersByLastName_ShouldReturnList() throws Exception {
         Long groupId1 = 1L;
@@ -209,12 +216,14 @@ public class LecturerControllerMockTest {
                 .andExpect(jsonPath("$[0].city").value("Haifa"))
                 .andExpect(jsonPath("$[1].city").value("Haifa"));
     }
+
     @Test
     public void getLecturersByCity_ShouldReturnBadRequest_WhenCityIsEmpty() throws Exception {
         mockMvc.perform(get("/api/lecturers/city")
                         .param("city", ""))
                 .andExpect(status().isBadRequest());
     }
+
     @Test
     public void getAllLecturers_ShouldReturnList() throws Exception {
         Long groupId1 = 1L;
@@ -239,7 +248,6 @@ public class LecturerControllerMockTest {
         mockMvc.perform(get("/api/lecturers"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(2))
-
                 .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].firstName").value("John"))
                 .andExpect(jsonPath("$[0].lastName").value("Doe"))
@@ -249,7 +257,6 @@ public class LecturerControllerMockTest {
                 .andExpect(jsonPath("$[0].status").value("ACTIVE"))
                 .andExpect(jsonPath("$[0].groupIds").isArray())
                 .andExpect(jsonPath("$[0].groupIds[0]").value(1L)) // Исправлено здесь
-
                 .andExpect(jsonPath("$[1].id").value(2L))
                 .andExpect(jsonPath("$[1].firstName").value("Jane"))
                 .andExpect(jsonPath("$[1].lastName").value("Doe"))
@@ -260,8 +267,6 @@ public class LecturerControllerMockTest {
                 .andExpect(jsonPath("$[1].groupIds").isArray())
                 .andExpect(jsonPath("$[1].groupIds[0]").value(2L));
     }
-
-
     @Test
     public void getAllLecturers_ShouldReturnEmptyList_WhenNoLecturersFound() throws Exception {
         List<LecturerDataResponse> lecturers = List.of();
@@ -270,6 +275,7 @@ public class LecturerControllerMockTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(0));
     }
+
     @Test
     public void updateLecturer_ShouldReturnUpdatedLecturer() throws Exception {
         LecturerDataResponse initialLecturer = new LecturerDataResponse(
@@ -300,7 +306,6 @@ public class LecturerControllerMockTest {
 
         verify(lecturerService).updateLecturer(any(LecturerUpdateRequest.class));
     }
-
     @Test
     public void updateLecturer_ShouldReturnNotFound_WhenLecturerDoesNotExist() throws Exception {
 
@@ -324,7 +329,6 @@ public class LecturerControllerMockTest {
                 1L, "John", "Doe", "invalid-phone", "john.doe@example.com",
                 "Haifa", LecturerStatus.ACTIVE, Set.of(exampleGroupEntity.getId())
         );
-
         mockMvc.perform(put("/api/lecturers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidUpdateRequest)))
@@ -333,17 +337,12 @@ public class LecturerControllerMockTest {
 
     @Test
     void deleteLecturer_ShouldReturnDeletedLecturer() throws Exception {
-
         LecturerDataResponse initialLecturer = new LecturerDataResponse(
                 1L, "John", "Doe", "123456789",
                 "john.doe@example.com", "Haifa",
                 LecturerStatus.ACTIVE, Set.of(exampleGroupEntity.getId())
         );
-
-
         when(lecturerService.deleteLecturer(initialLecturer.getId())).thenReturn(initialLecturer);
-
-
         mockMvc.perform(delete("/api/lecturers/{id}", initialLecturer.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(initialLecturer.getId()))
@@ -355,25 +354,16 @@ public class LecturerControllerMockTest {
                 .andExpect(jsonPath("$.status").value("ACTIVE"))
                 .andExpect(jsonPath("$.groupIds").isArray())
                 .andExpect(jsonPath("$.groupIds[0]").value(exampleGroupEntity.getId())); // Проверка идентификатора группы
-
         verify(lecturerService, times(1)).deleteLecturer(initialLecturer.getId());
     }
-
     @Test
     public void deleteLecturer_ShouldReturnNotFound_WhenLecturerDoesNotExist() throws Exception {
         Long notExistLecturerId = 99L;
         when(lecturerService.deleteLecturer(notExistLecturerId))
                 .thenThrow(new ResourceNotFoundException("Lecturer not found"));
-
         mockMvc.perform(delete("/api/lecturers/{id}", notExistLecturerId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Lecturer not found")); // Ожидаем сообщение об ошибке
-
         verify(lecturerService, times(1)).deleteLecturer(notExistLecturerId);
     }
-
-
-
-
-
 }
