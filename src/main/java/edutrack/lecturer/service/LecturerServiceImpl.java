@@ -16,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,6 +71,7 @@ public class LecturerServiceImpl implements LecturerService {
                 })
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<LecturerDataResponse> getAllLecturers() {
         List<LecturerEntity> lecturers = lecturerRepository.findAll();

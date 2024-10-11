@@ -7,10 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.HashSet;
 import java.util.Set;
-
 import static edutrack.user.constant.ValidAccountConstant.*;
 import static edutrack.user.constant.ValidationAccountingMessage.*;
 

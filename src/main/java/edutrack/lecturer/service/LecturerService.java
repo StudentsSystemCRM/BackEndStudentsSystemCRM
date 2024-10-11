@@ -4,10 +4,7 @@ import edutrack.lecturer.constant.LecturerStatus;
 import edutrack.lecturer.dto.request.LecturerCreateRequest;
 import edutrack.lecturer.dto.request.LecturerUpdateRequest;
 import edutrack.lecturer.dto.response.LecturerDataResponse;
-
-
 import java.util.List;
-import java.util.Set;
 
 public interface LecturerService {
     LecturerDataResponse getLecturerById(Long id);
