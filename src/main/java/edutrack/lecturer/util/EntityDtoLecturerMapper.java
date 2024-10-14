@@ -8,6 +8,7 @@ import edutrack.lecturer.entity.LecturerEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Set;
@@ -21,27 +22,21 @@ public interface EntityDtoLecturerMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
     LecturerEntity toLecturerEntity(LecturerCreateRequest request, Set<GroupEntity> groups);
-
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
     void updateLecturerFromRequest(LecturerUpdateRequest request, @MappingTarget LecturerEntity lecturer);
 
-    default LecturerDataResponse toLecturerDataResponse(LecturerEntity lecturer, Set<GroupEntity> groups) {
-        Set<Long> groupIds = groups.stream()
+    @Mapping(target = "groupIds", source = "groups", qualifiedByName = "mapGroupEntitiesToIds")
+    LecturerDataResponse toLecturerDataResponse(LecturerEntity lecturer);
+    @Named("mapGroupEntitiesToIds")
+    default Set<Long> mapGroupEntitiesToIds(Set<GroupEntity> groups) {
+        return groups.stream()
                 .map(GroupEntity::getId)
                 .collect(Collectors.toSet());
-        return new LecturerDataResponse(
-                lecturer.getId(),
-                lecturer.getFirstName(),
-                lecturer.getLastName(),
-                lecturer.getPhoneNumber(),
-                lecturer.getEmail(),
-                lecturer.getCity(),
-                lecturer.getStatus(),
-                groupIds);
     }
 }
+
+
 
 
 

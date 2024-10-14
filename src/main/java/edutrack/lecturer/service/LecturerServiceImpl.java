@@ -27,25 +27,21 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LecturerServiceImpl implements LecturerService {
 
-    private LecturerRepository lecturerRepository;
-    private GroupRepository groupRepository;
+    LecturerRepository lecturerRepository;
+    GroupRepository groupRepository;
 
     @Override
     public LecturerDataResponse getLecturerById(Long id) {
         LecturerEntity lecturer = lecturerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found with id: " + id));
-        Set<GroupEntity> groups = lecturer.getGroups();
-        return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer, groups);
+        return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer);
     }
 
     @Override
     public List<LecturerDataResponse> findLecturersByLastName(String lastName) {
         List<LecturerEntity> lecturers = lecturerRepository.findByLastName(lastName);
         return lecturers.stream()
-                .map(lecturer -> {
-                    Set<GroupEntity> groups = lecturer.getGroups();
-                    return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer, groups);
-                })
+                .map(EntityDtoLecturerMapper.INSTANCE::toLecturerDataResponse)
                 .collect(Collectors.toList());
     }
 
@@ -53,22 +49,15 @@ public class LecturerServiceImpl implements LecturerService {
     public List<LecturerDataResponse> findLecturersByStatus(LecturerStatus status) {
         List<LecturerEntity> lecturers = lecturerRepository.findByStatus(status);
         return lecturers.stream()
-                .map(lecturer -> {
-                    Set<GroupEntity> groups = lecturer.getGroups();
-                    return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer, groups);
-                })
+                .map(EntityDtoLecturerMapper.INSTANCE::toLecturerDataResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<LecturerDataResponse> findLecturersByCity(String city) {
         List<LecturerEntity> lecturers = lecturerRepository.findByCity(city);
-
         return lecturers.stream()
-                .map(lecturer -> {
-                    Set<GroupEntity> groups = lecturer.getGroups();
-                    return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer, groups);
-                })
+                .map(EntityDtoLecturerMapper.INSTANCE::toLecturerDataResponse)
                 .collect(Collectors.toList());
     }
 
@@ -76,10 +65,7 @@ public class LecturerServiceImpl implements LecturerService {
     public List<LecturerDataResponse> getAllLecturers() {
         List<LecturerEntity> lecturers = lecturerRepository.findAll();
         return lecturers.stream()
-                .map(lecturer -> {
-                    Set<GroupEntity> groups = lecturer.getGroups();
-                    return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer, groups);
-                })
+                .map(EntityDtoLecturerMapper.INSTANCE::toLecturerDataResponse)
                 .collect(Collectors.toList());
     }
 
@@ -90,46 +76,50 @@ public class LecturerServiceImpl implements LecturerService {
         }
 
         Set<GroupEntity> groups = validateAndGetGroups(request.getGroupIds());
-
         LecturerEntity lecturer = EntityDtoLecturerMapper.INSTANCE.toLecturerEntity(request, groups);
         lecturer = lecturerRepository.save(lecturer);
-        return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer, groups);
+        return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer);
     }
 
     @Override
     public LecturerDataResponse updateLecturer(LecturerUpdateRequest request) {
         LecturerEntity lecturer = lecturerRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found"));
-        EntityDtoLecturerMapper.INSTANCE.updateLecturerFromRequest(request, lecturer);
+                .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found with id: " + request.getId()));
+
+        if (request.getFirstName() != null) {
+            lecturer.setFirstName(request.getFirstName());
+        }
+
+        if (request.getLastName() != null) {
+            lecturer.setLastName(request.getLastName());
+        }
+
+        if (request.getPhoneNumber() != null) {
+            lecturer.setPhoneNumber(request.getPhoneNumber());
+        }
 
         if (request.getEmail() != null && !request.getEmail().equals(lecturer.getEmail())) {
-            // Здесь выполняем проверку на существование нового email
             if (lecturerRepository.existsByEmail(request.getEmail())) {
                 throw new EmailAlreadyInUseException("Email already in use: " + request.getEmail());
             }
             lecturer.setEmail(request.getEmail());
         }
-        if (request.getFirstName() != null) {
-            lecturer.setFirstName(request.getFirstName());
-        }
-        if (request.getLastName() != null) {
-            lecturer.setLastName(request.getLastName());
-        }
-        if (request.getPhoneNumber() != null) {
-            lecturer.setPhoneNumber(request.getPhoneNumber());
-        }
+
         if (request.getCity() != null) {
             lecturer.setCity(request.getCity());
         }
+
         if (request.getStatus() != null) {
             lecturer.setStatus(request.getStatus());
         }
+
         if (request.getGroupIds() != null && !request.getGroupIds().isEmpty()) {
             Set<GroupEntity> groups = validateAndGetGroups(request.getGroupIds());
             lecturer.setGroups(groups);
         }
+
         lecturer = lecturerRepository.save(lecturer);
-        return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer, lecturer.getGroups());
+        return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer);
     }
 
     private Set<GroupEntity> validateAndGetGroups(Set<Long> groupIds) {
@@ -156,12 +146,7 @@ public class LecturerServiceImpl implements LecturerService {
         LecturerEntity lecturer = lecturerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found with id: " + id));
 
-        Set<GroupEntity> groups = lecturer.getGroups();
-        LecturerDataResponse response = EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer, groups); // Passing groups to the mapper method
-
-        // TODO: After adding the "lecturers" field to the GroupEntity,
-        // need to remove the lecturer from all associated groups before deleting the lecturer.
-
+        LecturerDataResponse response = EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer);
         lecturerRepository.deleteById(id);
         return response;
     }

@@ -35,7 +35,6 @@ public class LecturerCreateRequest {
     @Pattern(regexp = CITY_PATTERN, message = INVALID_CITY)
     private String city;
 
-    @NotNull(message = "Status is mandatory")
     private LecturerStatus status = LecturerStatus.ACTIVE;
 
     private Set<Long> groupIds = new HashSet<>();
