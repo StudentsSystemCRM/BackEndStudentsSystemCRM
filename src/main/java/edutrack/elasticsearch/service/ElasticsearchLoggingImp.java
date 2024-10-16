@@ -8,11 +8,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,18 +17,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Log4j2
 public class ElasticsearchLoggingImp implements ElasticsearchLogging {
 
 	RestHighLevelClient client;
-
+	static int test=0;
 	@Override
 	public String saveLog(String message, String stackTrace, String requestUrl, 
 			String requestMethod, String username) {
@@ -46,10 +47,12 @@ public class ElasticsearchLoggingImp implements ElasticsearchLogging {
 			logData.put("requestMethod", requestMethod);
 			logData.put("username", username);
 
-			IndexRequest request = new IndexRequest("app-logs").id(errorId).source(logData, XContentType.JSON);
-
-			IndexResponse response = client.index(request, RequestOptions.DEFAULT);
-			return response.getId();
+			ObjectMapper objectMapper = new ObjectMapper();
+			String jsonLog = objectMapper.writeValueAsString(logData);
+			if(test%2==1)log.error(jsonLog);
+			if(test%2==0)log.info(jsonLog);
+			test++;
+			return errorId;
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Error logging to Elasticsearch: " + e.getMessage());
