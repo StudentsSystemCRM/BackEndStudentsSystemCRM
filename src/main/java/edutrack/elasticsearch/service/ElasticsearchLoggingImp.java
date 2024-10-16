@@ -32,7 +32,6 @@ import lombok.extern.log4j.Log4j2;
 public class ElasticsearchLoggingImp implements ElasticsearchLogging {
 
 	RestHighLevelClient client;
-	static int test=0;
 	@Override
 	public String saveLog(String message, String stackTrace, String requestUrl, 
 			String requestMethod, String username) {
@@ -49,9 +48,7 @@ public class ElasticsearchLoggingImp implements ElasticsearchLogging {
 
 			ObjectMapper objectMapper = new ObjectMapper();
 			String jsonLog = objectMapper.writeValueAsString(logData);
-			if(test%2==1)log.error(jsonLog);
-			if(test%2==0)log.info(jsonLog);
-			test++;
+			log.error(jsonLog);
 			return errorId;
 		} catch (Exception e) {
 			e.printStackTrace();

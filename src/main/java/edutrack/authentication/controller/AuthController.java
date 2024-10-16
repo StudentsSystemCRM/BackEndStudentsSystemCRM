@@ -12,8 +12,6 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.log4j.Log4j2;
-
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -22,7 +20,6 @@ import java.security.Principal;
 @RequestMapping("/api/auth")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-@Log4j2
 public class AuthController {
     AuthService authService;
 
@@ -37,7 +34,6 @@ public class AuthController {
     @Operation(summary = "User login", description = "Logs in the user and returns a token for authentication.")
     public LoginSuccessResponse authenticateUser(Principal principal) {
         String email = principal.getName();
-        log.error("Test log to Logstash");
         return authService.authenticateUser(email);
     }
 
