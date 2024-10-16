@@ -86,7 +86,6 @@ public class LecturerServiceImpl implements LecturerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found with id: " + request.getId()));
 
         if (request.getEmail() != null) {
-            // Проверка уникальности email
             if (!request.getEmail().equals(lecturer.getEmail()) && lecturerRepository.existsByEmail(request.getEmail())) {
                 throw new EmailAlreadyInUseException("Email already in use: " + request.getEmail());
             }
@@ -103,7 +102,6 @@ public class LecturerServiceImpl implements LecturerService {
         lecturer = lecturerRepository.save(lecturer);
         return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer);
     }
-
     private Set<GroupEntity> validateAndGetGroups(Set<Long> groupIds) {
         if (groupIds == null || groupIds.isEmpty()) {
             throw new ResourceNotFoundException("No groups provided.");

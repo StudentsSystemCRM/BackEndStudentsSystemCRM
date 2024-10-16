@@ -10,15 +10,18 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("checkstyle:RegexpMultiline")
 @Mapper(componentModel = "spring")
 public interface EntityDtoLecturerMapper {
 
     EntityDtoLecturerMapper INSTANCE = Mappers.getMapper(EntityDtoLecturerMapper.class);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
     LecturerEntity toLecturerEntity(LecturerCreateRequest request, Set<GroupEntity> groups);
 
     default void updateLecturerFromRequest(LecturerUpdateRequest request, @MappingTarget LecturerEntity lecturer) {
@@ -47,8 +50,6 @@ public interface EntityDtoLecturerMapper {
 
     @Named("mapGroupEntitiesToIds")
     default Set<Long> mapGroupEntitiesToIds(Set<GroupEntity> groups) {
-        return groups.stream()
-                .map(GroupEntity::getId)
-                .collect(Collectors.toSet());
+        return groups.stream().map(GroupEntity::getId).collect(Collectors.toSet());
     }
 }
