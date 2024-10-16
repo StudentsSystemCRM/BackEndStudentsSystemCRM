@@ -16,7 +16,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -86,32 +85,15 @@ public class LecturerServiceImpl implements LecturerService {
         LecturerEntity lecturer = lecturerRepository.findById(request.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found with id: " + request.getId()));
 
-        if (request.getFirstName() != null) {
-            lecturer.setFirstName(request.getFirstName());
-        }
-
-        if (request.getLastName() != null) {
-            lecturer.setLastName(request.getLastName());
-        }
-
-        if (request.getPhoneNumber() != null) {
-            lecturer.setPhoneNumber(request.getPhoneNumber());
-        }
-
-        if (request.getEmail() != null && !request.getEmail().equals(lecturer.getEmail())) {
-            if (lecturerRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null) {
+            // Проверка уникальности email
+            if (!request.getEmail().equals(lecturer.getEmail()) && lecturerRepository.existsByEmail(request.getEmail())) {
                 throw new EmailAlreadyInUseException("Email already in use: " + request.getEmail());
             }
             lecturer.setEmail(request.getEmail());
         }
 
-        if (request.getCity() != null) {
-            lecturer.setCity(request.getCity());
-        }
-
-        if (request.getStatus() != null) {
-            lecturer.setStatus(request.getStatus());
-        }
+        EntityDtoLecturerMapper.INSTANCE.updateLecturerFromRequest(request, lecturer);
 
         if (request.getGroupIds() != null && !request.getGroupIds().isEmpty()) {
             Set<GroupEntity> groups = validateAndGetGroups(request.getGroupIds());
