@@ -49,6 +49,7 @@ class LecturerServiceImplIntegrationTest {
         LocalDate deactivateDate = finishDate.plusDays(30);
 
         GroupEntity group1 = new GroupEntity(
+        		1L,
                 "Group1",
                 "whatsApp1",
                 "skype1",
