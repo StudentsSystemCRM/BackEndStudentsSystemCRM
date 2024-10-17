@@ -16,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -69,7 +70,9 @@ public class LecturerServiceImpl implements LecturerService {
     }
 
     @Override
+    @Transactional
     public LecturerDataResponse createLecturer(LecturerCreateRequest request) {
+
         if (lecturerRepository.existsByEmail(request.getEmail())) {
             throw new EmailAlreadyInUseException("Email already in use: " + request.getEmail());
         }
@@ -81,6 +84,7 @@ public class LecturerServiceImpl implements LecturerService {
     }
 
     @Override
+    @Transactional
     public LecturerDataResponse updateLecturer(LecturerUpdateRequest request) {
         LecturerEntity lecturer = lecturerRepository.findById(request.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found with id: " + request.getId()));
@@ -102,10 +106,13 @@ public class LecturerServiceImpl implements LecturerService {
         lecturer = lecturerRepository.save(lecturer);
         return EntityDtoLecturerMapper.INSTANCE.toLecturerDataResponse(lecturer);
     }
+
     private Set<GroupEntity> validateAndGetGroups(Set<Long> groupIds) {
+
         if (groupIds == null || groupIds.isEmpty()) {
-            throw new ResourceNotFoundException("No groups provided.");
+            return new HashSet<>();
         }
+
         Set<GroupEntity> groups = new HashSet<>(groupRepository.findAllById(groupIds));
         if (groups.size() != groupIds.size()) {
             Set<Long> existingGroupIds = groups.stream()
