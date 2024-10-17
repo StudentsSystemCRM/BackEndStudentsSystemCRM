@@ -19,4 +19,3 @@ INSERT INTO groups (
 
 INSERT INTO groups_students (students_id, group_id)
 VALUES (2, 1);
-
