@@ -2,6 +2,7 @@ package edutrack.schedule.dto.request;
 
 import java.time.LocalDateTime;
 
+import edutrack.schedule.constant.SheduleType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -14,13 +15,15 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddStudentScheduleRequest {
+public class ScheduleCreateRequest {
 	@NotNull(message = "ID cannot be null.")
-	Long studentId;
+	Long id;
 
-	LocalDateTime dateTime;
+	SheduleType sheduleType;
+    LocalDateTime sendDate;
+    String subject;
 	
-	@NotNull(message = "Comment cannot be null")
-	@NotBlank(message = "Comment cannot be blank")
-	String comment;
+	@NotNull(message = "Message cannot be null")
+	@NotBlank(message = "Message cannot be blank")
+    String message;
 }

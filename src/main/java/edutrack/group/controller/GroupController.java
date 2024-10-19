@@ -22,7 +22,6 @@ import edutrack.group.dto.response.GroupDataResponse;
 import edutrack.group.service.GroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -41,12 +40,12 @@ public class GroupController {
 		return groupService.createGroup(group);
 	}
 
-//    @GetMapping
-//    @Operation(summary = "Get all groups", description = "Returns a list of all groups.")
-//    public List<GroupDataResponse> getAllGroups() {
-//        return groupService.getAllGroups();
-//    }
-
+	@PutMapping("/update")
+	@Operation(summary = "Update group details", description = "Updates the details of an existing group.")
+	public GroupDataResponse updateGroup(@RequestBody @Valid GroupUpdateDataRequest group) {
+		return groupService.updateGroup(group);
+	}
+	
 	@GetMapping
 	@Operation(summary = "Get all groups", description = "Returns a list of all groups with params.")
 	public List<GroupDataResponse> getAllGroups(@RequestParam(required = false, defaultValue = "0") int page,
@@ -66,45 +65,26 @@ public class GroupController {
 
 	@GetMapping("/name/{name}")
 	@Operation(summary = "Get group by name", description = "Returns the group that matches the given name.")
-	public GroupDataResponse getGroupByName(@PathVariable String name) {
-		return groupService.getGroupByName(name);
+	public List<GroupDataResponse> getGroupByName(@PathVariable String name) {
+		return groupService.getGroupsByName(name);
 	}
 
-	@GetMapping("/student/{id}")
-	@Operation(summary = "Get groups of a student", description = "Returns a list of groups that a student belongs to.")
-	public List<GroupDataResponse> getStudentGroups(@PathVariable @Min(0) Long id) {
-		return groupService.getStudentGroups(id);
+	@GetMapping("/groups/{ids}")
+	@Operation(summary = "Get groups of a student by groups ids", description = "Returns a list of groups that matches the given list of groups ids.")
+	public List<GroupDataResponse> getStudentGroups(@PathVariable List<Long> ids) {
+		return groupService.getGroupsByGroupsIds(ids);
 	}
 
-	@PostMapping("/add-student")
-	@Operation(summary = "Add a student to a group", description = "Adds a student to the specified group by student ID and group name.")
-	public GroupDataResponse addStudentToGroup(@RequestParam @Min(0) Long id, @RequestParam String name) {
-		return groupService.addStudentToGroup(id, name);
+	@GetMapping("/group/{id}")
+	@Operation(summary = "Get students ids by group id", description = "Returns a list of students ids that matches the given group id.")
+	public List<Long> getStudentsIdsByGroup(@PathVariable Long id) {
+		return groupService.getStudentsIdsByGroup(id);
 	}
-
-	@PutMapping("/update")
-	@Operation(summary = "Update group details", description = "Updates the details of an existing group. you cannot update name")
-	public GroupDataResponse updateGroup(@RequestBody @Valid GroupUpdateDataRequest group) {
-		return groupService.updateGroup(group);
-	}
-
-	@DeleteMapping("/remove-student")
-	@Operation(summary = "Remove a student from a group", description = "Removes a student from the specified group by student ID and group name.")
-	public Boolean deleteStudentFromGroup(@RequestParam @Min(0) Long id, @RequestParam String name) {
-		return groupService.deleteStudentFromGroup(id, name);
-	}
-
-	@DeleteMapping("/delete/{name}")
-	@Operation(summary = "Delete a group", description = "Deletes the group with the given name.")
-	public GroupDataResponse deleteGroup(@PathVariable String name) {
-		return groupService.deleteGroup(name);
-	}
-
-	@PutMapping("/{studentId}/{groupName}/{oldGroupName}")
-	@Operation(summary = "Change student's group", description = "Updates the group of a student to a new one.")
-	public void changeStudentGroup(@PathVariable Long studentId, @PathVariable String groupName,
-			@PathVariable String oldGroupName) {
-		groupService.changeStudentGroup(studentId, groupName, oldGroupName);
+	
+	@DeleteMapping("/delete/{id}")
+	@Operation(summary = "Delete a group", description = "Deletes the group with the given id.")
+	public Boolean deleteGroup(@PathVariable Long id) {
+		return groupService.deleteGroup(id);
 	}
 
 }

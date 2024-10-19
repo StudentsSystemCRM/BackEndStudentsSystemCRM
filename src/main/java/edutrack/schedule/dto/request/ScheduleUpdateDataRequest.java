@@ -2,6 +2,7 @@ package edutrack.schedule.dto.request;
 
 import java.time.LocalDateTime;
 
+import edutrack.schedule.constant.SheduleType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -14,13 +15,17 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddGroupScheduleRequest {
-	@NotNull(message = "Group name cannot be null.")
-	String name;
-
-	LocalDateTime dateTime;
+public class ScheduleUpdateDataRequest {
+	@NotNull(message = "ID cannot be null.")
+	Long id;
 	
-	@NotNull(message = "Comment cannot be null")
-	@NotBlank(message = "Comment cannot be blank")
-	String comment;
+	@NotNull(message = "Shedule ID cannot be null.")
+	Long scheduleId;
+	SheduleType sheduleType;
+    LocalDateTime sendDate;
+    String subject;
+	
+	@NotNull(message = "Message cannot be null")
+	@NotBlank(message = "Message cannot be blank")
+    String message;
 }

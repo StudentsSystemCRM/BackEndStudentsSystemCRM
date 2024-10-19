@@ -1,7 +1,7 @@
 package edutrack.schedule.controller;
 
-import edutrack.schedule.dto.request.AddStudentScheduleRequest;
-import edutrack.schedule.dto.response.StudentScheduleResponse;
+import edutrack.schedule.dto.request.ScheduleCreateRequest;
+import edutrack.schedule.dto.response.ScheduleResponse;
 import edutrack.schedule.service.StudentScheduleService;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,13 +27,13 @@ public class StudentScheduleController {
 
 	@GetMapping("/{id}")
 	@Operation(summary = "Get a student's schedules by ID", description = "Provide an ID to lookup a specific student's schedules.")
-	public StudentScheduleResponse getStudentReminders(@PathVariable Long id) {
-		return studentSchedule.getStudentReminders(id);
+	public ScheduleResponse getStudentReminders(@PathVariable Long id) {
+		return studentSchedule.getAllReminders(id);
 	}
 
 	@PostMapping("/schedule")
 	@Operation(summary = "Add a schedule to a student.", description = "Provide the necessary data to create a new schedule to a specific student.")
-	public StudentScheduleResponse addStudentComment(@RequestBody @Valid AddStudentScheduleRequest studentReminder) {
-		return studentSchedule.addStudentReminder(studentReminder);
+	public ScheduleResponse addStudentComment(@RequestBody @Valid ScheduleCreateRequest studentReminder) {
+		return studentSchedule.addReminder(studentReminder);
 	}
 }

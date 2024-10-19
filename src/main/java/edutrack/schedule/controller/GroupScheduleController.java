@@ -1,7 +1,7 @@
 package edutrack.schedule.controller;
 
-import edutrack.schedule.dto.request.AddGroupScheduleRequest;
-import edutrack.schedule.dto.response.GroupScheduleResponse;
+import edutrack.schedule.dto.request.ScheduleCreateRequest;
+import edutrack.schedule.dto.response.ScheduleResponse;
 import edutrack.schedule.service.GroupScheduleService;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,15 +25,15 @@ public class GroupScheduleController {
 
 	GroupScheduleService groupSchedule;
 
-	@GetMapping("/{name}")
+	@GetMapping("/{id}")
 	@Operation(summary = "Get a student's schedules by name", description = "Provide a name to lookup a specific group's schedules.")
-	public GroupScheduleResponse getGroupReminders(@PathVariable String name) {
-		return groupSchedule.getGroupReminders(name);
+	public ScheduleResponse getGroupReminders(@PathVariable Long id) {
+		return groupSchedule.getAllReminders(id);
 	}
 
 	@PostMapping("/schedule")
 	@Operation(summary = "Add a schedule to a group.", description = "Provide the necessary data to create a new schedule to a specific group.")
-	public GroupScheduleResponse addGroupReminder(@RequestBody @Valid AddGroupScheduleRequest groupReminder) {
-		return groupSchedule.addGroupReminder(groupReminder);
+	public ScheduleResponse addGroupReminder(@RequestBody @Valid ScheduleCreateRequest groupReminder) {
+		return groupSchedule.addReminder(groupReminder);
 	}
 }

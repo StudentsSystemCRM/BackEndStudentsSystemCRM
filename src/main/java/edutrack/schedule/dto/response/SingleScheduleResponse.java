@@ -2,6 +2,7 @@ package edutrack.schedule.dto.response;
 
 import java.time.LocalDateTime;
 
+import edutrack.schedule.constant.SheduleType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +15,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class SingleScheduleResponse {
 	Long id;
-	LocalDateTime date;
-	String comment;
+	SheduleType sheduleType;
+    LocalDateTime sendDate;
+    String subject;
+    String message;
 }

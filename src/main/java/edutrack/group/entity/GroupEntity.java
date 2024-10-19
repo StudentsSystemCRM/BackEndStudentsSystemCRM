@@ -8,11 +8,16 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import edutrack.schedule.entity.GroupScheduleEntity;
 import edutrack.student.entity.StudentEntity;
@@ -34,14 +39,14 @@ public class GroupEntity {
     private String whatsApp;
     private String skype;
     private String slack;
+    
     @Enumerated(EnumType.STRING)
     private GroupStatus status;
-    private LocalDate startDate;
     
-    private LocalDate expFinishDate;
-    
+    private LocalDate startDate;   
+    private LocalDate expFinishDate;  
     @Column(name = "deactivate_after_30_days")
-    private LocalDate deactivateAfter30Days;
+    private Boolean deactivateAfter30Days;
     
     @ManyToMany
     @JoinTable(
@@ -52,8 +57,8 @@ public class GroupEntity {
     private List<StudentEntity> students  = new ArrayList<>();
     
     @OneToMany(mappedBy = "group")
-    @CollectionTable(name = "group_reminders")
-    private List<GroupScheduleEntity> groupReminders = new ArrayList<>();
+    @CollectionTable(name = "group_shedulers")
+    private List<GroupScheduleEntity> groupShedulers = new ArrayList<>();
     
     @ElementCollection
     @CollectionTable(name = "group_lessons_days")
@@ -65,9 +70,15 @@ public class GroupEntity {
     @Enumerated(EnumType.STRING)
     private List<WeekDay> webinarsDays = new ArrayList<>();
     
+    @CreatedDate
+    @Column(name = "created_date") 
+    LocalDateTime createdDate;
     @CreatedBy
     @Column(name = "created_by") 
-    String createdBy; 
+    String createdBy;
+    @LastModifiedDate
+    @Column(name = "updated_date") 
+    LocalDateTime lastModifiedDate; 
     @LastModifiedBy 
     @Column(name = "updated_by")
     String lastModifiedBy;

@@ -25,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -65,8 +66,8 @@ public class LecturerControllerMockTest {
         exampleGroupEntity = new GroupEntity(
                 1L, "Example Group", "example-whatsapp", "example-skype", "example-slack",
                 GroupStatus.ACTIVE, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31),
-                LocalDate.of(2024, 6, 30), new ArrayList<>(), new ArrayList<>(),
-                new ArrayList<>(), new ArrayList<>(), null, null
+                false, new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>(), LocalDateTime.of(2024, 1, 1,1,1), null, LocalDateTime.of(2024, 1, 1,1,1), null
         );
 
         createRequest = new LecturerCreateRequest(

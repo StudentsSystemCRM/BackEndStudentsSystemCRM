@@ -82,7 +82,8 @@ public class StudentServiceIntegrationTest {
 
     @Test
     public void testDeleteStudent() {
-        StudentDataResponse deletedStudent = studentService.deleteStudent(STUDENT_ID_DB_H2);
+    	StudentDataResponse deletedStudent = studentService.getStudentById(STUDENT_ID_DB_H2);
+        studentService.deleteStudent(STUDENT_ID_DB_H2);
 
         assertEquals(STUDENT_ID_DB_H2, deletedStudent.getId());
         assertFalse(studentRepo.findById(STUDENT_ID_DB_H2).isPresent());

@@ -12,8 +12,8 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentScheduleResponse {
+public class ScheduleResponse {
 	
 	Long id;
-	List<SingleScheduleResponse> reminders;
+	List<SingleScheduleResponse> schedules;
 }

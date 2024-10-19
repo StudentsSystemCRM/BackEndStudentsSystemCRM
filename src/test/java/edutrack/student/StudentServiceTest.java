@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -62,12 +63,12 @@ public class StudentServiceTest {
 	@BeforeEach
 	public void setUp() {
 		groupStudent = new GroupEntity(1L, "Example Group", "example-whatsapp", "example-skype", "example-slack",
-				GroupStatus.ACTIVE, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31), LocalDate.of(2024, 6, 30),
-				new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), "", "");
+				GroupStatus.ACTIVE, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31), false,
+				new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), LocalDateTime.of(2024, 1, 1,1,1),"", LocalDateTime.of(2024, 1, 1,1,1), "");
 		List<GroupEntity> groups = new ArrayList<>();
 		groups.add(groupStudent);
 		student = new StudentEntity(1L, "John", "Doe", "123456789", "john.doe@example.com", "City", "Course", "Source",
-				LeadStatus.CONSULTATION, "testGroup", 16000, groups, null, null, null, "", "");
+				LeadStatus.CONSULTATION, 1L, 16000, groups, null, null, null,LocalDateTime.of(2024, 1, 1,1,1), "",LocalDateTime.of(2024, 1, 1,1,1), "");
 		request = new StudentCreateRequest("John", "Doe", "123456789", "john.doe@example.com", "City", "Course",
 				"Source", LeadStatus.IN_WORK, "Create comment");
 		updateDataRequest = new StudentUpdateDataRequest(1L, "John", "Doe", "123456789", "john.doe@example.com",
@@ -134,7 +135,7 @@ public class StudentServiceTest {
 	@Test
 	public void testUpdateStudent_Success() {
 		StudentEntity existingStudent = new StudentEntity(1L, "John", "Doe", "123456789", "john.doe@example.com",
-				"City", "Course", "Source", LeadStatus.IN_WORK, "testGroup", 16000, null, null, null, null, "", "");
+				"City", "Course", "Source", LeadStatus.IN_WORK, 1L, 16000, null, null, null, null, LocalDateTime.of(2024, 1, 1,1,1),"",LocalDateTime.of(2024, 1, 1,1,1), "");
 
 		when(studentRepo.findById(1L)).thenReturn(Optional.of(existingStudent));
 		when(studentRepo.save(any(StudentEntity.class))).thenReturn(existingStudent);
