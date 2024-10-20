@@ -1,7 +1,7 @@
 package edutrack.group.entity;
 
 import edutrack.group.constant.GroupStatus;
-import edutrack.group.constant.WeekDay;
+import edutrack.group.util.ListToJsonConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -60,15 +60,13 @@ public class GroupEntity {
     @CollectionTable(name = "group_shedulers")
     private List<GroupScheduleEntity> groupShedulers = new ArrayList<>();
     
-    @ElementCollection
-    @CollectionTable(name = "group_lessons_days")
-    @Enumerated(EnumType.STRING)
-    private List<WeekDay> lessonsDays = new ArrayList<>();
+    @Column(columnDefinition = "json", name = "lessons_days")
+	@Convert(converter = ListToJsonConverter.class)
+    private List<LocalDateTime> lessonsDays = new ArrayList<>();
     
-    @ElementCollection
-    @CollectionTable(name = "group_webinars_days")
-    @Enumerated(EnumType.STRING)
-    private List<WeekDay> webinarsDays = new ArrayList<>();
+    @Column(columnDefinition = "json", name = "webinars_days")
+	@Convert(converter = ListToJsonConverter.class)
+    private List<LocalDateTime> webinarsDays = new ArrayList<>();
     
     @CreatedDate
     @Column(name = "created_date") 

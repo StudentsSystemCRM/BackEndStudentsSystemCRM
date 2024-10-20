@@ -6,7 +6,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import edutrack.group.constant.GroupStatus;
 import edutrack.student.dto.request.StudentCreateRequest;
 import edutrack.student.dto.response.StudentDataResponse;
 import edutrack.student.entity.StudentEntity;
@@ -26,8 +25,9 @@ public interface EntityDtoStudentMapper {
 	@Mapping(target = "totalSumToPay", ignore = true)
 	@Mapping(target = "originalGroupId", ignore = true)
 	@Mapping(target = "createdBy", ignore = true)
-	@Mapping(target = "createdDate", expression="java(LocalDateTime.now())")
+	@Mapping(target = "createdDate", expression = "java(LocalDateTime.now())")
 	@Mapping(target = "lastModifiedBy", ignore = true)
+	@Mapping(target = "lastModifiedDate", ignore = true)
 	StudentEntity studentCreateRequestToStudent(StudentCreateRequest studentCreate);
 
 	@Mapping(source = "firstName", target = "name")

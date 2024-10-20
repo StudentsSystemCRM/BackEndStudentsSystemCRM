@@ -3,10 +3,10 @@ package edutrack.group.dto.request;
 import static edutrack.user.constant.ValidationAccountingMessage.INVALID_NAME;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import edutrack.group.constant.GroupStatus;
-import edutrack.group.constant.WeekDay;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
@@ -32,7 +32,7 @@ public class GroupUpdateDataRequest {
     GroupStatus status;
     LocalDate startDate;
     LocalDate expFinishDate;
-    List<WeekDay> lessonsDays;
-    List<WeekDay> webinarsDays;
+    List<LocalDateTime> lessonsDays;
+    List<LocalDateTime> webinarsDays;
     Boolean DeactivateAfter30Days;
 }

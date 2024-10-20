@@ -13,7 +13,8 @@ public interface GroupService {
 	
 	GroupDataResponse createGroup(GroupCreateRequest group);
 	GroupDataResponse updateGroup(GroupUpdateDataRequest group);
-
+	GroupDataResponse getGroupById(Long id);
+	
 	List<GroupDataResponse> getAllGroups(Pageable pageable);
 	List<GroupDataResponse> getGroupsByStatus(GroupStatus status);
 	List<GroupDataResponse> getGroupsByName(String name);// containing, ignore case

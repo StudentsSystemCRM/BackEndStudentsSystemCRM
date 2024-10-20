@@ -1,7 +1,6 @@
 package edutrack.group.service;
 
 import edutrack.group.constant.GroupStatus;
-import edutrack.group.constant.WeekDay;
 import edutrack.group.dto.request.GroupCreateRequest;
 import edutrack.group.dto.request.GroupUpdateDataRequest;
 import edutrack.group.dto.response.GroupDataResponse;
@@ -9,6 +8,7 @@ import edutrack.group.entity.GroupEntity;
 import edutrack.group.exception.GroupNotFoundException;
 import edutrack.group.repository.GroupRepository;
 import edutrack.group.util.EntityDtoGroupMapper;
+import edutrack.student.entity.StudentEntity;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.AccessLevel;
@@ -32,23 +32,14 @@ public class GroupServiceImp implements GroupService {
 
 	GroupRepository groupRepo;
 
-	private GroupDataResponse toGroupDataResponse(GroupEntity group) {
-		return new GroupDataResponse(group.getId(), group.getName(), group.getWhatsApp(), group.getSkype(),
-				group.getSlack(), group.getStatus(), group.getStartDate(), group.getExpFinishDate(),
-				getLessonsDays(group.getId()), getWebinarsDays(group.getId()), group.getDeactivateAfter30Days());
-	}
-
     private GroupEntity findGroupById(Long id) {
         return groupRepo.findById(id).orElseThrow(() -> new GroupNotFoundException("Group with id " + id + " not found"));
     }
     
-    private List<WeekDay> getLessonsDays(Long id) {
-		return groupRepo.getLessonsDays(id);
-	}
-
-    private List<WeekDay> getWebinarsDays(Long id) {
-		return groupRepo.getWebinarsDays(id);
-	}
+    @Override
+    public GroupDataResponse getGroupById(Long id) {
+        return EntityDtoGroupMapper.INSTANCE.groupToGroupDataResponse(findGroupById(id));
+    }
 
 	@Override
 	@Transactional
@@ -61,7 +52,7 @@ public class GroupServiceImp implements GroupService {
 		GroupEntity groupEntity = EntityDtoGroupMapper.INSTANCE.groupCreateRequestToGroup(groupRequest);
 		groupEntity.setStatus(GroupStatus.ACTIVE);
 		groupRepo.save(groupEntity);
-		return toGroupDataResponse(groupEntity);
+		return EntityDtoGroupMapper.INSTANCE.groupToGroupDataResponse(groupEntity);
 	}
 
 	@Override
@@ -100,19 +91,19 @@ public class GroupServiceImp implements GroupService {
 		}
 		groupEntity.setLastModifiedDate(LocalDateTime.now());
 		groupRepo.save(groupEntity);
-		return toGroupDataResponse(groupEntity);
+		return EntityDtoGroupMapper.INSTANCE.groupToGroupDataResponse(groupEntity);
 	}
 
 	@Override
 	public List<GroupDataResponse> getAllGroups(Pageable pageable) {
 		Page<GroupEntity> groupResponse = groupRepo.findAll(pageable);
-		return (groupResponse.isEmpty() || groupResponse == null) ? new ArrayList<>() : groupResponse.stream().map(group -> toGroupDataResponse(group)).collect(Collectors.toList());
+		return (groupResponse.isEmpty() || groupResponse == null) ? new ArrayList<>() : groupResponse.stream().map(EntityDtoGroupMapper.INSTANCE::groupToGroupDataResponse).collect(Collectors.toList());
 	}
     
 	@Override
 	public List<GroupDataResponse> getGroupsByStatus(GroupStatus status) {
 		List<GroupEntity> groupResponse = groupRepo.findByStatus(status);
-		return (groupResponse.isEmpty() || groupResponse == null) ? new ArrayList<>() : groupResponse.stream().map(group -> toGroupDataResponse(group)).collect(Collectors.toList());
+		return (groupResponse.isEmpty() || groupResponse == null) ? new ArrayList<>() : groupResponse.stream().map(EntityDtoGroupMapper.INSTANCE::groupToGroupDataResponse).collect(Collectors.toList());
 	}
 
     @Override
@@ -121,19 +112,20 @@ public class GroupServiceImp implements GroupService {
 		if (groupResponse == null) {
 			throw new GroupNotFoundException("The group that contains " + name + " in the name not found");
 		}
-		return groupResponse.stream().map(group -> toGroupDataResponse(group)).collect(Collectors.toList());
+		return groupResponse.stream().map(EntityDtoGroupMapper.INSTANCE::groupToGroupDataResponse).collect(Collectors.toList());
 	}
     
 	@Override
+	@Transactional
 	public List<Long> getStudentsIdsByGroup(Long id) {
-		List<Long> groupResponse = groupRepo.findStudentsIdsByGroup(id);
-        return (groupResponse.isEmpty() || groupResponse == null) ? new ArrayList<>() : groupResponse;
+		GroupEntity groupResponse = findGroupById(id);
+		return (groupResponse == null) ? new ArrayList<>() : groupResponse.getStudents().stream().map(student -> student.getId()).collect(Collectors.toList());
 	}
 	
 	@Override
 	public List<GroupDataResponse> getGroupsByGroupsIds(List<Long> ids) {
 		List<GroupEntity> groupResponse = groupRepo.findAllById(ids);
-		return (groupResponse.isEmpty() || groupResponse == null) ? new ArrayList<>() : groupResponse.stream().map(group -> toGroupDataResponse(group)).collect(Collectors.toList());
+		return (groupResponse.isEmpty() || groupResponse == null) ? new ArrayList<>() : groupResponse.stream().map(EntityDtoGroupMapper.INSTANCE::groupToGroupDataResponse).collect(Collectors.toList());
 	}
 
 	@Override

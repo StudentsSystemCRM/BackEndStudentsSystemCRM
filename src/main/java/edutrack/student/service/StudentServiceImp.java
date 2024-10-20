@@ -148,7 +148,7 @@ public class StudentServiceImp implements StudentService {
 		student.setOriginalGroupId(groupId);
 		studentRepo.save(student);
 		List<Long> ids = getStudentGroupsIds(studentId);
-		if (ids!=null && ids.contains(studentId)) {
+		if (ids != null && ids.contains(studentId)) {
 			throw new ResourceExistsException("Student with id " + studentId + " already exists in group with id " + groupId);
 		}
 		studentRepo.addStudentToGroup(studentId, groupId);
@@ -162,11 +162,13 @@ public class StudentServiceImp implements StudentService {
 			throw new GroupNotFoundException("Group with id " + groupId + " doesn't exists");
 		}
 		List<Long> ids = getStudentGroupsIds(studentId);
-		if (ids==null || !ids.contains(groupId)) {
+		if (ids == null || !ids.contains(groupId)) {
 			throw new StudentNotFoundException("Student with id " + studentId + " not found in group " + groupId);
 		}
 		StudentEntity student = findStudentById(studentId);
-		if(student.getOriginalGroupId() == groupId) student.setOriginalGroupId(null);
+		if (student.getOriginalGroupId() == groupId) {
+			student.setOriginalGroupId(null);
+		}
 		studentRepo.save(student);
 		studentRepo.deleteStudentFromGroup(studentId, groupId);
 		return true;
@@ -183,7 +185,7 @@ public class StudentServiceImp implements StudentService {
 	public Boolean changeStudentGroup(Long studentId, Long groupId, Long oldGroupId) {
 		StudentEntity student = findStudentById(studentId);
 		List<Long> ids = getStudentGroupsIds(studentId);
-		if (ids==null || !ids.contains(groupId)) {
+		if (ids == null || !ids.contains(groupId)) {
 			throw new StudentNotFoundException("Student with id " + studentId + " not found in group " + groupId);
 		}
 		if (studentRepo.groupExistsById(groupId) == null) {
