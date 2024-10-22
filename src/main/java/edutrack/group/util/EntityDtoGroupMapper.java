@@ -22,7 +22,7 @@ public interface EntityDtoGroupMapper {
 	@Mapping(target = "students", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
-    @Mapping(target = "createdDate", expression = "java(LocalDateTime.now())")
+    @Mapping(target = "createdDate", expression = "java(ZonedDateTime.now())")
     @Mapping(target = "lastModifiedDate", ignore = true)
     GroupEntity groupCreateRequestToGroup(GroupCreateRequest groupCreate);
 

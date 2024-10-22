@@ -10,7 +10,10 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,7 +67,7 @@ public class StudentServiceTest {
 	public void setUp() {
 		groupStudent = new GroupEntity(1L, "Example Group", "example-whatsapp", "example-skype", "example-slack",
 				GroupStatus.ACTIVE, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31), false,
-				new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), LocalDateTime.of(2024, 1, 1,1,1),"", LocalDateTime.of(2024, 1, 1,1,1), "");
+				new HashSet<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), ZonedDateTime.of(2024, 1, 1,1,1,1,1,ZoneId.of("Asia/Kuala_Lumpur")),"",ZonedDateTime.of(2024, 1, 1,1,1,1,1,ZoneId.of("Asia/Kuala_Lumpur")), "");
 		List<GroupEntity> groups = new ArrayList<>();
 		groups.add(groupStudent);
 		student = new StudentEntity(1L, "John", "Doe", "123456789", "john.doe@example.com", "City", "Course", "Source",

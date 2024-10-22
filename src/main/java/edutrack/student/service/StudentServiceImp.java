@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import edutrack.student.constant.LeadStatus;
 import edutrack.student.dto.request.StudentCreateRequest;
 import edutrack.student.dto.request.StudentUpdateDataRequest;
 import edutrack.student.dto.response.StudentDataResponse;
@@ -124,11 +125,17 @@ public class StudentServiceImp implements StudentService {
     }
 
 	@Override
+	public List<StudentDataResponse> getStudentsByStatus(Pageable pageable, LeadStatus status) {
+		List<StudentEntity> studentResponse = studentRepo.findByLeadStatus(pageable, status);
+		return (studentResponse.isEmpty() || studentResponse == null) ? new ArrayList<>() : studentResponse.stream().map(EntityDtoStudentMapper.INSTANCE::studentToStudentDataResponse).collect(Collectors.toList());
+	}
+	
+	@Override
 	public List<StudentDataResponse> getStudentsByStudentsIds(List<Long> ids) {
 		List<StudentEntity> studentResponse = studentRepo.findAllById(ids);
 		return (studentResponse == null || studentResponse.isEmpty()) ? new ArrayList<>() : studentResponse.stream().map(EntityDtoStudentMapper.INSTANCE::studentToStudentDataResponse).collect(Collectors.toList());
 	}
-
+	
     @Override
     @Transactional
     public Boolean deleteStudent(Long id) {

@@ -21,6 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,14 +57,11 @@ class LecturerServiceImplMockTest {
                 LocalDate.of(2024, 1, 1),
                 LocalDate.of(2024, 12, 31),
                 false,
+                new HashSet<>(),
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                new ArrayList<>(),
-                LocalDateTime.of(2024, 1, 1,1,1),
-                null,
-                LocalDateTime.of(2024, 1, 1,1,1),
-                null
+                ZonedDateTime.of(2024, 1, 1,1,1,1,1,ZoneId.of("Asia/Kuala_Lumpur")),null,ZonedDateTime.of(2024, 1, 1,1,1,1,1,ZoneId.of("Asia/Kuala_Lumpur")), null
         );
 
         lecturer = new LecturerEntity(

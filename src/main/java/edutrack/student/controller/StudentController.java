@@ -2,7 +2,7 @@ package edutrack.student.controller;
 
 import java.util.List;
 
-import edutrack.group.dto.response.GroupDataResponse;
+import edutrack.student.constant.LeadStatus;
 import edutrack.student.dto.request.StudentCreateRequest;
 import edutrack.student.dto.request.StudentUpdateDataRequest;
 
@@ -66,7 +66,7 @@ public class StudentController {
     public List<StudentDataResponse> getStudentsByName(@RequestParam(required = false, defaultValue = "0") int page,
 	@RequestParam(required = false, defaultValue = "20") int size, @RequestParam String name) {
     	Pageable pageable = PageRequest.of(page, size);
-        return service.getStudentsByName(pageable,name);
+        return service.getStudentsByName(pageable, name);
     }
 
     @GetMapping("/surname")
@@ -74,7 +74,7 @@ public class StudentController {
     public List<StudentDataResponse> getStudentsBySurname(@RequestParam(required = false, defaultValue = "0") int page,
     		@RequestParam(required = false, defaultValue = "20") int size, @RequestParam String surname) {
     	Pageable pageable = PageRequest.of(page, size);
-        return service.getStudentsBySurname(pageable,surname);
+        return service.getStudentsBySurname(pageable, surname);
     }
 
     @GetMapping("/name_and_surname")
@@ -82,9 +82,17 @@ public class StudentController {
     public List<StudentDataResponse> getStudentsByNameAndSurname(@RequestParam(required = false, defaultValue = "0") int page,
     		@RequestParam(required = false, defaultValue = "20") int size, @RequestParam String name, @RequestParam String surname) {
     	Pageable pageable = PageRequest.of(page, size);
-        return service.getStudentsByNameAndSurname(pageable,name, surname);
+        return service.getStudentsByNameAndSurname(pageable, name, surname);
     }
     
+	@GetMapping("/status")
+	@Operation(summary = "Get students by status", description = "Returns a list of students filtered by their status.")
+	public List<StudentDataResponse> getStudentsByStatus(@RequestParam(required = false, defaultValue = "0") int page,
+    		@RequestParam(required = false, defaultValue = "20") int size, @RequestParam LeadStatus status) {
+		Pageable pageable = PageRequest.of(page, size);
+		return service.getStudentsByStatus(pageable, status);
+	}
+	
 	@GetMapping("/students/{ids}")
 	@Operation(summary = "Get students of a group by students ids", description = "Returns a list of students that matches the given list of students ids.")
 	public List<StudentDataResponse> getStudentsByStudentsIds(@PathVariable List<Long> ids) {

@@ -3,7 +3,7 @@ package edutrack.group.dto.request;
 import static edutrack.user.constant.ValidationAccountingMessage.INVALID_NAME;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import edutrack.group.constant.GroupStatus;
@@ -19,12 +19,12 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupUpdateDataRequest {
+public class GroupUpdateDataRequest{
 	@NotNull(message = "ID cannot be null.")
 	Long id;
 	@NotNull(message = "Name cannot be null.")
 	@Pattern(regexp = "^[a-zA-Zа-яА-ЯёЁ0-9א-ת\\-\\s']{1,50}$", message = INVALID_NAME)
-	String name;
+    String name;
 
     String whatsApp;
     String skype;
@@ -32,7 +32,7 @@ public class GroupUpdateDataRequest {
     GroupStatus status;
     LocalDate startDate;
     LocalDate expFinishDate;
-    List<LocalDateTime> lessonsDays;
-    List<LocalDateTime> webinarsDays;
+    List<ZonedDateTime> lessonsDays;
+    List<ZonedDateTime> webinarsDays;
     Boolean DeactivateAfter30Days;
 }

@@ -1,6 +1,7 @@
 package edutrack.student.repository;
 import java.util.List;
 
+import edutrack.student.constant.LeadStatus;
 import edutrack.student.entity.StudentEntity;
 
 import org.springframework.data.domain.Pageable;
@@ -41,4 +42,5 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long> {
 	List<StudentEntity> findByFirstNameContainingIgnoreCase(Pageable pageable, String name);
 	List<StudentEntity> findByLastNameContainingIgnoreCase(Pageable pageable, String name);
 	List<StudentEntity> findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(Pageable pageable, String name, String surname);
+	List<StudentEntity> findByLeadStatus(Pageable pageable, LeadStatus status);
 }

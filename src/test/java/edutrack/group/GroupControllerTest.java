@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,12 +75,12 @@ class GroupControllerTest {
 	@BeforeEach
 	void setUp() throws Exception {
 		requestGroup = new GroupCreateRequest("java-24", "whatsApp", "skype", "slack", LocalDate.of(2024, 1, 1),
-				LocalDate.of(2024, 6, 1), Arrays.asList(LocalDateTime.now(), LocalDateTime.now()),
-				Arrays.asList(LocalDateTime.now(), LocalDateTime.now()));
+				LocalDate.of(2024, 6, 1), Arrays.asList(ZonedDateTime.now(), ZonedDateTime.now()),
+				Arrays.asList(ZonedDateTime.now(), ZonedDateTime.now()));
 
 		responseGroup = new GroupDataResponse(1L, "java-24", "whatsApp", "skype", "slack", GroupStatus.ACTIVE,
-				LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1), Arrays.asList(LocalDateTime.now(), LocalDateTime.now()),
-				Arrays.asList(LocalDateTime.now(), LocalDateTime.now()), false);
+				LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 1), Arrays.asList(ZonedDateTime.now(), ZonedDateTime.now()),
+				Arrays.asList(ZonedDateTime.now(), ZonedDateTime.now()), false);
 		responseGroupList = Arrays.asList(responseGroup);
 
 	}
@@ -119,8 +120,8 @@ class GroupControllerTest {
 				GroupStatus.INACTIVE, // status
 				LocalDate.of(2024, 2, 1), // startDate
 				LocalDate.of(2024, 7, 1), // expFinishDate
-				Arrays.asList(LocalDateTime.now()), // lessons
-				Arrays.asList(LocalDateTime.now()), // webinars
+				Arrays.asList(ZonedDateTime.now()), // lessons
+				Arrays.asList(ZonedDateTime.now()), // webinars
 				false // DeactivateAfter30Days
 		);
 
@@ -238,8 +239,8 @@ class GroupControllerTest {
 				GroupStatus.ACTIVE, // status
 				LocalDate.of(2024, 2, 1), // startDate
 				LocalDate.of(2024, 7, 1), // expFinishDate
-				Arrays.asList(LocalDateTime.now()), // lessonsDays
-				Arrays.asList(LocalDateTime.now()), // webinarsDays
+				Arrays.asList(ZonedDateTime.now()), // lessonsDays
+				Arrays.asList(ZonedDateTime.now()), // webinarsDays
 				false // DeactivateAfter30Days
 		);
 
@@ -260,8 +261,8 @@ class GroupControllerTest {
 				GroupStatus.ACTIVE, // status
 				LocalDate.of(2024, 2, 1), // startDate
 				LocalDate.of(2024, 7, 1), // expFinishDate
-				Arrays.asList(LocalDateTime.now()), // lessonsDays
-				Arrays.asList(LocalDateTime.now()), // webinarsDays
+				Arrays.asList(ZonedDateTime.now()), // lessonsDays
+				Arrays.asList(ZonedDateTime.now()), // webinarsDays
 				false // DeactivateAfter30Days
 		);
 
@@ -275,7 +276,7 @@ class GroupControllerTest {
 		// Arrange
 		GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(1L, "non-existent-group", "newWhatsApp",
 				"newSkype", "newSlack", GroupStatus.ACTIVE, LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1),
-				Arrays.asList(LocalDateTime.now()), Arrays.asList(LocalDateTime.now()), false);
+				Arrays.asList(ZonedDateTime.now()), Arrays.asList(ZonedDateTime.now()), false);
 
 		when(groupService.updateGroup(any(GroupUpdateDataRequest.class)))
 				.thenThrow(new GroupNotFoundException("Group with name non-existent-group not found"));

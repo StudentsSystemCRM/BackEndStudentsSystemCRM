@@ -1,7 +1,7 @@
 package edutrack.group.dto.response;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import edutrack.group.constant.GroupStatus;
@@ -24,7 +24,7 @@ public class GroupDataResponse {
     GroupStatus status;
     LocalDate startDate;
     LocalDate expFinishDate;
-    List<LocalDateTime> lessonsDays;
-    List<LocalDateTime> webinarsDays;
+    List<ZonedDateTime> lessonsDays;
+    List<ZonedDateTime> webinarsDays;
     Boolean deactivateAfter30Days;
 }

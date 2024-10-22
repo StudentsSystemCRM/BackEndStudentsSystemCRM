@@ -8,13 +8,12 @@ import edutrack.group.entity.GroupEntity;
 import edutrack.group.exception.GroupNotFoundException;
 import edutrack.group.repository.GroupRepository;
 import edutrack.group.util.EntityDtoGroupMapper;
-import edutrack.student.entity.StudentEntity;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,11 +88,18 @@ public class GroupServiceImp implements GroupService {
 		if (groupRequest.getDeactivateAfter30Days() != null) {
 			groupEntity.setDeactivateAfter30Days(groupRequest.getDeactivateAfter30Days());
 		}
-		groupEntity.setLastModifiedDate(LocalDateTime.now());
+		groupEntity.setLastModifiedDate(ZonedDateTime.now());
 		groupRepo.save(groupEntity);
 		return EntityDtoGroupMapper.INSTANCE.groupToGroupDataResponse(groupEntity);
 	}
 
+	public List<GroupDataResponse> getAllGroups() {
+		List<GroupEntity> groupResponse = groupRepo.findAll();
+        if (groupResponse.isEmpty())
+            return new ArrayList<>();
+        return (groupResponse.isEmpty() || groupResponse == null) ? new ArrayList<>() :  groupResponse.stream().map(EntityDtoGroupMapper.INSTANCE::groupToGroupDataResponse).collect(Collectors.toList());
+	}
+	
 	@Override
 	public List<GroupDataResponse> getAllGroups(Pageable pageable) {
 		Page<GroupEntity> groupResponse = groupRepo.findAll(pageable);
@@ -118,6 +124,8 @@ public class GroupServiceImp implements GroupService {
 	@Override
 	@Transactional
 	public List<Long> getStudentsIdsByGroup(Long id) {
+//		List<Long> groupResponse = groupRepo.findStudentsIdsByGroup(id);
+//      return (groupResponse.isEmpty() || groupResponse == null) ? new ArrayList<>() : groupResponse;
 		GroupEntity groupResponse = findGroupById(id);
 		return (groupResponse == null) ? new ArrayList<>() : groupResponse.getStudents().stream().map(student -> student.getId()).collect(Collectors.toList());
 	}
@@ -137,5 +145,5 @@ public class GroupServiceImp implements GroupService {
 		groupRepo.deleteById(group.getId());
 		return true;
 	}
-
+	
 }

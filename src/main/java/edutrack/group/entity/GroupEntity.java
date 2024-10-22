@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -54,7 +54,7 @@ public class GroupEntity {
         joinColumns = @JoinColumn(name = "group_id"),
         inverseJoinColumns = @JoinColumn(name = "students_id")
     )
-    private List<StudentEntity> students  = new ArrayList<>();
+    private Set<StudentEntity> students  = new HashSet<>();
     
     @OneToMany(mappedBy = "group")
     @CollectionTable(name = "group_shedulers")
@@ -62,21 +62,21 @@ public class GroupEntity {
     
     @Column(columnDefinition = "json", name = "lessons_days")
 	@Convert(converter = ListToJsonConverter.class)
-    private List<LocalDateTime> lessonsDays = new ArrayList<>();
+    private List<ZonedDateTime> lessonsDays = new ArrayList<>();
     
     @Column(columnDefinition = "json", name = "webinars_days")
 	@Convert(converter = ListToJsonConverter.class)
-    private List<LocalDateTime> webinarsDays = new ArrayList<>();
+    private List<ZonedDateTime> webinarsDays = new ArrayList<>();
     
     @CreatedDate
     @Column(name = "created_date") 
-    LocalDateTime createdDate;
+    ZonedDateTime createdDate;
     @CreatedBy
     @Column(name = "created_by") 
     String createdBy;
     @LastModifiedDate
     @Column(name = "updated_date") 
-    LocalDateTime lastModifiedDate; 
+    ZonedDateTime lastModifiedDate; 
     @LastModifiedBy 
     @Column(name = "updated_by")
     String lastModifiedBy;

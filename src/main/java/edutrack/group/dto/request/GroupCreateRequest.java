@@ -3,7 +3,7 @@ package edutrack.group.dto.request;
 import static edutrack.user.constant.ValidationAccountingMessage.INVALID_NAME;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import jakarta.validation.constraints.NotNull;
@@ -28,6 +28,6 @@ public class GroupCreateRequest {
     String slack;
     LocalDate startDate;
     LocalDate expFinishDate;
-    List<LocalDateTime> lessonsDays;
-    List<LocalDateTime> webinarsDays;
+    List<ZonedDateTime> lessonsDays;
+    List<ZonedDateTime> webinarsDays;
 }
