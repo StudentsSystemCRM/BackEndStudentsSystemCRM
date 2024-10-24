@@ -14,7 +14,13 @@ import edutrack.activityLog.dto.request.AddActivityLogRequest;
 import edutrack.activityLog.dto.response.ActivityLogResponse;
 import edutrack.activityLog.service.ActivityLogService;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+		"mailgun.api.key=disabled",
+		"mailgun.domain=disabled",
+		"mailgun.api.base-url=disabled",
+		"mailgun.from-email=disabled",
+		"mailgun.signature=disabled"
+})
 @Sql(scripts = { "classpath:testdata.sql" })
 public class ActivityLogIntegrationDBTest {
 	@Autowired
