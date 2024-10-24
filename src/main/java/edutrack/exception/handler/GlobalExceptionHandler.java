@@ -3,6 +3,9 @@ package edutrack.exception.handler;
 import java.util.List;
 import java.util.UUID;
 
+import edutrack.emailService.exception.EmailServiceException;
+import edutrack.emailService.exception.MailgunBadRequestException;
+import edutrack.emailService.exception.TriggerNotFoundException;
 import edutrack.exception.*;
 import edutrack.exception.response.GeneralErrorResponse;
 import edutrack.exception.response.GeneralErrorResponseValidationDto;
@@ -91,18 +94,37 @@ public class GlobalExceptionHandler {
 		logger.error("Email already in use.", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
-	
+
+	@ExceptionHandler(TriggerNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public GeneralErrorResponse handleTriggerNotFoundException(TriggerNotFoundException ex) {
+		logger.error("TriggerNotFoundException", ex);
+		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
+	}
+
+	@ExceptionHandler(MailgunBadRequestException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public void handleMailgunBadRequestException(MailgunBadRequestException ex) {
+		logger.error("MailgunBadRequestException", ex);
+	}
+
+	@ExceptionHandler(EmailServiceException.class)
+	public GeneralErrorResponse handleEmailServiceException(EmailServiceException ex) {
+		logger.error("EmailServiceException", ex);
+		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
+	}
+
 	@ExceptionHandler(GroupNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public GeneralErrorResponse handleJwtTokenExpiredException(GroupNotFoundException ex) {
 		logger.error("GroupNotFoundException", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
-	
+
 	@ExceptionHandler(NoResourceFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public GeneralErrorResponse handleJwtTokenExpiredException(NoResourceFoundException ex) {
-		logger.error("Edpoints doesn't exists", ex);
+		logger.error("Endpoints doesn't exists", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
 
@@ -112,4 +134,5 @@ public class GlobalExceptionHandler {
 		logger.error("An unexpected error occurred.", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), "An unexpected error: " + ex.getMessage());
 	}
+
 }
