@@ -27,13 +27,13 @@ public class GroupScheduleController {
 
 	@GetMapping("/{id}")
 	@Operation(summary = "Get a student's schedules by name", description = "Provide a name to lookup a specific group's schedules.")
-	public ScheduleResponse getGroupReminders(@PathVariable Long id) {
-		return groupSchedule.getAllReminders(id);
+	public ScheduleResponse getGroupSchedulers(@PathVariable Long id) {
+		return groupSchedule.getAllSchedulers(id);
 	}
 
 	@PostMapping("/schedule")
 	@Operation(summary = "Add a schedule to a group.", description = "Provide the necessary data to create a new schedule to a specific group.")
-	public ScheduleResponse addGroupReminder(@RequestBody @Valid ScheduleCreateRequest groupReminder) {
-		return groupSchedule.addReminder(groupReminder);
+	public ScheduleResponse addGroupSchedule(@RequestBody @Valid ScheduleCreateRequest scheduleCreateRequest) {
+		return groupSchedule.addSchedule(scheduleCreateRequest);
 	}
 }

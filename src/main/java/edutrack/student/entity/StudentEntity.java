@@ -52,8 +52,8 @@ public class StudentEntity {
     private List<PaymentEntity> payments = new ArrayList<>();
     
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    @CollectionTable(name = "student_shedulers")
-    private List<StudentScheduleEntity> studentShedulers = new ArrayList<>();
+    @CollectionTable(name = "student_schedulers")
+    private List<StudentScheduleEntity> studentSchedulers = new ArrayList<>();
     
     @CreatedDate
     @Column(name = "created_date") 

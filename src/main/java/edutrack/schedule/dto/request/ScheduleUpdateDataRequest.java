@@ -1,6 +1,6 @@
 package edutrack.schedule.dto.request;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import edutrack.schedule.constant.SheduleType;
 import jakarta.validation.constraints.NotBlank;
@@ -22,7 +22,7 @@ public class ScheduleUpdateDataRequest {
 	@NotNull(message = "Shedule ID cannot be null.")
 	Long scheduleId;
 	SheduleType sheduleType;
-    LocalDateTime sendDate;
+    ZonedDateTime sendDate;
     String subject;
 	
 	@NotNull(message = "Message cannot be null")

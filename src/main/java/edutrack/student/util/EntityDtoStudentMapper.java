@@ -21,7 +21,7 @@ public interface EntityDtoStudentMapper {
 	@Mapping(target = "activityLogs", ignore = true)
 	@Mapping(target = "payments", ignore = true)
 	@Mapping(target = "groups", ignore = true)
-	@Mapping(target = "studentShedulers", ignore = true)
+	@Mapping(target = "studentSchedulers", ignore = true)
 	@Mapping(target = "totalSumToPay", ignore = true)
 	@Mapping(target = "originalGroupId", ignore = true)
 	@Mapping(target = "createdBy", ignore = true)

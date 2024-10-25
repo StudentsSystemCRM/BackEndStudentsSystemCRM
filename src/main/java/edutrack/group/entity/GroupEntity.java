@@ -57,8 +57,8 @@ public class GroupEntity {
     private Set<StudentEntity> students  = new HashSet<>();
     
     @OneToMany(mappedBy = "group")
-    @CollectionTable(name = "group_shedulers")
-    private List<GroupScheduleEntity> groupShedulers = new ArrayList<>();
+    @CollectionTable(name = "group_schedulers")
+    private List<GroupScheduleEntity> groupSchedulers = new ArrayList<>();
     
     @Column(columnDefinition = "json", name = "lessons_days")
 	@Convert(converter = ListToJsonConverter.class)

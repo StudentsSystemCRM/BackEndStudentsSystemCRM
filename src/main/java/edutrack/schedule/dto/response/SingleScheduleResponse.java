@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SingleScheduleResponse {
-	Long id;
+	Long scheduleId;
 	SheduleType sheduleType;
     LocalDateTime sendDate;
     String subject;

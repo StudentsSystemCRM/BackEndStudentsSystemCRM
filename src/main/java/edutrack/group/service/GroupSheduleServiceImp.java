@@ -25,7 +25,7 @@ public class GroupSheduleServiceImp implements GroupSheduleService{
 	GroupServiceImp groupServiceImp;
 	
 	@Override
-	@Scheduled(cron = "30 01 23 * * MON-SUN", zone = "Asia/Jerusalem") // every day of week at 2:00:00 - "0 0 2 * * MON-SUN", ${cron.expression}
+	@Scheduled(cron = "0 0 2 * * MON-SUN", zone = "Asia/Jerusalem") // every day of week at 2:00:00 - "0 0 2 * * MON-SUN", ${cron.expression}
 	public void scheduleDeactivateAfter30Days() {
 		List<GroupDataResponse> groupResponse = groupServiceImp.getGroupsByStatus(GroupStatus.ACTIVE);
 		LocalDate date = LocalDate.now();

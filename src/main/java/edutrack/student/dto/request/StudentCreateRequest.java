@@ -25,7 +25,6 @@ public class StudentCreateRequest {
 	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
 	String name;
 
-	@NotNull(message = "Surname cannot be null.")
 	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
 	String surname;
 

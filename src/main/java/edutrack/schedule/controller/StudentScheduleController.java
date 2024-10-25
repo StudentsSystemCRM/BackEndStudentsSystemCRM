@@ -27,13 +27,13 @@ public class StudentScheduleController {
 
 	@GetMapping("/{id}")
 	@Operation(summary = "Get a student's schedules by ID", description = "Provide an ID to lookup a specific student's schedules.")
-	public ScheduleResponse getStudentReminders(@PathVariable Long id) {
-		return studentSchedule.getAllReminders(id);
+	public ScheduleResponse getStudentSchedulers(@PathVariable Long id) {
+		return studentSchedule.getAllSchedulers(id);
 	}
 
 	@PostMapping("/schedule")
 	@Operation(summary = "Add a schedule to a student.", description = "Provide the necessary data to create a new schedule to a specific student.")
-	public ScheduleResponse addStudentComment(@RequestBody @Valid ScheduleCreateRequest studentReminder) {
-		return studentSchedule.addReminder(studentReminder);
+	public ScheduleResponse addStudentSchedule(@RequestBody @Valid ScheduleCreateRequest scheduleCreateRequest) {
+		return studentSchedule.addSchedule(scheduleCreateRequest);
 	}
 }

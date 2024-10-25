@@ -95,8 +95,6 @@ public class GroupServiceImp implements GroupService {
 
 	public List<GroupDataResponse> getAllGroups() {
 		List<GroupEntity> groupResponse = groupRepo.findAll();
-        if (groupResponse.isEmpty())
-            return new ArrayList<>();
         return (groupResponse.isEmpty() || groupResponse == null) ? new ArrayList<>() :  groupResponse.stream().map(EntityDtoGroupMapper.INSTANCE::groupToGroupDataResponse).collect(Collectors.toList());
 	}
 	

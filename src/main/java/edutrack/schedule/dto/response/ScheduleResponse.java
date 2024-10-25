@@ -15,5 +15,5 @@ import lombok.experimental.FieldDefaults;
 public class ScheduleResponse {
 	
 	Long id;
-	List<SingleScheduleResponse> schedules;
+	List<SingleScheduleResponse> schedulers;
 }
