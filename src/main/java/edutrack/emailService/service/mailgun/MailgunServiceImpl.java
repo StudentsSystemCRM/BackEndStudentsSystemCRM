@@ -1,4 +1,4 @@
-package edutrack.emailService.service;
+package edutrack.emailService.service.mailgun;
 
 import edutrack.emailService.entity.EmailStatusEntity;
 import edutrack.emailService.exception.MailgunBadRequestException;
@@ -40,13 +40,12 @@ public class MailgunServiceImpl {
 
     private boolean isValidMailgun(Map<String, Object> payload) {
         try {
-            if (payload==null || !payload.containsKey("signature")) {
+            if (payload == null || !payload.containsKey("signature")) {
                 throw new MailgunBadRequestException("There is no a payload or a specific field(s) in the Mailgun request");
             }
             Map<String, Object> signatureData = (Map<String, Object>) payload.get("signature");
 
-
-            if (signatureData==null || !signatureData.containsKey("token") || !signatureData.containsKey("timestamp") || !signatureData.containsKey("signature")) {
+            if (signatureData == null || !signatureData.containsKey("token") || !signatureData.containsKey("timestamp") || !signatureData.containsKey("signature")) {
                 throw new MailgunBadRequestException("There is no a payload or a specific field(s) in the Mailgun request");
             }
             String token = (String) signatureData.get("token");
@@ -70,11 +69,11 @@ public class MailgunServiceImpl {
 
     private MailgunData extractData(Map<String, Object> payload) {
         try {
-            if (payload==null || !payload.containsKey("event-data")) {
+            if (payload == null || !payload.containsKey("event-data")) {
                 throw new MailgunBadRequestException("There is no a payload or a specific field(s) in the Mailgun request");
             }
             Map<String, Object> eventData = (Map<String, Object>) payload.get("event-data");
-            if (eventData==null || !eventData.containsKey("event") || !eventData.containsKey("timestamp") || !eventData.containsKey("message") || !eventData.containsKey("recipient")) {
+            if (eventData == null || !eventData.containsKey("event") || !eventData.containsKey("timestamp") || !eventData.containsKey("message") || !eventData.containsKey("recipient")) {
                 throw new MailgunBadRequestException("There is no a payload or a specific field(s) in the Mailgun request");
             }
 
@@ -87,7 +86,7 @@ public class MailgunServiceImpl {
             String recipient = (String) eventData.get("recipient");
 
             Map<String, Object> headers = (Map<String, Object>) message.get("headers");
-            if (headers==null || !headers.containsKey("message-id")) {
+            if (headers == null || !headers.containsKey("message-id")) {
                 throw new MailgunBadRequestException("There is no a payload or a specific field(s) in the Mailgun request");
             }
             String messageId = (String) headers.get("message-id");
@@ -103,10 +102,10 @@ public class MailgunServiceImpl {
 
         }
         catch (Exception e) {
-            throw new MailgunBadRequestException("There is some problems within the Mailgun request: " +e);
+            throw new MailgunBadRequestException("There is some problems within the Mailgun request: " + e);
         }
     }
 
-    private record MailgunData(String messageId, String status, Timestamp timestamp, String recipient) {}
+    private record MailgunData(String messageId, String status, Timestamp timestamp, String recipient) { }
 }
 

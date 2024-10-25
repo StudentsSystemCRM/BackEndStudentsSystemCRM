@@ -1,7 +1,9 @@
-package edutrack.emailService.service;
+package edutrack.emailService.service.email;
 
 import edutrack.emailService.dto.EmailDetails;
 import edutrack.emailService.dto.TemplateEmailDetails;
+import edutrack.emailService.service.email.EmailService;
+import edutrack.emailService.service.email.TemplateEmailService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -9,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class TemplateEmailServiceImpl implements TemplateEmailService{
+public class TemplateEmailServiceImpl implements TemplateEmailService {
     final
     EmailService emailService;
 

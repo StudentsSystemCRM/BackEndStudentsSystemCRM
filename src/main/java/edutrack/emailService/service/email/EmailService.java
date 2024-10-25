@@ -1,4 +1,4 @@
-package edutrack.emailService.service;
+package edutrack.emailService.service.email;
 
 import edutrack.emailService.dto.EmailDetails;
 
