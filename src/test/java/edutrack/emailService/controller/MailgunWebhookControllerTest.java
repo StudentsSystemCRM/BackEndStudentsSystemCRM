@@ -1,7 +1,7 @@
 package edutrack.emailService.controller;
 
 import edutrack.emailService.exception.MailgunBadRequestException;
-import edutrack.emailService.service.MailgunServiceImpl;
+import edutrack.emailService.service.mailgun.MailgunServiceImpl;
 import edutrack.exception.handler.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

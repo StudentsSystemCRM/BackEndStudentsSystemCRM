@@ -1,4 +1,4 @@
-package edutrack.emailService.service;
+package edutrack.emailService.service.schedule;
 
 import edutrack.emailService.dto.request.RescheduleRequest;
 import edutrack.emailService.dto.request.ScheduleRequest;

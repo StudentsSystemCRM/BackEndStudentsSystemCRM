@@ -2,6 +2,8 @@ package edutrack.emailService.service;
 
 import edutrack.emailService.dto.EmailDetails;
 import edutrack.emailService.dto.TemplateEmailDetails;
+import edutrack.emailService.service.email.EmailService;
+import edutrack.emailService.service.email.TemplateEmailServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

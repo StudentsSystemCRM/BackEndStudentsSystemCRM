@@ -3,6 +3,7 @@ package edutrack.emailService.service;
 import edutrack.emailService.entity.EmailStatusEntity;
 import edutrack.emailService.exception.MailgunBadRequestException;
 import edutrack.emailService.repository.EmailStatusRepository;
+import edutrack.emailService.service.mailgun.MailgunServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -11,7 +12,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 

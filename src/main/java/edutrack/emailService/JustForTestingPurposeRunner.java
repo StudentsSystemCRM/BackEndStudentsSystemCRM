@@ -1,18 +1,10 @@
 package edutrack.emailService;
 
-import edutrack.emailService.dto.EmailDetails;
-import edutrack.emailService.dto.request.ScheduleRequest;
-import edutrack.emailService.dto.TemplateEmailDetails;
-import edutrack.emailService.service.EmailSchedulerService;
-import edutrack.emailService.service.TemplateEmailService;
+import edutrack.emailService.service.schedule.EmailSchedulerService;
+import edutrack.emailService.service.email.TemplateEmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.*;
 
 @Component
 public class JustForTestingPurposeRunner implements CommandLineRunner {

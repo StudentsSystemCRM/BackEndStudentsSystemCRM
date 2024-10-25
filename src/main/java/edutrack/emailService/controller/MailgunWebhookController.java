@@ -1,6 +1,6 @@
 package edutrack.emailService.controller;
 
-import edutrack.emailService.service.MailgunServiceImpl;
+import edutrack.emailService.service.mailgun.MailgunServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

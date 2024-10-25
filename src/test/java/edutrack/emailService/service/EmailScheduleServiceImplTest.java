@@ -5,6 +5,8 @@ import edutrack.emailService.dto.request.RescheduleRequest;
 import edutrack.emailService.dto.request.ScheduleRequest;
 import edutrack.emailService.dto.response.ScheduleResponse;
 import edutrack.emailService.exception.TriggerNotFoundException;
+import edutrack.emailService.service.schedule.EmailJob;
+import edutrack.emailService.service.schedule.EmailScheduleServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
