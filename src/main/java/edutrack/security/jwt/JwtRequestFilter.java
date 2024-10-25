@@ -48,7 +48,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				email = claims.getSubject();
 			} catch (ExpiredJwtException e) {
 				email = e.getClaims().getSubject();
-				elasticsearchLogging.saveLog("Access token expired", null, request.getRequestURI(), request.getMethod(),email);
+				elasticsearchLogging.saveLog("Access token expired", null, request.getRequestURI(), request.getMethod(),email, "ERROR");
 				response.setStatus(HttpStatus.UNAUTHORIZED.value());
 				response.getWriter().write("Access token expired");
 				response.getWriter().flush();
@@ -65,14 +65,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			if (email != null) {
 				UserEntity user = accountRepository.findByEmail(email);
 				if (user == null) {
-					elasticsearchLogging.saveLog("User not found in the database", null, request.getRequestURI(), request.getMethod(),email);
+					elasticsearchLogging.saveLog("User not found in the database", null, request.getRequestURI(), request.getMethod(),email, "ERROR");
 					response.setStatus(HttpStatus.UNAUTHORIZED.value());
 					response.getWriter().write("User not found in the database.");
 					return;
 				}
 
 				if (!jwt.equals(user.getAccessToken())) {
-					elasticsearchLogging.saveLog("Invalid access token, user isn't 'singin' or token was changed", null, request.getRequestURI(), request.getMethod(),email);
+					elasticsearchLogging.saveLog("Invalid access token, user isn't 'singin' or token was changed", null, request.getRequestURI(), request.getMethod(),email, "ERROR");
 					response.setStatus(HttpStatus.UNAUTHORIZED.value());
 					response.getWriter().write("Invalid access token, user isn't 'singin' or token was changed");
 					return;
@@ -88,7 +88,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				}
 			}
 		} else {
-			elasticsearchLogging.saveLog("Authorization header is missing or invalid", null, request.getRequestURI(), request.getMethod(), email);
+			elasticsearchLogging.saveLog("Authorization header is missing or invalid", null, request.getRequestURI(), request.getMethod(), email, "ERROR");
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			response.getWriter().write("Authorization header is missing or invalid");
 			response.getWriter().flush();

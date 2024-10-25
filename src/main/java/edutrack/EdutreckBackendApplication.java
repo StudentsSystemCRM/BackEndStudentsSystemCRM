@@ -5,9 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class EdutreckBackendApplication {
+    
     public static void main(String[] args) {
-        SpringApplication.run(EdutreckBackendApplication.class, args);    
+        SpringApplication.run(EdutreckBackendApplication.class, args);
+
     }
 }
-
-// fuck ide

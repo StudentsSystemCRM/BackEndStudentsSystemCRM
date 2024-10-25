@@ -23,19 +23,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Log4j2
+@Slf4j
 public class ElasticsearchLoggingImp implements ElasticsearchLogging {
 
 	RestHighLevelClient client;
 	@Override
 	public String saveLog(String message, String stackTrace, String requestUrl, 
-			String requestMethod, String username) {
+			String requestMethod, String username, String logLevel) {
 		String errorId = UUID.randomUUID().toString();
+
 		try {
 			Map<String, Object> logData = new HashMap<>();
 			logData.put("errorId", errorId);
@@ -45,6 +46,7 @@ public class ElasticsearchLoggingImp implements ElasticsearchLogging {
 			logData.put("requestUrl", requestUrl);
 			logData.put("requestMethod", requestMethod);
 			logData.put("username", username);
+			logData.put("level", logLevel);
 
 			ObjectMapper objectMapper = new ObjectMapper();
 			String jsonLog = objectMapper.writeValueAsString(logData);
@@ -76,7 +78,8 @@ public class ElasticsearchLoggingImp implements ElasticsearchLogging {
 				stackTraceAsString,
 				requestUrl, 
 				requestMethod, 
-				username);
+				username,
+				"ERROR");
 	}
 
 	@Override

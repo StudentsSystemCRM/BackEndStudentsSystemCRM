@@ -1,20 +1,19 @@
 <configuration>
-    <!-- Логгер для отправки в локальный Logstash -->
-    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>localhost:5050</destination> <!-- Локальный Logstash на порту 5050 -->
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
-    </appender>
 
-    <!-- Консольный аппендер для вывода логов в консоль -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
+	<appender name="FluentBitAppender"
+		class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+		<destination>localhost:24224</destination>
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+	</appender>
 
-    <!-- Корневой логгер, который выводит логи и в Logstash, и в консоль -->
-    <root level="INFO">
-        <appender-ref ref="LOGSTASH" />
-        <appender-ref ref="CONSOLE" />
-    </root>
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="FluentBitAppender" />
+		<appender-ref ref="CONSOLE" />
+	</root>
 </configuration>

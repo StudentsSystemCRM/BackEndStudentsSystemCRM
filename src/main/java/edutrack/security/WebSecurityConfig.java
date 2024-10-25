@@ -58,7 +58,7 @@ public class WebSecurityConfig {
 								String username = getUserName(request.getHeader("Authorization"));
 								String message = "Authentication failed for user: " + username;
 								elasticsearchLogging.saveLog(message, null, request.getRequestURI(),
-										request.getMethod(), username);
+										request.getMethod(), username, "ERROR");
 								response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 								response.getWriter().write("Authentication failed: " + authException.getMessage());
 								response.getWriter().flush();
@@ -77,7 +77,7 @@ public class WebSecurityConfig {
 			UserEntity account = repository.findByEmail(userData);
 			if (account == null) {
 				String message = "Account with email '%s' not found".formatted(userData);
-				elasticsearchLogging.saveLog(message, null, null, null, userData);
+				elasticsearchLogging.saveLog(message, null, null, null, userData, "ERROR");
 				throw new UsernameNotFoundException(message);
 			}
 			String password = account.getHashedPassword();

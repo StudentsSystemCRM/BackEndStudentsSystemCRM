@@ -7,7 +7,8 @@ public interface ElasticsearchLogging {
 			String stackTraceAsString,
 			String requestUrl, 
 			String requestMethod, 
-			String username);
+			String username,
+			String logLevel);
 	public String saveLogExeption(Exception ex);
 	void deleteOldLogs();
 }
