@@ -39,7 +39,7 @@ public class StudentController {
     }
     
     @PutMapping("/update_student_information")
-    @Operation(summary = "Update student information.", description = "Provide all data specific student and updated a needed fields.")
+    @Operation(summary = "Update student information", description = "Provide all data specific student and updated a needed fields.")
     public StudentDataResponse updateStudent(@RequestBody @Valid StudentUpdateDataRequest student) {
         return service.updateStudent(student);
     }

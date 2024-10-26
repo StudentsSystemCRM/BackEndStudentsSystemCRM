@@ -14,9 +14,6 @@ import edutrack.student.entity.StudentEntity;
 public interface EntityDtoStudentMapper {
 	EntityDtoStudentMapper INSTANCE = Mappers.getMapper(EntityDtoStudentMapper.class);
 
-	@Mapping(source = "name", target = "firstName")
-	@Mapping(source = "surname", target = "lastName")
-	@Mapping(source = "phone", target = "phoneNumber")
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "activityLogs", ignore = true)
 	@Mapping(target = "payments", ignore = true)
@@ -30,9 +27,6 @@ public interface EntityDtoStudentMapper {
 	@Mapping(target = "lastModifiedDate", ignore = true)
 	StudentEntity studentCreateRequestToStudent(StudentCreateRequest studentCreate);
 
-	@Mapping(source = "firstName", target = "name")
-	@Mapping(source = "lastName", target = "surname")
-	@Mapping(source = "phoneNumber", target = "phone")
 	StudentDataResponse studentToStudentDataResponse(StudentEntity studentEntity);
 
 }

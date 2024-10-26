@@ -19,7 +19,7 @@ import lombok.experimental.FieldDefaults;
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-public class GroupSheduleServiceImp implements GroupSheduleService{
+public class GroupSheduleServiceImp implements GroupSheduleService {
 
 	@Autowired
 	GroupServiceImp groupServiceImp;
@@ -30,9 +30,9 @@ public class GroupSheduleServiceImp implements GroupSheduleService{
 		List<GroupDataResponse> groupResponse = groupServiceImp.getGroupsByStatus(GroupStatus.ACTIVE);
 		LocalDate date = LocalDate.now();
 		groupResponse.forEach(groupDataResponse -> {
-			if(groupDataResponse.getDeactivateAfter30Days()!=null && groupDataResponse.getDeactivateAfter30Days()) 
+			if (groupDataResponse.getDeactivateAfter30Days() != null && groupDataResponse.getDeactivateAfter30Days()) 
     			{
-    				if(groupDataResponse.getExpFinishDate()!=null && groupDataResponse.getExpFinishDate().plusDays(30).isEqual(date)) 
+    				if (groupDataResponse.getExpFinishDate() != null && groupDataResponse.getExpFinishDate().plusDays(30).isEqual(date)) 
     				{
     					GroupUpdateDataRequest groupRequest = new GroupUpdateDataRequest();
     					groupRequest.setId(groupDataResponse.getId());

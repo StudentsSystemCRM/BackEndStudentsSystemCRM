@@ -83,14 +83,14 @@ public class StudentServiceTest {
 		when(studentRepo.findById(1L)).thenReturn(Optional.of(student));
 		StudentDataResponse response = studentService.getStudentById(1L);
 		assertNotNull(response);
-		assertEquals(student.getFirstName(), response.getName());
-		assertEquals(student.getLastName(), response.getSurname());
+		assertEquals(student.getFirstName(), response.getFirstName());
+		assertEquals(student.getLastName(), response.getLastName());
 		assertEquals(student.getCity(), response.getCity());
 		assertEquals(student.getCourse(), response.getCourse());
 		assertEquals(student.getEmail(), response.getEmail());
 		assertEquals(student.getId(), response.getId());
 		assertEquals(student.getLeadStatus(), response.getLeadStatus());
-		assertEquals(student.getPhoneNumber(), response.getPhone());
+		assertEquals(student.getPhoneNumber(), response.getPhoneNumber());
 		verify(studentRepo, times(1)).findById(1L);
 	}
 
@@ -114,14 +114,14 @@ public class StudentServiceTest {
 		verify(studentRepo, times(1)).save(any(StudentEntity.class));
 		verify(activityRepo, times(1)).save(any(ActivityLogEntity.class));
 
-		assertEquals(student.getFirstName(), response.getName());
-		assertEquals(student.getLastName(), response.getSurname());
+		assertEquals(student.getFirstName(), response.getFirstName());
+		assertEquals(student.getLastName(), response.getLastName());
 		assertEquals(student.getCity(), response.getCity());
 		assertEquals(student.getCourse(), response.getCourse());
 		assertEquals(student.getEmail(), response.getEmail());
 		assertEquals(student.getId(), response.getId());
 		assertEquals(student.getLeadStatus(), response.getLeadStatus());
-		assertEquals(student.getPhoneNumber(), response.getPhone());
+		assertEquals(student.getPhoneNumber(), response.getPhoneNumber());
 	}
 
 	@Test

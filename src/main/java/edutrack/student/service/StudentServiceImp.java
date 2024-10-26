@@ -52,7 +52,8 @@ public class StudentServiceImp implements StudentService {
     @Transactional
     public StudentDataResponse createStudent(StudentCreateRequest student) {
         if (studentRepo.findByEmail(student.getEmail()) != null) {
-            throw new EmailAlreadyInUseException("Student with email " + student.getEmail() + " already exists.");
+            throw new EmailAlreadyInUseException("Email " + student.getEmail() + " is already in use by student " +  
+            		student.getFirstName()+ " "+ student.getLastName());
         }
 
         StudentEntity studentEntity = EntityDtoStudentMapper.INSTANCE.studentCreateRequestToStudent(student);
@@ -70,14 +71,23 @@ public class StudentServiceImp implements StudentService {
         if (!student.getEmail().equals(studentEntity.getEmail())) {
             StudentEntity existingStudent = studentRepo.findByEmail(student.getEmail());
             if (existingStudent != null) {
-            	throw new EmailAlreadyInUseException("Email " + student.getEmail() + " is already in use by another student.");
+            	throw new EmailAlreadyInUseException("Email " + existingStudent.getEmail() + " is already in use by student " +  
+            			existingStudent.getFirstName()+ " "+ existingStudent.getLastName());
             }
         }
-
-        studentEntity.setFirstName(student.getName());
-        studentEntity.setLastName(student.getSurname());
-        studentEntity.setPhoneNumber(student.getPhone());
-        studentEntity.setEmail(student.getEmail());
+        
+        if (student.getFirstName() != null) {
+        	studentEntity.setFirstName(student.getFirstName());
+        }
+        if (student.getLastName() != null) {
+        	studentEntity.setLastName(student.getLastName());
+        }
+        if (student.getPhoneNumber() != null) {
+        	studentEntity.setPhoneNumber(student.getPhoneNumber());
+        }
+        if (student.getEmail() != null) {
+        	studentEntity.setEmail(student.getEmail());
+        }
         if (student.getCity() != null) {
         	studentEntity.setCity(student.getCity());
         }

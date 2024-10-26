@@ -3,11 +3,13 @@ package edutrack.schedule.service;
 import edutrack.group.entity.GroupEntity;
 import edutrack.group.exception.GroupNotFoundException;
 import edutrack.group.repository.GroupRepository;
+import edutrack.schedule.constant.SheduleType;
 import edutrack.schedule.dto.request.ScheduleCreateRequest;
 import edutrack.schedule.dto.request.ScheduleUpdateDataRequest;
 import edutrack.schedule.dto.response.ScheduleResponse;
 import edutrack.schedule.dto.response.SingleScheduleResponse;
 import edutrack.schedule.entity.GroupScheduleEntity;
+import edutrack.schedule.entity.StudentScheduleEntity;
 import edutrack.schedule.exception.ScheduleNotFoundException;
 import edutrack.schedule.repository.GroupScheduleRepository;
 import edutrack.schedule.util.EntityDtoScheduleMapper;
@@ -41,13 +43,22 @@ public class GroupScheduleService implements ScheduleService {
         return (scheduleEntities.isEmpty() || scheduleEntities == null) ? new ArrayList<>() : scheduleEntities;
     }
     
+	private List<GroupScheduleEntity> findSchedulersBySheduleType(SheduleType sheduleType) {
+		List<GroupScheduleEntity> scheduleEntities = groupScheduleRepo.findAllBySheduleType(sheduleType);
+		return (scheduleEntities.isEmpty() || scheduleEntities == null) ? new ArrayList<>() : scheduleEntities;
+	}
+    
     private GroupEntity findGroupById(Long id) {
         return groupRepo.findById(id).orElseThrow(() -> new GroupNotFoundException("Group with id " + id + " not found"));
     }
     
 	@Override
-	public SingleScheduleResponse getSchedule(Long scheduleId) {
-		return EntityDtoScheduleMapper.INSTANCE.groupScheduleEntityToSingleScheduleResponse(findScheduleById(scheduleId));
+	public ScheduleResponse getSchedule(Long scheduleId) {
+		GroupScheduleEntity groupScheduleEntity = findScheduleById(scheduleId);
+		Long id = groupScheduleEntity.getGroup().getId();
+		List<SingleScheduleResponse> response = new ArrayList<>();
+		response.add(EntityDtoScheduleMapper.INSTANCE.groupScheduleEntityToSingleScheduleResponse(groupScheduleEntity));
+		return EntityDtoScheduleMapper.INSTANCE.singleScheduleResponseToSheduleResponse(id, response);
 	}
 	
 	@Override
@@ -55,6 +66,12 @@ public class GroupScheduleService implements ScheduleService {
 		List<SingleScheduleResponse> groupScheduleEntities = findShedulersByGroupId(id).stream().map(EntityDtoScheduleMapper.INSTANCE::groupScheduleEntityToSingleScheduleResponse)
 				.collect(Collectors.toList());
 		return EntityDtoScheduleMapper.INSTANCE.singleScheduleResponseToSheduleResponse(id, groupScheduleEntities);
+	}
+	
+	@Override
+	public List<SingleScheduleResponse> getSchedulersBySheduleType(SheduleType sheduleType) {
+		return findSchedulersBySheduleType(sheduleType).stream().map(EntityDtoScheduleMapper.INSTANCE::groupScheduleEntityToSingleScheduleResponse)
+				.collect(Collectors.toList());
 	}
 	
 	@Override
@@ -99,15 +116,15 @@ public class GroupScheduleService implements ScheduleService {
 	@Override
 	@Transactional
 	public Boolean deleteSchedule(Long scheduleId) {
-		// TODO Auto-generated method stub
-		return null;
+		groupScheduleRepo.deleteById(findScheduleById(scheduleId).getScheduleId());
+		return true;
 	}
 
 	@Override
 	@Transactional
 	public Boolean deleteAllSchedulers(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+		findShedulersByGroupId(id).forEach(schedule -> groupScheduleRepo.deleteById(schedule.getScheduleId()));
+		return true;
 	}
 
 }

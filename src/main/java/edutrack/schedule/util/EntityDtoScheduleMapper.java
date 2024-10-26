@@ -35,6 +35,8 @@ public interface EntityDtoScheduleMapper {
 	
     SingleScheduleResponse groupScheduleEntityToSingleScheduleResponse(GroupScheduleEntity groupScheduleEntity);
     
+	SingleScheduleResponse studentScheduleEntityToSingleScheduleResponse(StudentScheduleEntity studentScheduleEntity);
+    
     ScheduleResponse singleScheduleResponseToSheduleResponse(Long id, List<SingleScheduleResponse> schedulers);
 
 }

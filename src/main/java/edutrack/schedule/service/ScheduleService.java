@@ -1,5 +1,8 @@
 package edutrack.schedule.service;
 
+import java.util.List;
+
+import edutrack.schedule.constant.SheduleType;
 import edutrack.schedule.dto.request.ScheduleCreateRequest;
 import edutrack.schedule.dto.request.ScheduleUpdateDataRequest;
 import edutrack.schedule.dto.response.ScheduleResponse;
@@ -7,8 +10,9 @@ import edutrack.schedule.dto.response.SingleScheduleResponse;
 
 public interface ScheduleService {
 
-	SingleScheduleResponse getSchedule(Long scheduleId);
+	ScheduleResponse getSchedule(Long scheduleId);
 	ScheduleResponse getAllSchedulers(Long id);
+	List<SingleScheduleResponse> getSchedulersBySheduleType(SheduleType sheduleType);
 
 	ScheduleResponse addSchedule(ScheduleCreateRequest schedule);
 	
