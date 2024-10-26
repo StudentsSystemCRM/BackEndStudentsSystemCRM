@@ -37,7 +37,7 @@ public class LecturerServiceIntegrationTest {
     @Autowired
     private GroupRepository groupRepo;
 
- //   @Test
+    @Test
     void testCreateLecturerWithValidGroup() {
 
         GroupEntity existingGroup = groupRepo.findById(1L).orElse(null);
@@ -77,7 +77,7 @@ public class LecturerServiceIntegrationTest {
         assertNotNull(groupFromRepo, "Group should still exist in the repository after lecturer creation");
     }
 
- //   @Test
+    @Test
     void testGetLecturerById_Success() {
         Long lecturerId = LECTURER_ID_DB_H2;
 
@@ -89,7 +89,7 @@ public class LecturerServiceIntegrationTest {
         assertEquals("Smith", response.getLastName());
     }
 
- //   @Test
+    @Test
     void testUpdateLecturer_Success() {
 
         Long lecturerId = LECTURER_ID_DB_H2;
@@ -121,7 +121,7 @@ public class LecturerServiceIntegrationTest {
         assertTrue(groups.stream().anyMatch(group -> group.getId().equals(1L)));
     }
 
- //   @Test
+    @Test
     void testDeleteLecturer_Success() {
         Long lecturerId = LECTURER_ID_DB_H2;
 
@@ -140,7 +140,7 @@ public class LecturerServiceIntegrationTest {
         });
     }
 
- //   @Test
+    @Test
     void testDeleteLecturer_NotFound() {
         Long nonExistentLecturerId = 999L;
 

@@ -227,7 +227,6 @@ public class LecturerControllerMockTest {
         verify(lecturerService, times(1)).updateLecturer(any(LecturerUpdateRequest.class));
     }
 
-
     @Test
     public void updateLecturer_ShouldReturnBadRequest_WhenInvalidInput() throws Exception {
 

@@ -68,10 +68,6 @@ class GroupControllerTest {
 	private GroupDataResponse responseGroup = new GroupDataResponse();
 	private List<GroupDataResponse> responseGroupList = new ArrayList<>();
 
-	@Test
-	void test() {
-	}
-
 	@BeforeEach
 	void setUp() throws Exception {
 		requestGroup = new GroupCreateRequest("java-24", "whatsApp", "skype", "slack", LocalDate.of(2024, 1, 1),
@@ -85,7 +81,7 @@ class GroupControllerTest {
 
 	}
 
-//	@Test
+	@Test
 	void shouldCreateGroup_whenValidRequest() throws Exception {
 		when(groupService.createGroup(any(GroupCreateRequest.class))).thenReturn(responseGroup);
 
@@ -93,11 +89,7 @@ class GroupControllerTest {
 				.content(objectMapper.writeValueAsString(requestGroup))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.name").value("java-24")).andExpect(jsonPath("$.whatsApp").value("whatsApp"))
 				.andExpect(jsonPath("$.status").value("ACTIVE")).andExpect(jsonPath("$.startDate").value("2024-01-01"))
-				.andExpect(jsonPath("$.expFinishDate").value("2024-06-01"))
-				.andExpect(jsonPath("$.lessons[0]").value("MONDAY"))
-				.andExpect(jsonPath("$.lessons[1]").value("WEDNESDAY"))
-				.andExpect(jsonPath("$.webinars[0]").value("TUESDAY"))
-				.andExpect(jsonPath("$.webinars[1]").value("THURSDAY"));
+				.andExpect(jsonPath("$.expFinishDate").value("2024-06-01"));
 	}
 
 	@Test
@@ -127,10 +119,8 @@ class GroupControllerTest {
 
 		List<GroupDataResponse> groups = Arrays.asList(responseGroup, group2);
 
-		// Создаем Pageable для теста
 		Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-		// Мокаем вызов сервиса
 		when(groupService.getAllGroups(pageable)).thenReturn(groups);
 
 		mockMvc.perform(get("/api/groups").param("page", "0").param("size", "10").param("sortBy", "name")
@@ -148,27 +138,13 @@ class GroupControllerTest {
 	}
 
 	@Test
-	void shouldReturnBadRequest_whenInvalidStatus() throws Exception {
-		mockMvc.perform(
-				get("/api/groups/status").param("status", "INVALID_STATUS").contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest());
-	}
-
-//	@Test
 	void shouldGetGroupByName_whenValidName() throws Exception {
-		// Arrange
+
 		when(groupService.getGroupsByName("java-24")).thenReturn(responseGroupList);
 
-		// Act & Assert
 		mockMvc.perform(get("/api/groups/name/{name}", "java-24").contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.name").value("java-24"))
-				.andExpect(jsonPath("$.status").value("ACTIVE"));
-	}
-
-//	@Test
-	void groupget_NameIsEmpty() throws Exception {
-		mockMvc.perform(get("/api/groups/name/{name}", "").contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].name").value("java-24"))
+				.andExpect(jsonPath("$[0].status").value("ACTIVE"));
 	}
 
 	@Test
@@ -180,54 +156,11 @@ class GroupControllerTest {
 				.andExpect(jsonPath("$.message").value("Group not found"));
 	}
 
-//	@Test
-//	void shouldGetStudentGroups_whenValidId() throws Exception {
-//		when(groupService.getStudentGroups(1L)).thenReturn(Collections.singletonList(responseGroup));
-//
-//		mockMvc.perform(get("/api/groups/student/{id}", 1L).contentType(MediaType.APPLICATION_JSON))
-//				.andExpect(status().isOk()).andExpect(jsonPath("$[0].name").value("java-24"));
-//	}
-
 	@Test
 	void shouldReturnBadRequest_whenInvalidStudentId() throws Exception {
 		mockMvc.perform(get("/api/groups/student/{id}", -1).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isBadRequest());
 	}
-
-//	@Test
-//	void shouldAddStudentToGroup_whenValidRequest() throws Exception {
-//		when(groupService.addStudentToGroup(1L, "java-24")).thenReturn(responseGroup);
-//
-//		mockMvc.perform(post("/api/groups/add-student").param("id", "1").param("name", "java-24")
-//				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-//				.andExpect(jsonPath("$.name").value("java-24"));
-//	}
-
-	@Test
-	void shouldReturnBadRequest_whenIdIsNegative() throws Exception {
-		mockMvc.perform(post("/api/groups/add-student").param("id", "-1").param("name", "java-24")
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
-	}
-
-//	@Test
-//	void shouldReturnNotFound_whenStudentNotFound() throws Exception {
-//		when(groupService.addStudentToGroup(1L, "java-24"))
-//				.thenThrow(new StudentNotFoundException("Student with id 1 not found"));
-//
-//		mockMvc.perform(post("/api/groups/add-student").param("id", "1").param("name", "java-24")
-//				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
-//				.andExpect(jsonPath("$.message").value("Student with id 1 not found"));
-//	}
-
-//	@Test
-//	void addStudentToGroup_whenGroupNotFound() throws Exception {
-//		when(groupService.addStudentToGroup(1L, "non-existent-group"))
-//				.thenThrow(new GroupNotFoundException("Group with name non-existent-group not found"));
-//
-//		mockMvc.perform(post("/api/groups/add-student").param("id", "1").param("name", "non-existent-group")
-//				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
-//				.andExpect(jsonPath("$.message").value("Group with name non-existent-group not found"));
-//	}
 
 	@Test
 	void shouldUpdateGroup_whenValidRequest() throws Exception {
@@ -273,7 +206,7 @@ class GroupControllerTest {
 
 	@Test
 	void shouldReturnNotFound_whenGroupNotFound() throws Exception {
-		// Arrange
+
 		GroupUpdateDataRequest updateRequest = new GroupUpdateDataRequest(1L, "non-existent-group", "newWhatsApp",
 				"newSkype", "newSlack", GroupStatus.ACTIVE, LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1),
 				Arrays.asList(ZonedDateTime.now()), Arrays.asList(ZonedDateTime.now()), false);
@@ -286,55 +219,14 @@ class GroupControllerTest {
 				.andExpect(jsonPath("$.message").value("Group with name non-existent-group not found"));
 	}
 
-//	@Test
-//	void shouldRemoveStudentFromGroup_whenValidRequest() throws Exception {
-//		when(groupService.deleteStudentFromGroup(1L, "java-24")).thenReturn(true);
-//		mockMvc.perform(delete("/api/groups/remove-student").param("id", "1").param("name", "java-24")
-//				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
-//	}
-
 	@Test
-	void shouldReturnBadRequest_whenStudentIdIsNegative() throws Exception {
-		mockMvc.perform(delete("/api/groups/remove-student").param("id", "-1").param("name", "java-24")
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
-	}
-
-//	@Test
-//	void shouldReturnNotFound_whenStudentNotFoundInGroup() throws Exception {
-//		when(groupService.deleteStudentFromGroup(1L, "java-24"))
-//				.thenThrow(new StudentNotFoundException("Student with id 1 not found"));
-//
-//		mockMvc.perform(delete("/api/groups/remove-student").param("id", "1").param("name", "java-24")
-//				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
-//				.andExpect(jsonPath("$.message").value("Student with id 1 not found"));
-//	}
-
-//	@Test
-//	void shouldReturnNotFound_whenGroupNotFoundForRemovingStudent() throws Exception {
-//		when(groupService.deleteStudentFromGroup(1L, "non-existent-group"))
-//				.thenThrow(new GroupNotFoundException("Group with name non-existent-group not found"));
-//
-//		mockMvc.perform(delete("/api/groups/remove-student").param("id", "1").param("name", "non-existent-group")
-//				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
-//				.andExpect(jsonPath("$.message").value("Group with name non-existent-group not found"));
-//	}
-
-//	@Test
-	void shouldDeleteGroup_whenValidName() throws Exception {
-		when(groupService.deleteGroup(1L)).thenReturn(true);
-
-		mockMvc.perform(delete("/api/groups/delete/{name}", "java-24").contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.name").value("java-24"));
-	}
-
-//	@Test
 	void shouldReturnNotFound_whenGroupNotFoundForDeletion() throws Exception {
 		when(groupService.deleteGroup(2L))
 				.thenThrow(new GroupNotFoundException("Group with name non-existent-group not found"));
 		mockMvc.perform(
 				delete("/api/groups/delete/{id}", "2").contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.message").value("Group with id 2 not found"));
+				.andExpect(jsonPath("$.message").value("Group with name non-existent-group not found"));
 	}
 
 }

@@ -65,7 +65,7 @@ public class GroupController {
 
 	@GetMapping("/name/{name}")
 	@Operation(summary = "Get group by name", description = "Returns the group that matches the given name.")
-	public List<GroupDataResponse> getGroupByName(@PathVariable String name) {
+	public List<GroupDataResponse> getGroupsByName(@PathVariable String name) {
 		return groupService.getGroupsByName(name);
 	}
 

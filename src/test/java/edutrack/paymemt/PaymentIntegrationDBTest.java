@@ -41,7 +41,7 @@ public class PaymentIntegrationDBTest {
 
 	static final Long STUDENT_ID_DB_H2 = 2L;
 
-//	@Test
+	@Test
 	public void testAddStudentPayment() {
 		AddPaymentRequest paymentRequest = new AddPaymentRequest(STUDENT_ID_DB_H2, LocalDate.now(), "Credit Card",
 				BigDecimal.valueOf(1500.00), 3, "Course Fee");
@@ -57,7 +57,7 @@ public class PaymentIntegrationDBTest {
         assertEquals(0, resp.getPaymentInfo().get(0).getAmount().compareTo(BigDecimal.valueOf(1500.00)));
 	}
 
-//	@Test
+	@Test
 	public void testCascadeDeleteStudent() {
 		AddPaymentRequest paymentRequest = new AddPaymentRequest(STUDENT_ID_DB_H2, LocalDate.now(), "Cash",
 				BigDecimal.valueOf(2000.00), 2, "Training Fee");

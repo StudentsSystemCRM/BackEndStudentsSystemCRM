@@ -22,7 +22,7 @@ public class ActivityLogIntegrationDBTest {
 
 	static final Long STUDENT_ID_DB_H2 = 2L;
 
-//	@Test
+	@Test
 	public void testAddStudentComment() {
 		AddActivityLogRequest commentRequest = new AddActivityLogRequest(STUDENT_ID_DB_H2, LocalDate.now(),
 				"Second comment");
