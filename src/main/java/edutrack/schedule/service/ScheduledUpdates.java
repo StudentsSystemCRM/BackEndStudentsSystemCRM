@@ -23,7 +23,7 @@ public class ScheduledUpdates{
     @Autowired
     GroupScheduleService groupScheduleService;
 
-    @Scheduled(fixedDelay=60000)
+//    @Scheduled(fixedDelay=60000)
     public void publishUpdates(){
         template.convertAndSend("/topic/reminders", groupScheduleService.getSchedulersBySheduleType(SheduleType.LOCAL));
     }
