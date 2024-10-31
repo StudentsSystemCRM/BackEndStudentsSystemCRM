@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edutrack.emailService.dto.EmailDetails;
 import edutrack.emailService.exception.EmailServiceException;
-import edutrack.emailService.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

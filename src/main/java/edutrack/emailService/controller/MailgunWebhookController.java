@@ -20,9 +20,9 @@ public class MailgunWebhookController {
     }
 
     @PostMapping("/webhook")
-    public ResponseEntity<?> handleMailgunWebhook(@RequestBody Map<String, Object> payload) {
+    public void handleMailgunWebhook(@RequestBody Map<String, Object> payload) {
             mailgunService.handleMailgunWebhook(payload);
-        return ResponseEntity.ok().build();
+//        return ResponseEntity.ok().build();
     }
 
 }
