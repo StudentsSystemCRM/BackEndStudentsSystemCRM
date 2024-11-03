@@ -22,7 +22,8 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(properties = {
+@SpringBootTest(properties =
+        {
         "mailgun.api.key=disabled",
         "mailgun.domain=disabled",
         "mailgun.api.base-url=disabled",

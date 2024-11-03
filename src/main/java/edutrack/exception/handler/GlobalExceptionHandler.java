@@ -30,7 +30,6 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
