@@ -30,7 +30,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edutrack.elasticsearch.service.ElasticsearchLogging;
 import edutrack.exception.StudentNotFoundException;
 import edutrack.group.constant.GroupStatus;
 import edutrack.group.constant.WeekDay;
@@ -53,8 +52,6 @@ class GroupControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 	
-	@MockBean
-	private ElasticsearchLogging elasticsearchLoggingService;
 
 	@MockBean
 	private GroupService groupService;

@@ -2,7 +2,6 @@ package edutrack.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edutrack.elasticsearch.service.ElasticsearchLogging;
 import edutrack.security.jwt.JwtRequestFilter;
 import edutrack.user.constant.ValidationAccountingMessage;
 import edutrack.user.controller.AccountController;
@@ -55,8 +54,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({ JacksonAutoConfiguration.class })
 public class UserAccountingControllerTest {
 	
-	@MockBean
-	private ElasticsearchLogging elasticsearchLoggingService;
 	
 	@MockBean
 	AccountServiceImp accountingManagementService;

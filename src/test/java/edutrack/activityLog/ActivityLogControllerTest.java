@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import edutrack.activityLog.controller.ActivityLogController;
 import edutrack.activityLog.service.ActivityLogService;
-import edutrack.elasticsearch.service.ElasticsearchLogging;
 import edutrack.student.service.StudentService;
 import edutrack.user.repository.AccountRepository;
 import edutrack.security.WebSecurityConfig;
@@ -24,8 +23,6 @@ import edutrack.security.WebSecurityConfig;
 @AutoConfigureMockMvc(addFilters = false)
 public class ActivityLogControllerTest {
 	
-	@MockBean
-	private ElasticsearchLogging elasticsearchLoggingService;
 	
     @Autowired
     private MockMvc mockMvc;

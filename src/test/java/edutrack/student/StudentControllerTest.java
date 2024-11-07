@@ -31,7 +31,6 @@ import edutrack.student.dto.request.StudentCreateRequest;
 import edutrack.student.dto.response.StudentDataResponse;
 import edutrack.student.service.StudentService;
 import edutrack.user.repository.AccountRepository;
-import edutrack.elasticsearch.service.ElasticsearchLogging;
 import edutrack.security.WebSecurityConfig;
 
 @WebMvcTest(StudentController.class)
@@ -41,8 +40,6 @@ public class StudentControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 	
-	@MockBean
-	private ElasticsearchLogging elasticsearchLoggingService;
 
 	@MockBean
 	private StudentService studentService;
