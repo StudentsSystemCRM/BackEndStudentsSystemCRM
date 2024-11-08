@@ -20,5 +20,23 @@ public interface ValidAccountConstant {
 	// - Optional leading + symbol
 	// - Digits, hyphens, spaces, and parentheses
 	// - Minimum 7 characters and maximum 20 characters
-	String PHONE_NUMBER_PATTERN = "^\\+?[0-9\\-\\s()]{7,20}$";
+
+	String PHONE_NUMBER_PATTERN ="^\\+?[0-9\\-\\s()]{7,20}$";
+
+	String EMAIL_PATTERN = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
+
+// Email can contain:
+// - English letters (both uppercase and lowercase)
+// - Numbers
+// - Dots (.), underscores (_), percent signs (%), plus signs (+), and hyphens (-)
+// - Must contain a single '@' symbol
+// - Domain must contain at least one dot ('.') with 2 to 6 letters in the top-level domain
+String CITY_PATTERN = "^[A-Za-zÀ-ÿ'\\- ]{1,100}$";
+// City can contain:
+// - English letters (both uppercase and lowercase)
+// - Letters with diacritical marks (e.g., accents, umlauts) for international cities
+// - Hyphens (-), apostrophes ('), and spaces ( )
+// - Must be between 1 and 100 characters in length
+
+
 }
