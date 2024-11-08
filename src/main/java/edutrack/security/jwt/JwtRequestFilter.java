@@ -98,6 +98,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				|| path.equalsIgnoreCase("/api/auth/refreshtoken") || path.equalsIgnoreCase("/api/auth/signout")
 				|| path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")
 				|| path.startsWith("/swagger-resources") || path.startsWith("/webjars")
-				|| path.equalsIgnoreCase("/swagger-ui.html");
+				|| path.equalsIgnoreCase("/swagger-ui.html")
+				|| path.equalsIgnoreCase("/api/mailgun/webhook");
 	}
 }
