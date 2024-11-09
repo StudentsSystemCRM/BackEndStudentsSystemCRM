@@ -22,7 +22,14 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(properties =
+        {
+                "mailgun.api.key=disabled",
+                "mailgun.domain=disabled",
+                "mailgun.api.base-url=disabled",
+                "mailgun.from-email=disabled",
+                "mailgun.signature=disabled"
+        })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @Sql(scripts = {"classpath:test_data_lecturer.sql"})
 @Transactional
