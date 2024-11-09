@@ -53,11 +53,13 @@ class LecturerServiceImplMockTest {
                 GroupStatus.ACTIVE,
                 LocalDate.of(2024, 1, 1),
                 LocalDate.of(2024, 12, 31),
-                LocalDate.of(2024, 6, 30),
+                false,
+                new HashSet<>(),
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>(),
-                new ArrayList<>(),
+                null,
+                null,
                 null,
                 null
         );
