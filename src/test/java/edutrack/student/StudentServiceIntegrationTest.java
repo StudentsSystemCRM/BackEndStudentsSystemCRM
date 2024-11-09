@@ -24,7 +24,13 @@ import edutrack.student.entity.StudentEntity;
 import edutrack.student.repository.StudentRepository;
 import edutrack.student.service.StudentService;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "mailgun.api.key=disabled",
+        "mailgun.domain=disabled",
+        "mailgun.api.base-url=disabled",
+        "mailgun.from-email=disabled",
+        "mailgun.signature=disabled"
+})
 @Sql(scripts = {"classpath:testdata.sql"})
 public class StudentServiceIntegrationTest {
 
