@@ -1,10 +1,10 @@
 package edutrack.group.dto.response;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import edutrack.group.constant.GroupStatus;
-import edutrack.group.constant.WeekDay;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,7 +24,7 @@ public class GroupDataResponse {
     GroupStatus status;
     LocalDate startDate;
     LocalDate expFinishDate;
-    List<WeekDay> lessons;
-    List<WeekDay> webinars;
-    Boolean DeactivateAfter30Days;
+    List<ZonedDateTime> lessonsDays;
+    List<ZonedDateTime> webinarsDays;
+    Boolean deactivateAfter30Days;
 }

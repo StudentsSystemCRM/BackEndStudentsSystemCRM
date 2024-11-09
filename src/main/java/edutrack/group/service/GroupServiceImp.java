@@ -1,8 +1,6 @@
 package edutrack.group.service;
 
-import edutrack.exception.StudentNotFoundException;
 import edutrack.group.constant.GroupStatus;
-import edutrack.group.constant.WeekDay;
 import edutrack.group.dto.request.GroupCreateRequest;
 import edutrack.group.dto.request.GroupUpdateDataRequest;
 import edutrack.group.dto.response.GroupDataResponse;
@@ -10,61 +8,39 @@ import edutrack.group.entity.GroupEntity;
 import edutrack.group.exception.GroupNotFoundException;
 import edutrack.group.repository.GroupRepository;
 import edutrack.group.util.EntityDtoGroupMapper;
-import edutrack.student.entity.StudentEntity;
-import edutrack.student.repository.StudentRepository;
-import edutrack.user.exception.ResourceExistsException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@DynamicUpdate
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class GroupServiceImp implements GroupService {
 
 	GroupRepository groupRepo;
-	StudentRepository studentRepo;
 
-	private GroupDataResponse toGroupDataResponse(GroupEntity group) {
-		Boolean deactivateAfter30Days = false;
-		if (group.getDeactivateAfter30Days() != null) {
-			deactivateAfter30Days = true;
-		}
-		return new GroupDataResponse(group.getId(), group.getName(), group.getWhatsApp(), group.getSkype(),
-				group.getSlack(), group.getStatus(), group.getStartDate(), group.getExpFinishDate(),
-				getLessonsDays(group.getId()), getWebinarsDays(group.getId()), deactivateAfter30Days);
-	}
-
-	private StudentEntity findStudentById(Long id) {
-		return studentRepo.findById(id)
-				.orElseThrow(() -> new StudentNotFoundException("Student with id " + id + " not found"));
-	}
-
-	private List<WeekDay> getLessonsDays(Long id) {
-		return groupRepo.getLessonsDays(id);
-	}
-
-	private List<WeekDay> getWebinarsDays(Long id) {
-		return groupRepo.getWebinarsDays(id);
-	}
-
-	private GroupEntity findGroupByName(String name) {
-		GroupEntity groupEntity = groupRepo.findByName(name);
-		if (groupEntity == null) {
-			throw new GroupNotFoundException("Group with name " + name + "  not found");
-		}
-		return groupEntity;
-	}
+    private GroupEntity findGroupById(Long id) {
+        return groupRepo.findById(id).orElseThrow(() -> new GroupNotFoundException("Group with id " + id + " not found"));
+    }
+    
+    @Override
+    public GroupDataResponse getGroupById(Long id) {
+        return EntityDtoGroupMapper.INSTANCE.groupToGroupDataResponse(findGroupById(id));
+    }
 
 	@Override
 	@Transactional
@@ -75,155 +51,99 @@ public class GroupServiceImp implements GroupService {
 					"Group with name " + groupRequest.getName() + " is already exists");
 		}
 		GroupEntity groupEntity = EntityDtoGroupMapper.INSTANCE.groupCreateRequestToGroup(groupRequest);
+		groupEntity.setStatus(GroupStatus.ACTIVE);
 		groupRepo.save(groupEntity);
-		return toGroupDataResponse(groupEntity);
-	}
-
-//	@Override
-//	public List<GroupDataResponse> getAllGroups() {
-//		List<GroupEntity> groupResponse = groupRepo.findAll();
-//        if (groupResponse.isEmpty())
-//            return new ArrayList<>();
-//        return groupResponse.stream().map(group -> toGroupDataResponse(group)).collect(Collectors.toList());
-//	}
-
-	@Override
-	public List<GroupDataResponse> getAllGroups(Pageable pageable) {
-		return groupRepo.findAll(pageable).isEmpty() ? new ArrayList<>()
-				: groupRepo.findAll(pageable).stream().map(group -> toGroupDataResponse(group))
-						.collect(Collectors.toList());
-	}
-
-	@Override
-	public List<GroupDataResponse> getGroupsByStatus(GroupStatus status) {
-		List<GroupEntity> groupResponse = groupRepo.findByStatus(status);
-		if (groupResponse == null || groupResponse.isEmpty()) {
-			return new ArrayList<>();
-		}
-		return groupResponse.stream().map(group -> toGroupDataResponse(group)).collect(Collectors.toList());
-	}
-
-	@Override
-	@Transactional
-	public GroupDataResponse addStudentToGroup(Long id, String name) {
-		StudentEntity student = findStudentById(id);
-		GroupEntity group = findGroupByName(name);
-		student.setOriginalGroup(group.getName());
-		studentRepo.save(student);
-		List<StudentEntity> students = group.getStudents();
-		if (students == null) {
-			students = new ArrayList<>();
-		}
-		if (students.contains(student)) {
-			throw new ResourceExistsException("Student with id " + id + " already exists in group " + name);
-		}
-		students.add(student);
-		group.setStudents(students);
-		groupRepo.save(group);
-		return toGroupDataResponse(group);
-	}
-
-	@Override
-	public GroupDataResponse getGroupByName(String name) {
-		return toGroupDataResponse(findGroupByName(name));
-	}
-
-	@Override
-	@Transactional
-	public List<GroupDataResponse> getStudentGroups(Long id) {
-		StudentEntity student = findStudentById(id);
-		List<GroupEntity> groupResponse = student.getGroups();
-		return groupResponse.stream().map(group -> toGroupDataResponse(group)).collect(Collectors.toList());
-	}
-
-	@Override
-	@Transactional
-	public Boolean deleteStudentFromGroup(Long id, String name) {
-		StudentEntity student = findStudentById(id);
-		GroupEntity group = findGroupByName(name);
-		if (!group.getStudents().remove(student)) {
-			throw new StudentNotFoundException("Student with id " + id + " not found in group " + name);
-		}
-		groupRepo.save(group);
-		student.setOriginalGroup(null);
-		studentRepo.save(student);
-		return true;
-	}
-
-	private GroupEntity findGroupById(Long id) {
-		return groupRepo.findById(id)
-				.orElseThrow(() -> new GroupNotFoundException("Group with id " + id + " not found"));
+		return EntityDtoGroupMapper.INSTANCE.groupToGroupDataResponse(groupEntity);
 	}
 
 	@Override
 	@Transactional
 	public GroupDataResponse updateGroup(GroupUpdateDataRequest groupRequest) {
 		GroupEntity groupEntity = findGroupById(groupRequest.getId());
-		if (groupEntity.getName() != null) {
+		if (groupRequest.getName() != null && !groupRequest.getName().isEmpty()) {
 			groupEntity.setName(groupRequest.getName());
 		}
-		if (groupEntity.getWhatsApp() != null) {
+		if (groupRequest.getWhatsApp() != null) {
 			groupEntity.setWhatsApp(groupRequest.getWhatsApp());
 		}
-		if (groupEntity.getSkype() != null) {
+		if (groupRequest.getSkype() != null) {
 			groupEntity.setSkype(groupRequest.getSkype());
 		}
-		if (groupEntity.getSlack() != null) {
+		if (groupRequest.getSlack() != null) {
 			groupEntity.setSlack(groupRequest.getSlack());
 		}
-		if (groupEntity.getStatus() != null) {
+		if (groupRequest.getStatus() != null) {
 			groupEntity.setStatus(groupRequest.getStatus());
 		}
-		if (groupEntity.getStartDate() != null) {
+		if (groupRequest.getStartDate() != null) {
 			groupEntity.setStartDate(groupRequest.getStartDate());
 		}
-		if (groupEntity.getExpFinishDate() != null) {
+		if (groupRequest.getExpFinishDate() != null) {
 			groupEntity.setExpFinishDate(groupRequest.getExpFinishDate());
 		}
-		if (groupEntity.getLessonsDays() != null) {
+		if (groupRequest.getLessonsDays() != null) {
 			groupEntity.setLessonsDays(groupRequest.getLessonsDays());
 		}
-		if (groupEntity.getWebinarsDays() != null) {
+		if (groupRequest.getWebinarsDays() != null) {
 			groupEntity.setWebinarsDays(groupRequest.getWebinarsDays());
 		}
 		if (groupRequest.getDeactivateAfter30Days() != null) {
-			groupEntity.setDeactivateAfter30Days(groupRequest.getExpFinishDate().plusDays(30));
+			groupEntity.setDeactivateAfter30Days(groupRequest.getDeactivateAfter30Days());
 		}
+		groupEntity.setLastModifiedDate(ZonedDateTime.now());
 		groupRepo.save(groupEntity);
-		return toGroupDataResponse(groupEntity);
+		return EntityDtoGroupMapper.INSTANCE.groupToGroupDataResponse(groupEntity);
+	}
+
+	public List<GroupDataResponse> getAllGroups() {
+		List<GroupEntity> groupResponse = groupRepo.findAll();
+        return (groupResponse == null || groupResponse.isEmpty()) ? new ArrayList<>() :  groupResponse.stream().map(EntityDtoGroupMapper.INSTANCE::groupToGroupDataResponse).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<GroupDataResponse> getAllGroups(Pageable pageable) {
+		Page<GroupEntity> groupResponse = groupRepo.findAll(pageable);
+		return (groupResponse == null || groupResponse.isEmpty()) ? new ArrayList<>() : groupResponse.stream().map(EntityDtoGroupMapper.INSTANCE::groupToGroupDataResponse).collect(Collectors.toList());
+	}
+    
+	@Override
+	public List<GroupDataResponse> getGroupsByStatus(GroupStatus status) {
+		List<GroupEntity> groupResponse = groupRepo.findByStatus(status);
+		return (groupResponse == null || groupResponse.isEmpty()) ? new ArrayList<>() : groupResponse.stream().map(EntityDtoGroupMapper.INSTANCE::groupToGroupDataResponse).collect(Collectors.toList());
+	}
+
+    @Override
+	public List<GroupDataResponse> getGroupsByName(String name) {
+		List<GroupEntity> groupResponse = groupRepo.findByNameContainingIgnoreCase(name);
+		if (groupResponse == null) {
+			throw new GroupNotFoundException("The group that contains " + name + " in the name not found");
+		}
+		return groupResponse.stream().map(EntityDtoGroupMapper.INSTANCE::groupToGroupDataResponse).collect(Collectors.toList());
+	}
+    
+	@Override
+	@Transactional
+	public List<Long> getStudentsIdsByGroup(Long id) {
+//		List<Long> groupResponse = groupRepo.findStudentsIdsByGroup(id);
+//      return (groupResponse == null || groupResponse.isEmpty()) ? new ArrayList<>() : groupResponse;
+		GroupEntity groupResponse = findGroupById(id);
+		return (groupResponse == null) ? new ArrayList<>() : groupResponse.getStudents().stream().map(student -> student.getId()).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<GroupDataResponse> getGroupsByGroupsIds(List<Long> ids) {
+		List<GroupEntity> groupResponse = groupRepo.findAllById(ids);
+		return (groupResponse == null || groupResponse.isEmpty()) ? new ArrayList<>() : groupResponse.stream().map(EntityDtoGroupMapper.INSTANCE::groupToGroupDataResponse).collect(Collectors.toList());
 	}
 
 	@Override
 	@Transactional
-	public GroupDataResponse deleteGroup(String name) {
-		GroupEntity group = findGroupByName(name);
+	public Boolean deleteGroup(Long id) {
+		GroupEntity group = findGroupById(id);
 		group.getStudents().forEach(student -> group.getStudents().remove(student));
 		group.getStudents().clear();
 		groupRepo.deleteById(group.getId());
-		return toGroupDataResponse(group);
-	}
-
-	@Override
-	@Transactional
-	public Boolean changeStudentGroup(Long id, String groupName, String oldGroupName) {
-		StudentEntity student = findStudentById(id);
-		GroupEntity oldGroup = groupRepo.findByName(oldGroupName);
-		if (oldGroup == null) {
-			throw new GroupNotFoundException("Group with name " + oldGroupName + " doesn't exists");
-		}
-		if (!oldGroup.getStudents().contains(student)) {
-			throw new StudentNotFoundException("Student with id " + id + " not found in group " + oldGroupName);
-		}
-		GroupEntity group = groupRepo.findByName(groupName);
-		if (group == null) {
-			throw new GroupNotFoundException("Group with name " + groupName + " doesn't exists");
-		}
-		groupRepo.updateStudentGroups(id, group.getId(), oldGroup.getId());
-		student.setOriginalGroup(groupName);
-		studentRepo.save(student);
 		return true;
-//		deleteStudentFromGroup(id, oldGroupName);
-//		addStudentToGroup(id, groupName);
 	}
-
+	
 }
