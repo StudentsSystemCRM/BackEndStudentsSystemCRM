@@ -33,7 +33,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edutrack.exception.StudentNotFoundException;
 import edutrack.group.constant.GroupStatus;
+import edutrack.group.constant.WeekDay;
 import edutrack.group.controller.GroupController;
 import edutrack.group.dto.request.GroupCreateRequest;
 import edutrack.group.dto.request.GroupUpdateDataRequest;
@@ -155,9 +157,9 @@ class GroupControllerTest {
 	}
 
 	@Test
-	void shouldReturnBadRequest_whenInvalidStudentId() throws Exception {
+	void shouldReturnNotFoundRequest_whenInvalidStudentId() throws Exception {
 		mockMvc.perform(get("/api/groups/student/{id}", -1).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest());
+				.andExpect(status().isNotFound());
 	}
 
 	@Test
