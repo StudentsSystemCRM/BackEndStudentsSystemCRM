@@ -26,6 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,7 +68,7 @@ public class LecturerControllerMockTest {
                 1L, "Example Group", "example-whatsapp", "example-skype", "example-slack",
                 GroupStatus.ACTIVE, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31),
                 false, new HashSet<>(), new ArrayList<>(),
-                new ArrayList<>(), new ArrayList<>(), null, null, null,null
+                new HashMap<>(), new HashMap<>(), null, null, null,null
         );
 
         createRequest = new LecturerCreateRequest(

@@ -1,17 +1,20 @@
 package edutrack.group.entity;
 
 import edutrack.group.constant.GroupStatus;
-import edutrack.group.util.ListToJsonConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.data.annotation.CreatedBy;
@@ -60,13 +63,17 @@ public class GroupEntity {
     @CollectionTable(name = "group_schedulers")
     private List<GroupScheduleEntity> groupSchedulers = new ArrayList<>();
     
-    @Column(columnDefinition = "json", name = "lessons_days")
-	@Convert(converter = ListToJsonConverter.class)
-    private List<ZonedDateTime> lessonsDays = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(name="lessons_days_time",joinColumns=@JoinColumn(name="group_id"))
+    @MapKeyColumn(name="day_of_week")
+    @Column(name="local_time")
+    private Map<DayOfWeek, LocalTime> lessonsDaysTime = new HashMap<>();
     
-    @Column(columnDefinition = "json", name = "webinars_days")
-	@Convert(converter = ListToJsonConverter.class)
-    private List<ZonedDateTime> webinarsDays = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(name="webinars_days_time", joinColumns=@JoinColumn(name="group_id"))
+    @MapKeyColumn(name="day_of_week")
+    @Column(name="local_time")
+    private Map<DayOfWeek, LocalTime> webinarsDaysTime = new HashMap<>();
     
     @CreatedDate
     @Column(name = "created_date") 
