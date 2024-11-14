@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
+import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,11 +82,11 @@ public class GroupServiceImp implements GroupService {
 		if (groupRequest.getExpFinishDate() != null) {
 			groupEntity.setExpFinishDate(groupRequest.getExpFinishDate());
 		}
-		if (groupRequest.getLessonsDays() != null) {
-			groupEntity.setLessonsDays(groupRequest.getLessonsDays());
+		if (groupRequest.getLessonsDaysTime() != null) {
+			groupEntity.setLessonsDaysTime(groupRequest.getLessonsDaysTime());
 		}
-		if (groupRequest.getWebinarsDays() != null) {
-			groupEntity.setWebinarsDays(groupRequest.getWebinarsDays());
+		if (groupRequest.getWebinarsDaysTime() != null) {
+			groupEntity.setWebinarsDaysTime(groupRequest.getWebinarsDaysTime());
 		}
 		if (groupRequest.getDeactivateAfter30Days() != null) {
 			groupEntity.setDeactivateAfter30Days(groupRequest.getDeactivateAfter30Days());
@@ -144,6 +145,22 @@ public class GroupServiceImp implements GroupService {
 		group.getStudents().clear();
 		groupRepo.deleteById(group.getId());
 		return true;
+	}
+
+	@Override
+	@Transactional
+	public List<GroupDataResponse> getGroupsByLessonsDate(DayOfWeek dayOfWeek) {
+		List<Long> groupIds = groupRepo.findGroupsIdsByLessonsDay(dayOfWeek);
+		List<GroupDataResponse> groupResponse = getGroupsByGroupsIds(groupIds);
+       return (groupResponse == null || groupResponse.isEmpty()) ? new ArrayList<>() : groupResponse;
+	}
+
+	@Override
+	@Transactional
+	public List<GroupDataResponse> getGroupsByWebinarsDate(DayOfWeek dayOfWeek) {
+		List<Long> groupIds = groupRepo.findGroupsIdsByWebinarsDay(dayOfWeek);
+		List<GroupDataResponse> groupResponse = getGroupsByGroupsIds(groupIds);
+       return (groupResponse == null || groupResponse.isEmpty()) ? new ArrayList<>() : groupResponse;
 	}
 	
 }

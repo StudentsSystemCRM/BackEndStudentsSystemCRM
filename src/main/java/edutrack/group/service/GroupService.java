@@ -1,5 +1,6 @@
 package edutrack.group.service;
 
+import java.time.DayOfWeek;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,8 @@ public interface GroupService {
 	List<GroupDataResponse> getGroupsByStatus(GroupStatus status);
 	List<GroupDataResponse> getGroupsByName(String name);// containing, ignore case
 	List<GroupDataResponse> getGroupsByGroupsIds(List<Long> ids);
+	List<GroupDataResponse> getGroupsByLessonsDate(DayOfWeek dayOfWeek);
+	List<GroupDataResponse> getGroupsByWebinarsDate(DayOfWeek dayOfWeek);
 	List<Long> getStudentsIdsByGroup(Long id);
 	
 	Boolean deleteGroup(Long id);
