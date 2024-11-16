@@ -17,7 +17,6 @@ import edutrack.emailService.exception.EmailServiceException;
 import edutrack.emailService.exception.MailgunBadRequestException;
 import edutrack.emailService.exception.TriggerNotFoundException;
 import edutrack.exception.StudentNotFoundException;
-import edutrack.exception.*;
 import edutrack.exception.ResourceNotFoundException;
 import edutrack.exception.response.GeneralErrorResponse;
 import edutrack.exception.response.GeneralErrorResponseValidationDto;
@@ -138,7 +137,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(ResourceNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public GeneralErrorResponse handleResourceNotFoundException(ResourceNotFoundException ex) {
-		logger.error("ResourceNotFoundException", ex);
+		log.error("ResourceNotFoundException", ex);
 		return new GeneralErrorResponse(UUID.randomUUID().toString(), ex.getMessage());
 	}
 
