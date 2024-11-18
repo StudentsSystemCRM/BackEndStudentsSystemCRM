@@ -21,10 +21,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
 	JwtTokenProvider jwtTokenProvider;
 	AccountRepository accountRepository;
@@ -45,11 +47,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				Claims claims = jwtTokenProvider.validateAccessToken(jwt);
 				email = claims.getSubject();
 			} catch (ExpiredJwtException e) {
+				log.error(e.getMessage(), e);
 				response.setStatus(HttpStatus.UNAUTHORIZED.value());
 				response.getWriter().write("Access token expired");
 				response.getWriter().flush();
 				return;
 			} catch (Exception e) {
+				log.error(e.getMessage(), e);
 				response.setStatus(HttpStatus.UNAUTHORIZED.value());
 				response.getWriter().write("wrong token");
 				response.getWriter().flush();
@@ -62,12 +66,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				if (user == null) {
 					response.setStatus(HttpStatus.UNAUTHORIZED.value());
 					response.getWriter().write("User not found in the database.");
+					log.error("User not found in the database.");
 					return;
 				}
 
 				if (!jwt.equals(user.getAccessToken())) {
 					response.setStatus(HttpStatus.UNAUTHORIZED.value());
 					response.getWriter().write("Invalid access token, user isn't 'singin' or token was changed");
+					log.error("Invalid access token, user isn't 'singin' or token was changed");
 					return;
 				}
 
@@ -84,6 +90,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			response.getWriter().write("Authorization header is missing or invalid");
 			response.getWriter().flush();
+			log.error("Authorization header is missing or invalid");
 			return;
 		}
 
