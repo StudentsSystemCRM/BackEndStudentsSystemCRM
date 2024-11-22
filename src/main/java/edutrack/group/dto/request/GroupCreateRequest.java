@@ -2,10 +2,13 @@ package edutrack.group.dto.request;
 
 import static edutrack.user.constant.ValidationAccountingMessage.INVALID_NAME;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 
-import edutrack.group.constant.WeekDay;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
@@ -28,6 +31,6 @@ public class GroupCreateRequest {
     String slack;
     LocalDate startDate;
     LocalDate expFinishDate;
-    List<WeekDay> lessonsDays;
-    List<WeekDay> webinarsDays;
+    Map<DayOfWeek, LocalTime> lessonsDaysTime;
+    Map<DayOfWeek, LocalTime> webinarsDaysTime;
 }

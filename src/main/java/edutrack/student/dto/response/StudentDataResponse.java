@@ -13,9 +13,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class StudentDataResponse {
 	Long id;
-	String name;
-	String surname;
-	String phone;
+	String firstName;
+	String lastName;
+	String phoneNumber;
 	String email;
 	String city;
 	String course;

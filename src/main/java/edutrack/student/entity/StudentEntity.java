@@ -6,11 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import edutrack.activityLog.entity.ActivityLogEntity;
 import edutrack.group.entity.GroupEntity;
@@ -36,7 +39,7 @@ public class StudentEntity {
     private String source;
     @Enumerated(EnumType.STRING)
     private LeadStatus leadStatus;
-    private String originalGroup;
+    private Long originalGroupId;
     private Integer totalSumToPay;
 
     @ManyToMany(mappedBy = "students")
@@ -49,11 +52,18 @@ public class StudentEntity {
     private List<PaymentEntity> payments = new ArrayList<>();
     
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    private List<StudentScheduleEntity> studentReminders = new ArrayList<>();
-     
+    @CollectionTable(name = "student_schedulers")
+    private List<StudentScheduleEntity> studentSchedulers = new ArrayList<>();
+    
+    @CreatedDate
+    @Column(name = "created_date") 
+    LocalDateTime createdDate;
     @CreatedBy
     @Column(name = "created_by") 
-    String createdBy; 
+    String createdBy;
+    @LastModifiedDate
+    @Column(name = "updated_date") 
+    LocalDateTime lastModifiedDate;
     @LastModifiedBy 
     @Column(name = "updated_by")
     String lastModifiedBy;
