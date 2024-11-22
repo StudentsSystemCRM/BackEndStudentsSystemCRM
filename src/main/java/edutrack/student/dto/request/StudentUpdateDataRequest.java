@@ -24,13 +24,13 @@ public class StudentUpdateDataRequest {
 	Long id;
 
 	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
-	String name;
+	String firstName;
 
 	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
-	String surname;
+	String lastName;
 
 	@Pattern(regexp = PHONE_NUMBER_PATTERN, message = INVALID_PHONE)
-	String phone;
+	String phoneNumber;
 
 	@Email(message = INVALID_EMAIL)
 	String email;
