@@ -2,11 +2,14 @@ package edutrack.group.dto.request;
 
 import static edutrack.user.constant.ValidationAccountingMessage.INVALID_NAME;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 
 import edutrack.group.constant.GroupStatus;
-import edutrack.group.constant.WeekDay;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
@@ -19,12 +22,12 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupUpdateDataRequest {
+public class GroupUpdateDataRequest{
 	@NotNull(message = "ID cannot be null.")
 	Long id;
 	@NotNull(message = "Name cannot be null.")
 	@Pattern(regexp = "^[a-zA-Zа-яА-ЯёЁ0-9א-ת\\-\\s']{1,50}$", message = INVALID_NAME)
-	String name;
+    String name;
 
     String whatsApp;
     String skype;
@@ -32,7 +35,7 @@ public class GroupUpdateDataRequest {
     GroupStatus status;
     LocalDate startDate;
     LocalDate expFinishDate;
-    List<WeekDay> lessonsDays;
-    List<WeekDay> webinarsDays;
+    Map<DayOfWeek, LocalTime> lessonsDaysTime;
+    Map<DayOfWeek, LocalTime> webinarsDaysTime;
     Boolean DeactivateAfter30Days;
 }

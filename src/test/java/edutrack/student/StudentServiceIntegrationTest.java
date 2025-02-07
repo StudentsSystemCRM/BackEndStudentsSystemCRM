@@ -24,13 +24,7 @@ import edutrack.student.entity.StudentEntity;
 import edutrack.student.repository.StudentRepository;
 import edutrack.student.service.StudentService;
 
-@SpringBootTest(properties = {
-        "mailgun.api.key=disabled",
-        "mailgun.domain=disabled",
-        "mailgun.api.base-url=disabled",
-        "mailgun.from-email=disabled",
-        "mailgun.signature=disabled"
-})
+@SpringBootTest
 @Sql(scripts = {"classpath:testdata.sql"})
 public class StudentServiceIntegrationTest {
 
@@ -56,8 +50,8 @@ public class StudentServiceIntegrationTest {
         StudentDataResponse response = studentService.createStudent(request);
 
         assertNotNull(response.getId());
-        assertEquals("Kate", response.getName());
-        assertEquals("Gan", response.getSurname());
+        assertEquals("Kate", response.getFirstName());
+        assertEquals("Gan", response.getLastName());
 
         StudentEntity savedStudent = studentRepo.findById(response.getId()).orElse(null);
         assertNotNull(savedStudent);
@@ -72,7 +66,7 @@ public class StudentServiceIntegrationTest {
     public void testGetStudentById() {
         StudentDataResponse fetchedStudent = studentService.getStudentById(STUDENT_ID_DB_H2);
         assertEquals(STUDENT_ID_DB_H2, fetchedStudent.getId());
-        assertEquals("Jane", fetchedStudent.getName());
+        assertEquals("Jane", fetchedStudent.getFirstName());
     }
 
     @Test
@@ -82,13 +76,14 @@ public class StudentServiceIntegrationTest {
 
         StudentDataResponse updatedStudent = studentService.updateStudent(updateRequest);
 
-        assertEquals("Thomas", updatedStudent.getName());
+        assertEquals("Thomas", updatedStudent.getFirstName());
         assertEquals("San Francisco", updatedStudent.getCity());
     }
 
     @Test
     public void testDeleteStudent() {
-        StudentDataResponse deletedStudent = studentService.deleteStudent(STUDENT_ID_DB_H2);
+    	StudentDataResponse deletedStudent = studentService.getStudentById(STUDENT_ID_DB_H2);
+        studentService.deleteStudent(STUDENT_ID_DB_H2);
 
         assertEquals(STUDENT_ID_DB_H2, deletedStudent.getId());
         assertFalse(studentRepo.findById(STUDENT_ID_DB_H2).isPresent());

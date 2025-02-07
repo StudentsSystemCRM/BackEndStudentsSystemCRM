@@ -23,15 +23,14 @@ import edutrack.student.constant.LeadStatus;
 public class StudentCreateRequest {
 	@NotNull(message = "Name cannot be null.")
 	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
-	String name;
+	String firstName;
 
-	@NotNull(message = "Surname cannot be null.")
 	@Pattern(regexp = NAME_PATTERN, message = INVALID_NAME)
-	String surname;
+	String lastName;
 
 	@NotNull(message = "Phone number cannot be null.")
 	@Pattern(regexp = PHONE_NUMBER_PATTERN, message = INVALID_PHONE)
-	String phone;
+	String phoneNumber;
 
 	@NotBlank(message = "Email cannot be blank.")
 	@Email(message = INVALID_EMAIL)

@@ -1,7 +1,6 @@
 package edutrack.student;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -21,6 +20,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,8 +65,8 @@ public class StudentControllerTest {
 		Mockito.when(studentService.getStudentById(studentId)).thenReturn(mockResponse);
 
 		mockMvc.perform(get("/api/students/{id}", studentId)).andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value(studentId)).andExpect(jsonPath("$.name").value("John"))
-				.andExpect(jsonPath("$.surname").value("Doe"));
+				.andExpect(jsonPath("$.id").value(studentId)).andExpect(jsonPath("$.firstName").value("John"))
+				.andExpect(jsonPath("$.lastName").value("Doe"));
 	}
 
 	@Test
@@ -90,38 +91,39 @@ public class StudentControllerTest {
 				"Engineering", "Website", LeadStatus.STUDENT));
 		mockResponse.add(new StudentDataResponse(2L, name, "Smith", "0987654321", "john.smith@example.com",
 				"Los Angeles", "Mathematics", "Referral", LeadStatus.IN_WORK));
+		Pageable pageable = PageRequest.of(0, 2);
+		Mockito.when(studentService.getStudentsByName(pageable, name)).thenReturn(mockResponse);
 
-		Mockito.when(studentService.getStudentsByName(eq(name))).thenReturn(mockResponse);
-
-		mockMvc.perform(get("/api/students/name").param("name", name)).andExpect(status().isOk())
-				.andExpect(jsonPath("$[0].name").value(name)).andExpect(jsonPath("$[1].name").value(name))
-				.andExpect(jsonPath("$[0].surname").value("Doe")).andExpect(jsonPath("$[1].surname").value("Smith"));
+		mockMvc.perform(get("/api/students/name?page=0&size=2&name={name}",name)
+				.contentType("application/json")).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].firstName").value(name)).andExpect(jsonPath("$[1].firstName").value(name))
+				.andExpect(jsonPath("$[0].lastName").value("Doe")).andExpect(jsonPath("$[1].lastName").value("Smith"));
 	}
 
 	@Test
 	public void testGetStudentsByName_NoMatches() throws Exception {
 		String name = "NonexistentName";
 		List<StudentDataResponse> mockResponse = new ArrayList<>();
+		Pageable pageable = PageRequest.of(0, 2);
+		Mockito.when(studentService.getStudentsByName(pageable, name)).thenReturn(mockResponse);
 
-		Mockito.when(studentService.getStudentsByName(eq(name))).thenReturn(mockResponse);
-
-		mockMvc.perform(get("/api/students/name").param("name", name)).andExpect(status().isOk())
+		mockMvc.perform(get("/api/students/name?page=0&size=2&name={name}",name)).andExpect(status().isOk())
 				.andExpect(jsonPath("$").isEmpty());
 	}
 
 	@Test
 	public void testGetStudentsBySurname() throws Exception {
-		String surname = "Doe";
+		String lastName = "Doe";
 		List<StudentDataResponse> mockResponse = new ArrayList<>();
-		mockResponse.add(new StudentDataResponse(1L, "John", surname, "1234567890", "john.doe@example.com", "New York",
+		mockResponse.add(new StudentDataResponse(1L, "John", lastName, "1234567890", "john.doe@example.com", "New York",
 				"Engineering", "Website", LeadStatus.STUDENT));
-		mockResponse.add(new StudentDataResponse(2L, "Jane", surname, "0987654321", "jane.doe@example.com", "New York",
+		mockResponse.add(new StudentDataResponse(2L, "Jane", lastName, "0987654321", "jane.doe@example.com", "New York",
 				"Engineering", "Website", LeadStatus.CONSULTATION));
+		Pageable pageable = PageRequest.of(0, 2);
+		Mockito.when(studentService.getStudentsBySurname(pageable,lastName)).thenReturn(mockResponse);
 
-		Mockito.when(studentService.getStudentsBySurname(eq(surname))).thenReturn(mockResponse);
-
-		mockMvc.perform(get("/api/students/surname").param("surname", surname)).andExpect(status().isOk())
-				.andExpect(jsonPath("$[0].surname").value(surname)).andExpect(jsonPath("$[1].surname").value(surname));
+		mockMvc.perform(get("/api/students/surname?page=0&size=2").param("surname", lastName)).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].lastName").value(lastName)).andExpect(jsonPath("$[1].lastName").value(lastName));
 	}
 
 	@Test
@@ -133,19 +135,19 @@ public class StudentControllerTest {
 				"Engineering", "Website", LeadStatus.CONSULTATION));
 		mockResponse.add(new StudentDataResponse(2L, name, surname, "0987654321", "john.doe@example.com", "New York",
 				"Engineering", "Website", LeadStatus.SAVE_FOR_LATER));
+		Pageable pageable = PageRequest.of(0, 2);
+		Mockito.when(studentService.getStudentsByNameAndSurname(pageable, name, surname)).thenReturn(mockResponse);
 
-		Mockito.when(studentService.getStudentsByNameAndSurname(eq(name), eq(surname))).thenReturn(mockResponse);
-
-		mockMvc.perform(get("/api/students/name_and_surname").param("name", name).param("surname", surname))
-				.andExpect(status().isOk()).andExpect(jsonPath("$[0].name").value(name))
-				.andExpect(jsonPath("$[0].surname").value(surname)).andExpect(jsonPath("$[1].name").value(name))
-				.andExpect(jsonPath("$[1].surname").value(surname));
+		mockMvc.perform(get("/api/students/name_and_surname?page=0&size=2").param("name", name).param("surname", surname))
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].firstName").value(name))
+				.andExpect(jsonPath("$[0].lastName").value(surname)).andExpect(jsonPath("$[1].firstName").value(name))
+				.andExpect(jsonPath("$[1].lastName").value(surname));
 	}
 
 	@Test
 	public void testUpdateStudent() throws Exception {
 		mockMvc.perform(put("/api/students/update_student_information").contentType("application/json")
-				.content("{\"id\":1,\"name\":\"John\",\"surname\":\"Doe\"}")).andExpect(status().isOk());
+				.content("{\"id\":1,\"firstName\":\"John\",\"lastName\":\"Doe\"}")).andExpect(status().isOk());
 	}
 
 	private static String asJsonString(Object obj) {
