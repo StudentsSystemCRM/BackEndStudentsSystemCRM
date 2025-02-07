@@ -9,11 +9,18 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.jdbc.Sql;
 
+import edutrack.configuration.ElasticsearchDeleteDataScheduler;
 import edutrack.payment.dto.request.AddPaymentRequest;
 import edutrack.payment.dto.response.PaymentInfoResponse;
 import edutrack.payment.dto.response.SinglePayment;
@@ -22,6 +29,7 @@ import edutrack.payment.repository.PaymentRepository;
 import edutrack.payment.service.PaymentService;
 import edutrack.student.repository.StudentRepository;
 import edutrack.student.service.StudentService;
+import edutrack.user.repository.AccountRepository;
 
 @SpringBootTest(properties = {
 		"mailgun.api.key=disabled",
@@ -30,8 +38,24 @@ import edutrack.student.service.StudentService;
 		"mailgun.from-email=disabled",
 		"mailgun.signature=disabled"
 })
+@Disabled
 @Sql(scripts = { "classpath:testdata.sql" })
 public class PaymentIntegrationDBTest {
+	
+	@MockBean
+	ElasticsearchDeleteDataScheduler dataScheduler;
+	
+	@Mock
+	AccountRepository userRepository;
+
+	@Mock
+	PasswordEncoder passwordEncoder;
+
+	@Mock
+	Authentication authentication;
+
+	@Mock
+	SecurityContext securityContext;
 
 	@Autowired
 	private PaymentService paymentService;

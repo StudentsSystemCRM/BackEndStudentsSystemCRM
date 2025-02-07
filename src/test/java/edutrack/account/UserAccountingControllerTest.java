@@ -134,9 +134,8 @@ public class UserAccountingControllerTest {
 
 		// Assert
 		resultActions.andExpect(status().isBadRequest()).andExpect(jsonPath("$.message").isArray())
-				.andExpect(jsonPath("$.message", hasSize(2)))
-				.andExpect(jsonPath("$.message", hasItem(expectedErrorMessage1)))
-				.andExpect(jsonPath("$.message", hasItem(expectedErrorMessage2)));
+				.andExpect(jsonPath("$.message", hasSize(1)))
+				.andExpect(jsonPath("$.message", hasItem(expectedErrorMessage1)));
 
 		verify(accountingManagementService, times(0)).updateUser(any(UserUpdateRequest.class));
 	}

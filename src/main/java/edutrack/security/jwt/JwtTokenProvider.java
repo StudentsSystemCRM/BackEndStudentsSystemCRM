@@ -23,11 +23,9 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh.expirationMs}")
     private long refreshExpirationMs;
 
-    @Value("${jwt.access.secretKey}")
-    private String accessSecretKey;
+    private String accessSecretKey = System.getenv("JWT_ACCESS_SECRET");
 
-    @Value("${jwt.refresh.secretKey}")
-    private String refreshSecretKey;
+    private String refreshSecretKey  = System.getenv("JWT_REFRESH_SECRET");
 
     public String generateAccessToken(UserEntity user) {
         return generateToken(user, accessSecretKey, accessExpirationMs, true);

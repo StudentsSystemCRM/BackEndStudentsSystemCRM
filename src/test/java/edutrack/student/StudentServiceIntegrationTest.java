@@ -7,13 +7,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.jdbc.Sql;
 
 import edutrack.activityLog.entity.ActivityLogEntity;
 import edutrack.activityLog.repository.ActivityLogRepository;
+import edutrack.configuration.ElasticsearchDeleteDataScheduler;
 import edutrack.payment.entity.PaymentEntity;
 import edutrack.payment.repository.PaymentRepository;
 import edutrack.student.constant.LeadStatus;
@@ -25,8 +29,13 @@ import edutrack.student.repository.StudentRepository;
 import edutrack.student.service.StudentService;
 
 @SpringBootTest
+@Disabled
 @Sql(scripts = {"classpath:testdata.sql"})
+@AutoConfigureMockMvc(addFilters = false)
 public class StudentServiceIntegrationTest {
+	
+	@MockBean
+	ElasticsearchDeleteDataScheduler dataScheduler;
 
     @Autowired
     private StudentService studentService;

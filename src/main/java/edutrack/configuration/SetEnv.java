@@ -4,13 +4,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import jakarta.annotation.PostConstruct;
 
 @Configuration
 public class SetEnv {
 
-  @Bean
-  void sistemSet() {
-		Dotenv dotenv = Dotenv.load();
+
+	@PostConstruct
+	public void systemSet() {
+		Dotenv dotenv = Dotenv.configure()
+			    .directory(System.getProperty("user.dir")) 
+			    .load();
+		System.out.println("JWT_ACCESS_SECRET from dotenv: " + dotenv.get("JWT_ACCESS_SECRET"));
+
 		System.setProperty("DB_URL", dotenv.get("DB_URL"));
 		System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
 		System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
@@ -25,6 +31,6 @@ public class SetEnv {
 		System.setProperty("ELASTICSEARCH_URL", dotenv.get("ELASTICSEARCH_URL"));
 		System.setProperty("ELASTICSEARCH_USERNAME", dotenv.get("ELASTICSEARCH_USERNAME"));
 		System.setProperty("ELASTICSEARCH_PASSWORD", dotenv.get("ELASTICSEARCH_PASSWORD"));
-  }
+	}
 
 }

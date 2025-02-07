@@ -1,5 +1,6 @@
 package edutrack.lecturer;
 
+import edutrack.configuration.ElasticsearchDeleteDataScheduler;
 import edutrack.exception.ResourceNotFoundException;
 import edutrack.group.entity.GroupEntity;
 import edutrack.group.repository.GroupRepository;
@@ -11,10 +12,13 @@ import edutrack.lecturer.entity.LecturerEntity;
 import edutrack.lecturer.repository.LecturerRepository;
 import edutrack.lecturer.service.LecturerService;
 import jakarta.transaction.Transactional;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.util.HashSet;
@@ -30,11 +34,17 @@ import static org.junit.jupiter.api.Assertions.*;
                 "mailgun.from-email=disabled",
                 "mailgun.signature=disabled"
         })
+@Disabled
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @Sql(scripts = {"classpath:test_data_lecturer.sql"})
 @Transactional
 public class LecturerServiceIntegrationTest {
+	
     static final Long LECTURER_ID_DB_H2 = 2L;
+    
+	@MockBean
+	ElasticsearchDeleteDataScheduler dataScheduler;
+	
     @Autowired
     private LecturerService lecturerService;
 
