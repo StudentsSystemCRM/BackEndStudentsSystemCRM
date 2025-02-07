@@ -1,5 +1,6 @@
 package edutrack.group.service;
 
+import java.time.DayOfWeek;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -12,21 +13,17 @@ import edutrack.group.dto.request.GroupUpdateDataRequest;
 public interface GroupService {
 	
 	GroupDataResponse createGroup(GroupCreateRequest group);
-
-//	List<GroupDataResponse> getAllGroups();
+	GroupDataResponse updateGroup(GroupUpdateDataRequest group);
+	GroupDataResponse getGroupById(Long id);
+	
 	List<GroupDataResponse> getAllGroups(Pageable pageable);
 	List<GroupDataResponse> getGroupsByStatus(GroupStatus status);
-	GroupDataResponse getGroupByName(String name);
-	List<GroupDataResponse> getStudentGroups(Long id);
+	List<GroupDataResponse> getGroupsByName(String name);// containing, ignore case
+	List<GroupDataResponse> getGroupsByGroupsIds(List<Long> ids);
+	List<GroupDataResponse> getGroupsByLessonsDate(DayOfWeek dayOfWeek);
+	List<GroupDataResponse> getGroupsByWebinarsDate(DayOfWeek dayOfWeek);
+	List<Long> getStudentsIdsByGroup(Long id);
 	
-	GroupDataResponse addStudentToGroup(Long id, String name);
-	
-	GroupDataResponse updateGroup(GroupUpdateDataRequest group);
-	
-	GroupDataResponse deleteGroup(String name);
-	
-	Boolean deleteStudentFromGroup(Long id, String name);
-	
-	Boolean changeStudentGroup(Long id, String groupName, String oldGroupName);
+	Boolean deleteGroup(Long id);
 
 }
